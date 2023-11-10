@@ -523,7 +523,9 @@ public class SwerveModule {
         return DriverStation.isDisabled()
                 && currentTime - lastAbsoluteResetTime > 5.0
                 && currentTime - lastMoveTime > 1.5
-                && Math.abs(Units.rotationsToRadians(absoluteSteerEncoder.getVelocity().getValue())) < Units.degreesToRadians(0.5);
+                && Math.abs(Units.rotationsToRadians(
+                                absoluteSteerEncoder.getVelocity().getValue()))
+                        < Units.degreesToRadians(0.5);
     }
 
     /** Log all telemetry values. Should be called (only) in subsystem periodic */
