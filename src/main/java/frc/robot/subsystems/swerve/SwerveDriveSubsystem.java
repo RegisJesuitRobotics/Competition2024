@@ -35,6 +35,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         RAW_VOLTAGE
     }
 
+
     private final SwerveModule[] modules = new SwerveModule[NUM_MODULES];
 
     private final TelemetryPigeon2 gyro = new TelemetryPigeon2(13, "/drive/gyro", MiscConstants.TUNING_MODE);
@@ -57,6 +58,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     private final Field2d field2d = new Field2d();
 
+    private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(MODULE_TRANSLATIONS);
+
     private SwerveModuleState[] desiredStates = new SwerveModuleState[NUM_MODULES];
     private boolean activeSteer = true;
     private DriveMode driveMode = DriveMode.OPEN_LOOP;
@@ -71,7 +74,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         driveEventLogger.append("Swerve modules initialized");
 
-        poseEstimator = new SwerveDrivePoseEstimator(KINEMATICS, getGyroRotation(), getModulePositions(), new Pose2d());
+        poseEstimator = new SwerveDrivePoseEstimator(kinematics, getGyroRotation(), getModulePositions(), new Pose2d());
 
         SendableTelemetryManager.getInstance().addSendable("/drive/Field", field2d);
         SendableTelemetryManager.getInstance()
@@ -140,7 +143,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     public ChassisSpeeds getCurrentChassisSpeeds() {
-        return KINEMATICS.toChassisSpeeds(getActualStates());
+        return kinematics.toChassisSpeeds(getActualStates());
     }
 
     /**
@@ -156,7 +159,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         desiredSpeedsEntry.append(chassisSpeeds);
 
         setRawStates(
-                true, openLoop, KINEMATICS.toSwerveModuleStates(RaiderMathUtils.correctForSwerveSkew(chassisSpeeds)));
+                true, openLoop, kinematics.toSwerveModuleStates(RaiderMathUtils.correctForSwerveSkew(chassisSpeeds)));
     }
 
     /**

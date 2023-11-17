@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -35,11 +36,8 @@ import frc.robot.telemetry.types.EventTelemetryEntry;
 import frc.robot.telemetry.types.IntegerTelemetryEntry;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.telemetry.wrappers.TelemetryTalonFX;
-import frc.robot.utils.Alert;
+import frc.robot.utils.*;
 import frc.robot.utils.Alert.AlertType;
-import frc.robot.utils.ConfigTimeout;
-import frc.robot.utils.RaiderMathUtils;
-import frc.robot.utils.SwerveModuleConfiguration;
 
 public class SwerveModule {
     private enum SwerveModuleControlMode {
@@ -139,7 +137,6 @@ public class SwerveModule {
         this.steerPositionPIDGains = config.sharedConfiguration().steerPositionPIDGains();
 
         // Drive motor
-
         this.driveMotor = new TelemetryTalonFX(
                 config.driveMotorPort(),
                 tableName + "driveMotor",
@@ -170,54 +167,52 @@ public class SwerveModule {
 
     private void configDriveMotor(SwerveModuleConfiguration config) {
         ConfigTimeout configTimeout = new ConfigTimeout(MiscConstants.CONFIGURATION_TIMEOUT_SECONDS);
-        // TODO
+
+        TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
+        motorConfiguration.CurrentLimits.SupplyCurrentLimit =
+                config.sharedConfiguration().driveContinuousCurrentLimit();
+        motorConfiguration.CurrentLimits.SupplyCurrentThreshold =
+                config.sharedConfiguration().drivePeakCurrentLimit();
+        motorConfiguration.CurrentLimits.SupplyTimeThreshold =
+                config.sharedConfiguration().drivePeakCurrentDurationSeconds();
+        motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
+        motorConfiguration.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod =
+                config.sharedConfiguration().driveClosedLoopRamp();
+        motorConfiguration.OpenLoopRamps.DutyCycleOpenLoopRampPeriod =
+                config.sharedConfiguration().driveOpenLoopRamp();
+
+        Slot0Configs slot0Configs = new Slot0Configs();
+        config.sharedConfiguration().driveVelocityPIDGains().setSlot(slot0Configs);
+
+        motorConfiguration.MotorOutput.Inverted = config.driveMotorInverted()
+                ? InvertedValue.Clockwise_Positive
+                : InvertedValue.CounterClockwise_Positive;
+
         boolean faultInitializing = false;
         do {
-            TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
-
-            motorConfiguration.CurrentLimits.SupplyCurrentLimit =
-                    config.sharedConfiguration().driveContinuousCurrentLimit();
-            motorConfiguration.CurrentLimits.SupplyCurrentThreshold =
-                    config.sharedConfiguration().drivePeakCurrentLimit();
-            motorConfiguration.CurrentLimits.SupplyTimeThreshold =
-                    config.sharedConfiguration().drivePeakCurrentDurationSeconds();
-            motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
-
-            motorConfiguration.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod =
-                    config.sharedConfiguration().driveClosedLoopRamp();
-            motorConfiguration.OpenLoopRamps.DutyCycleOpenLoopRampPeriod =
-                    config.sharedConfiguration().driveOpenLoopRamp();
-
-            motorConfiguration.MotorOutput.Inverted = config.driveMotorInverted()
-                    ? InvertedValue.Clockwise_Positive
-                    : InvertedValue.CounterClockwise_Positive;
-
             faultInitializing |=
                     !driveMotor.getConfigurator().apply(motorConfiguration).isOK();
-
-            Slot0Configs slot0Configs = new Slot0Configs();
-            config.sharedConfiguration().driveVelocityPIDGains().setSlot(slot0Configs);
             faultInitializing |=
                     !driveMotor.getConfigurator().apply(slot0Configs).isOK();
+
+            faultInitializing |= !RaiderUtils.setTalonIdleMode(true, driveMotor).isOK();
 
             driveMotor.setLoggingPositionConversionFactor(driveMotorConversionFactorPosition);
             driveMotor.setLoggingVelocityConversionFactor(driveMotorConversionFactorVelocity);
 
-            // Clear the reset of it starting up
         } while (faultInitializing && configTimeout.hasNotTimedOut());
 
+        // Clear reset as this is on startup
         driveMotor.hasResetOccurred();
         driveMotorFaultAlert.set(faultInitializing);
         moduleEventEntry.append("Drive motor initialized" + (faultInitializing ? " with faults" : ""));
     }
-    // TODO: same config??
 
     private void configSteerMotor(SwerveModuleConfiguration config) {
         ConfigTimeout configTimeout = new ConfigTimeout(MiscConstants.CONFIGURATION_TIMEOUT_SECONDS);
-        boolean faultInitializing;
-
+        boolean faultInitializing = false;
         do {
-            faultInitializing = checkRevError(steerMotor.setCANTimeout(CAN_TIMEOUT_MS));
+            faultInitializing |= checkRevError(steerMotor.setCANTimeout(CAN_TIMEOUT_MS));
 
             faultInitializing |= checkRevError(steerMotor.restoreFactoryDefaults());
 
@@ -314,7 +309,6 @@ public class SwerveModule {
                 gotAbsolutePosition = true;
             }
             if (gotAbsolutePosition) {
-
                 REVLibError settingPositionError = steerRelativeEncoder.setPosition(absolutePosition);
                 // If no error
                 if (!checkRevError(settingPositionError) || timeout == 0.0) {
@@ -376,12 +370,11 @@ public class SwerveModule {
         inDeadModeAlert.set(isDeadMode);
 
         steerMotor.setIdleMode(isDeadMode ? CANSparkMax.IdleMode.kCoast : CANSparkMax.IdleMode.kBrake);
-        // TODO
-        //        driveMotor.setNeutralMode(isDeadMode ? NeutralMode.Coast : NeutralMode.Brake);
+        RaiderUtils.setTalonIdleMode(!isDeadMode, driveMotor);
     }
 
     public void resetDriveMotorPosition() {
-        //        driveMotor.setSelectedSensorPosition(0.0);
+        driveMotor.setRotorPosition(0.0);
     }
 
     public CommandBase getToggleDeadModeCommand() {
@@ -401,6 +394,9 @@ public class SwerveModule {
         return new SwerveModulePosition(getDriveMotorPositionMeters(), getSteerAngle());
     }
 
+    /**
+     * @return The output voltage of the drive motor. Used for characterization
+     */
     public double getActualDriveVoltage() {
         return driveMotor.getDutyCycle().getValue()
                 * driveMotor.getSupplyVoltage().getValue();
@@ -491,7 +487,7 @@ public class SwerveModule {
             double feedforwardValueVoltage = driveMotorFF.calculate(targetVelocityMetersPerSecond);
             feedForwardOutputEntry.append(feedforwardValueVoltage);
             driveMotor.setControl(
-                    new PositionVoltage(targetVelocityMetersPerSecond / driveMotorConversionFactorVelocity)
+                    new VelocityVoltage(targetVelocityMetersPerSecond / driveMotorConversionFactorVelocity)
                             .withFeedForward(feedforwardValueVoltage));
         }
     }

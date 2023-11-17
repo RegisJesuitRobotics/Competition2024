@@ -1,6 +1,10 @@
 package frc.robot.utils;
 
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.revrobotics.REVLibError;
@@ -31,6 +35,18 @@ public class RaiderUtils {
      */
     public static boolean checkCTREError(StatusCode code) {
         return code != StatusCode.OK;
+    }
+
+    public static StatusCode setTalonIdleMode(boolean inBrakeMode, TalonFX talon) {
+        MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
+        StatusCode statusCode = talon.getConfigurator().refresh(motorOutputConfigs);
+        if (!statusCode.isOK()) {
+            return statusCode;
+        }
+
+        motorOutputConfigs.NeutralMode = inBrakeMode ? NeutralModeValue.Brake : NeutralModeValue.Coast;
+
+        return talon.getConfigurator().apply(motorOutputConfigs);
     }
 
     public static boolean checkRevError(REVLibError code) {

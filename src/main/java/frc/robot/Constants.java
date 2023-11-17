@@ -58,8 +58,6 @@ public final class Constants {
             new Translation2d(-WHEELBASE_METERS / 2.0, -TRACKWIDTH_METERS / 2.0)
         };
 
-        public static final SwerveDriveKinematics KINEMATICS = new SwerveDriveKinematics(MODULE_TRANSLATIONS);
-
         public static final double MOTOR_FREE_SPEED_RPM = 6380.0;
         public static final double MAX_VELOCITY_METERS_SECOND = 4.2;
 
@@ -96,15 +94,15 @@ public final class Constants {
                         ACCEPTABLE_STEER_ERROR_RADIANS);
 
         public static final SwerveModuleConfiguration FRONT_LEFT_MODULE_CONFIGURATION = new SwerveModuleConfiguration(
-                1, 5, 9, true, true, -0.8436894333371027, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+                1, 5, 9, false, true, -0.7455146908760071, false, SHARED_SWERVE_MODULE_CONFIGURATION);
         public static final SwerveModuleConfiguration FRONT_RIGHT_MODULE_CONFIGURATION = new SwerveModuleConfiguration(
-                2, 6, 10, true, true, -3.3962334643788097, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+                2, 6, 10, false, true, 2.7857091108003242, false, SHARED_SWERVE_MODULE_CONFIGURATION);
 
         public static final SwerveModuleConfiguration BACK_LEFT_MODULE_CONFIGURATION = new SwerveModuleConfiguration(
-                3, 7, 11, true, true, -3.6324665057131984, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+                3, 7, 11, false, true, 2.676796474860444, false, SHARED_SWERVE_MODULE_CONFIGURATION);
 
         public static final SwerveModuleConfiguration BACK_RIGHT_MODULE_CONFIGURATION = new SwerveModuleConfiguration(
-                4, 8, 12, true, true, -2.442097414313941, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+                4, 8, 12, false, true, -2.4605051837685683, false, SHARED_SWERVE_MODULE_CONFIGURATION);
     }
 
     public static class AutoConstants {
