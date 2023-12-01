@@ -12,7 +12,6 @@ import frc.robot.telemetry.OverrunAlertManager;
 import frc.robot.telemetry.SendableTelemetryManager;
 import frc.robot.telemetry.wrappers.TelemetryPowerDistribution;
 import frc.robot.utils.SparkMaxFlashManager;
-import frc.robot.utils.wpilib.TreeTimedRobot;
 
 /**
  * The VM is configured to automatically run this class, and to call the methods corresponding to
@@ -20,16 +19,7 @@ import frc.robot.utils.wpilib.TreeTimedRobot;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
-public class Robot extends TreeTimedRobot {
-    public static void startWNode(String nodeName) {
-        instance.watchdog.addNode(nodeName);
-    }
-
-    public static void endWNode() {
-        instance.watchdog.endCurrentNode();
-    }
-
-    private static Robot instance;
+public class Robot extends TimedRobot {
 
     private final double startTime;
 
@@ -39,13 +29,11 @@ public class Robot extends TreeTimedRobot {
 
     private TelemetryPowerDistribution powerDistribution;
     private MiscRobotTelemetryAndAlerts miscRobotTelemetryAndAlerts;
-    private OverrunAlertManager overrunAlertManager;
+//    private OverrunAlertManager overrunAlertManager;
     private Alliance lastAlliance;
 
     public Robot() {
         startTime = Timer.getFPGATimestamp();
-
-        instance = this;
     }
 
     /**
@@ -69,7 +57,7 @@ public class Robot extends TreeTimedRobot {
         powerDistribution =
                 new TelemetryPowerDistribution(MiscConstants.POWER_MODULE_ID, MiscConstants.POWER_MODULE_TYPE);
         miscRobotTelemetryAndAlerts = new MiscRobotTelemetryAndAlerts();
-        overrunAlertManager = new OverrunAlertManager();
+//        overrunAlertManager = new OverrunAlertManager();
 
         SparkMaxFlashManager.init();
         robotContainer = new RobotContainer();
@@ -88,25 +76,18 @@ public class Robot extends TreeTimedRobot {
      */
     @Override
     public void robotPeriodic() {
-
-        overrunAlertManager.update(super.didLastLoopOverrun);
+//        overrunAlertManager.update(super.didLastLoopOverrun);
 
         if (DriverStation.getAlliance() != lastAlliance) {
             lastAlliance = DriverStation.getAlliance();
             robotContainer.onAllianceChange(lastAlliance);
         }
 
-        startWNode("commandScheduler");
         CommandScheduler.getInstance().run();
-        endWNode();
 
-        startWNode("sendableTelemetry");
         SendableTelemetryManager.getInstance().update();
-        endWNode();
 
-        startWNode("miscTelemetry");
         miscRobotTelemetryAndAlerts.logValues();
-        endWNode();
     }
 
     /** This method is called once each time the robot enters Disabled mode. */

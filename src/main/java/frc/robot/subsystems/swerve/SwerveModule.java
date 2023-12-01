@@ -6,7 +6,6 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -181,8 +180,7 @@ public class SwerveModule {
         motorConfiguration.OpenLoopRamps.DutyCycleOpenLoopRampPeriod =
                 config.sharedConfiguration().driveOpenLoopRamp();
 
-        Slot0Configs slot0Configs = new Slot0Configs();
-        config.sharedConfiguration().driveVelocityPIDGains().setSlot(slot0Configs);
+        config.sharedConfiguration().driveVelocityPIDGains().setSlot(motorConfiguration.Slot0);
 
         motorConfiguration.MotorOutput.Inverted = config.driveMotorInverted()
                 ? InvertedValue.Clockwise_Positive
@@ -192,8 +190,6 @@ public class SwerveModule {
         do {
             faultInitializing |=
                     !driveMotor.getConfigurator().apply(motorConfiguration).isOK();
-            faultInitializing |=
-                    !driveMotor.getConfigurator().apply(slot0Configs).isOK();
 
             faultInitializing |= !RaiderUtils.setTalonIdleMode(true, driveMotor).isOK();
 
@@ -235,6 +231,8 @@ public class SwerveModule {
                     checkRevError(steerRelativeEncoder.setVelocityConversionFactor(steerMotorConversionFactorVelocity));
 
             faultInitializing |= checkRevError(steerMotor.setIdleMode(CANSparkMax.IdleMode.kBrake));
+
+            faultInitializing |= checkRevError(steerMotor.burnFlashIfShould());
         } while (faultInitializing && configTimeout.hasNotTimedOut());
 
         // Clear the reset of it starting up
@@ -412,12 +410,9 @@ public class SwerveModule {
      *     velocity control.
      */
     public void setDesiredState(SwerveModuleState state, boolean activeSteer, boolean openLoop) {
-        Robot.startWNode("SwerveModule[" + instanceId + "]#setDesiredState");
-        Robot.startWNode("checkForResetAndGains");
         checkForSteerMotorReset();
         checkForDriveMotorReset();
         checkAndUpdateGains();
-        Robot.endWNode();
 
         if (isDeadMode) {
             controlModeEntry.append(SwerveModuleControlMode.DEAD_MODE.logValue);
@@ -433,20 +428,13 @@ public class SwerveModule {
 
         state = SwerveModuleState.optimize(state, getSteerAngle());
 
-        Robot.startWNode("setDriveState");
         setDriveReference(state.speedMetersPerSecond, openLoop);
-        Robot.endWNode();
 
-        Robot.startWNode("setSteerState");
         setSteerReference(state.angle.getRadians(), activeSteer);
-        Robot.endWNode();
 
         if (shouldResetToAbsolute()) {
-            Robot.startWNode("resetSteerToAbsolute");
             resetSteerToAbsolute();
-            Robot.endWNode();
         }
-        Robot.endWNode();
     }
 
     public void setCharacterizationVoltage(double voltage) {

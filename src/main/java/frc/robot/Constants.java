@@ -2,7 +2,6 @@ package frc.robot;
 
 import com.pathplanner.lib.PathConstraints;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import frc.robot.telemetry.tunable.gains.TunableFFGains;

@@ -34,7 +34,6 @@ public class RobotContainer {
     private final ListenableSendableChooser<Command> driveCommandChooser = new ListenableSendableChooser<>();
 
     public RobotContainer() {
-
         configureDriverBindings();
         configureOperatorBindings();
         configureAutos();

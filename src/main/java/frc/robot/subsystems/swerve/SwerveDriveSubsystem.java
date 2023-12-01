@@ -35,7 +35,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         RAW_VOLTAGE
     }
 
-
     private final SwerveModule[] modules = new SwerveModule[NUM_MODULES];
 
     private final TelemetryPigeon2 gyro = new TelemetryPigeon2(13, "/drive/gyro", MiscConstants.TUNING_MODE);
@@ -277,8 +276,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        Robot.startWNode("SwerveDriveSubsystem#periodic");
-        Robot.startWNode("setDesiredStates");
         switch (driveMode) {
             case OPEN_LOOP, CLOSE_LOOP -> {
                 SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_VELOCITY_METERS_SECOND);
@@ -297,16 +294,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 }
             }
         }
-        Robot.endWNode();
-
-        Robot.startWNode("odometry");
         poseEstimator.update(getGyroRotation(), getModulePositions());
-        Robot.endWNode();
 
-        Robot.startWNode("logValues");
         logValues();
-        Robot.endWNode();
-        Robot.endWNode();
     }
 
     private void logValues() {

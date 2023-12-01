@@ -40,7 +40,6 @@ public class SwerveDriveCommand extends CommandBase {
 
     @Override
     public void execute() {
-        Robot.startWNode("DriveExecute");
         boolean isFieldRelative = isFieldRelativeSupplier.getAsBoolean();
         Translation2d translation = translationSupplier.get();
 
@@ -64,8 +63,6 @@ public class SwerveDriveCommand extends CommandBase {
         } else {
             driveSubsystem.setChassisSpeeds(chassisSpeeds, TeleopConstants.OPEN_LOOP_DRIVETRAIN);
         }
-
-        Robot.endWNode();
     }
 
     @Override
