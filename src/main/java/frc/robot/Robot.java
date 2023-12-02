@@ -2,14 +2,14 @@ package frc.robot;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DataLog;
-import edu.wpi.first.wpilibj.*;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.MiscRobotTelemetryAndAlerts;
-import frc.robot.telemetry.OverrunAlertManager;
-import frc.robot.telemetry.SendableTelemetryManager;
 import frc.robot.telemetry.wrappers.TelemetryPowerDistribution;
 import frc.robot.utils.SparkMaxFlashManager;
 
@@ -21,6 +21,12 @@ import frc.robot.utils.SparkMaxFlashManager;
  */
 public class Robot extends TimedRobot {
 
+    private static Robot instance;
+
+    public static Robot getInstance() {
+        return instance;
+    }
+
     private final double startTime;
 
     private Command autonomousCommand;
@@ -29,10 +35,9 @@ public class Robot extends TimedRobot {
 
     private TelemetryPowerDistribution powerDistribution;
     private MiscRobotTelemetryAndAlerts miscRobotTelemetryAndAlerts;
-//    private OverrunAlertManager overrunAlertManager;
-    private Alliance lastAlliance;
-
+    //    private OverrunAlertManager overrunAlertManager;
     public Robot() {
+        instance = this;
         startTime = Timer.getFPGATimestamp();
     }
 
@@ -57,12 +62,10 @@ public class Robot extends TimedRobot {
         powerDistribution =
                 new TelemetryPowerDistribution(MiscConstants.POWER_MODULE_ID, MiscConstants.POWER_MODULE_TYPE);
         miscRobotTelemetryAndAlerts = new MiscRobotTelemetryAndAlerts();
-//        overrunAlertManager = new OverrunAlertManager();
+        //        overrunAlertManager = new OverrunAlertManager();
 
         SparkMaxFlashManager.init();
         robotContainer = new RobotContainer();
-
-        lastAlliance = DriverStation.getAlliance();
 
         DataLogManager.log("RobotInit took " + (Timer.getFPGATimestamp() - startTime) + " seconds");
     }
@@ -76,16 +79,9 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotPeriodic() {
-//        overrunAlertManager.update(super.didLastLoopOverrun);
-
-        if (DriverStation.getAlliance() != lastAlliance) {
-            lastAlliance = DriverStation.getAlliance();
-            robotContainer.onAllianceChange(lastAlliance);
-        }
+        //        overrunAlertManager.update(super.didLastLoopOverrun);
 
         CommandScheduler.getInstance().run();
-
-        SendableTelemetryManager.getInstance().update();
 
         miscRobotTelemetryAndAlerts.logValues();
     }

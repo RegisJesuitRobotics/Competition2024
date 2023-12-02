@@ -4,8 +4,8 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.DriveTrainConstants;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.commands.drive.characterize.modes.CharacterizationMode;
 import frc.robot.commands.drive.characterize.modes.DynamicCharacterizationMode;
 import frc.robot.commands.drive.characterize.modes.QuasistaticCharacterizationMode;
@@ -13,8 +13,8 @@ import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DriveTrainSysIDCompatibleLoggerCommand extends CommandBase {
-    private static final double METER_TO_ROTATION_FACTOR = 1.0 / (DriveTrainConstants.WHEEL_DIAMETER_METERS * Math.PI);
+public class DriveTrainSysIDCompatibleLoggerCommand extends Command {
+    private static final double METER_TO_ROTATION_FACTOR = 1.0 / (SwerveConstants.WHEEL_DIAMETER_METERS * Math.PI);
 
     private final SwerveDriveSubsystem driveSubsystem;
     private final List<Double> dataBuffer = new ArrayList<>();

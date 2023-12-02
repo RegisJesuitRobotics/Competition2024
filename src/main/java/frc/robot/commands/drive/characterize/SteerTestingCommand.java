@@ -2,12 +2,12 @@ package frc.robot.commands.drive.characterize;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.DriveTrainConstants;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 import frc.robot.telemetry.tunable.gains.TunableDouble;
 
-public class SteerTestingCommand extends CommandBase {
+public class SteerTestingCommand extends Command {
     private final SwerveDriveSubsystem driveSubsystem;
     private final TunableDouble desiredSteer = new TunableDouble("/char/desiredSteerTesting", 0.0, true);
 
@@ -24,9 +24,9 @@ public class SteerTestingCommand extends CommandBase {
     public void execute() {
         Rotation2d angle = Rotation2d.fromDegrees(desiredSteer.get());
 
-        SwerveModuleState[] states = new SwerveModuleState[DriveTrainConstants.NUM_MODULES];
+        SwerveModuleState[] states = new SwerveModuleState[SwerveConstants.NUM_MODULES];
 
-        for (int i = 0; i < DriveTrainConstants.NUM_MODULES; i++) {
+        for (int i = 0; i < SwerveConstants.NUM_MODULES; i++) {
             states[i] = new SwerveModuleState(0.0, angle);
         }
 

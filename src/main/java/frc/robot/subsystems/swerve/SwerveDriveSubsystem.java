@@ -1,7 +1,8 @@
 package frc.robot.subsystems.swerve;
 
-import static frc.robot.Constants.DriveTrainConstants.*;
+import static frc.robot.Constants.SwerveConstants.*;
 
+import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,7 +15,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.Robot;
-import frc.robot.telemetry.SendableTelemetryManager;
 import frc.robot.telemetry.types.BooleanTelemetryEntry;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.EventTelemetryEntry;
@@ -22,7 +22,6 @@ import frc.robot.telemetry.types.rich.ChassisSpeedsEntry;
 import frc.robot.telemetry.types.rich.Pose2dEntry;
 import frc.robot.telemetry.types.rich.SwerveModuleStateArrayEntry;
 import frc.robot.telemetry.wrappers.TelemetryPigeon2;
-import frc.robot.utils.RaiderCommands;
 import frc.robot.utils.RaiderMathUtils;
 
 /** The subsystem containing all the swerve modules */
@@ -38,6 +37,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     private final SwerveModule[] modules = new SwerveModule[NUM_MODULES];
 
     private final TelemetryPigeon2 gyro = new TelemetryPigeon2(13, "/drive/gyro", MiscConstants.TUNING_MODE);
+    private final StatusSignal<Double> yawSignal = gyro.getYaw();
 
     private final SwerveDrivePoseEstimator poseEstimator;
 
@@ -75,22 +75,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         poseEstimator = new SwerveDrivePoseEstimator(kinematics, getGyroRotation(), getModulePositions(), new Pose2d());
 
-        SendableTelemetryManager.getInstance().addSendable("/drive/Field", field2d);
-        SendableTelemetryManager.getInstance()
-                .addSendable(
-                        "/drive/ResetAllModulesToAbsoluteCommand",
-                        RaiderCommands.runOnceAllowDisable(this::setAllModulesToAbsolute)
-                                .withName("Reset"));
-        SendableTelemetryManager.getInstance()
-                .addSendable("/drive/KillFrontLeft", modules[0].getToggleDeadModeCommand());
-        SendableTelemetryManager.getInstance()
-                .addSendable("/drive/KillFrontRight", modules[1].getToggleDeadModeCommand());
-        SendableTelemetryManager.getInstance()
-                .addSendable("/drive/KillBackLeft", modules[2].getToggleDeadModeCommand());
-        SendableTelemetryManager.getInstance()
-                .addSendable("/drive/KillBackRight", modules[3].getToggleDeadModeCommand());
+        yawSignal.setUpdateFrequency(ODOMETRY_FREQUENCY);
 
         stopMovement();
+
+        Robot.getInstance().addPeriodic(this::updateOdometry, 1.0 / ODOMETRY_FREQUENCY);
+    }
+
+    private void updateOdometry() {
+        poseEstimator.update(getGyroRotation(), getModulePositions());
     }
 
     /**
@@ -98,7 +91,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      *     <code>getPose().getRotation2d()</code> for reset value. Counterclockwise is positive.
      */
     private Rotation2d getGyroRotation() {
-        return Rotation2d.fromDegrees(gyro.getYaw().getValue());
+        return Rotation2d.fromDegrees(yawSignal.refresh().getValue());
     }
 
     /** Sets the odometry perceived location to zero */
@@ -117,10 +110,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         Pose2d newPose = new Pose2d(currentPose.getTranslation(), newHeading);
 
         resetOdometry(newPose);
-    }
-
-    public void resetOdometry() {
-        resetOdometry(new Pose2d());
     }
 
     /**
@@ -221,12 +210,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         return voltages;
     }
 
-    public void resetModuleEncoderPositions() {
-        for (SwerveModule module : modules) {
-            module.resetDriveMotorPosition();
-        }
-    }
-
     public void setAllModulesToAbsolute() {
         for (SwerveModule module : modules) {
             module.resetSteerToAbsolute();
@@ -294,7 +277,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                 }
             }
         }
-        poseEstimator.update(getGyroRotation(), getModulePositions());
 
         logValues();
     }

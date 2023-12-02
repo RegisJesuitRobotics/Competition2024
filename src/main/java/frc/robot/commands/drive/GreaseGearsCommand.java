@@ -1,9 +1,9 @@
 package frc.robot.commands.drive;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 
-public class GreaseGearsCommand extends CommandBase {
+public class GreaseGearsCommand extends Command {
     private static final double VOLTS = 6.0;
 
     private final SwerveDriveSubsystem driveSubsystem;

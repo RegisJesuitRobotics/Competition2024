@@ -2,14 +2,14 @@ package frc.robot.commands.drive;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 
 /**
  * This command puts the swerve modules in an X pattern making it hard to be moved when bumped. It
  * does not finish
  */
-public class LockModulesCommand extends CommandBase {
+public class LockModulesCommand extends Command {
     private static final Rotation2d fortyFiveDegrees = Rotation2d.fromDegrees(45);
     private static final SwerveModuleState[] states = new SwerveModuleState[] {
         new SwerveModuleState(0.0, fortyFiveDegrees), new SwerveModuleState(0.0, fortyFiveDegrees.unaryMinus()),

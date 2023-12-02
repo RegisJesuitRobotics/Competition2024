@@ -2,19 +2,18 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.DriveTrainConstants;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.commands.drive.LockModulesCommand;
 import frc.robot.commands.drive.teleop.SwerveDriveCommand;
 import frc.robot.hid.CommandNintendoSwitchController;
 import frc.robot.hid.CommandXboxPlaystationController;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
-import frc.robot.telemetry.SendableTelemetryManager;
 import frc.robot.telemetry.tunable.gains.TunableDouble;
 import frc.robot.utils.*;
 import java.util.function.DoubleSupplier;
@@ -38,7 +37,7 @@ public class RobotContainer {
         configureOperatorBindings();
         configureAutos();
 
-        SendableTelemetryManager.getInstance().addSendable("/commandScheduler", CommandScheduler.getInstance());
+        SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
     }
 
     private void configureAutos() {}
@@ -60,10 +59,10 @@ public class RobotContainer {
         TunableDouble maxMaxAngularSpeedPercent = new TunableDouble("/speed/maxAngular", 0.6, true);
 
         DoubleSupplier maxTranslationalSpeedSuppler = () -> maxTranslationSpeedPercent.get()
-                * DriveTrainConstants.MAX_VELOCITY_METERS_SECOND
+                * SwerveConstants.MAX_VELOCITY_METERS_SECOND
                 * (driverController.leftBumper().getAsBoolean() ? 0.5 : 1);
         DoubleSupplier maxAngularSpeedSupplier =
-                () -> maxMaxAngularSpeedPercent.get() * DriveTrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_SECOND;
+                () -> maxMaxAngularSpeedPercent.get() * SwerveConstants.MAX_ANGULAR_VELOCITY_RADIANS_SECOND;
 
         SupplierSlewRateLimiter rotationLimiter =
                 new SupplierSlewRateLimiter(() -> TeleopConstants.ANGULAR_RATE_LIMIT_RADIANS_SECOND_SQUARED);
@@ -104,7 +103,7 @@ public class RobotContainer {
                                 driveSubsystem)
                         .beforeStarting(resetRateLimiters));
 
-        SendableTelemetryManager.getInstance().addSendable("/drive/DriveStyle", driveCommandChooser);
+        SmartDashboard.putData("Drive Style", driveCommandChooser);
 
         evaluateDriveStyle(driveCommandChooser.getSelected());
         new Trigger(driveCommandChooser::hasNewValue)
@@ -131,10 +130,4 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return Commands.none();
     }
-
-    /**
-     * Called from Robot.java when the alliance is detected to have changed.
-     * @param newAlliance the new alliance
-     */
-    public void onAllianceChange(Alliance newAlliance) {}
 }

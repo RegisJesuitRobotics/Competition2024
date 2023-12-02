@@ -10,11 +10,11 @@ public class RaiderCommands {
         return new ConditionalCommandBuilder(condition);
     }
 
-    public static CommandBase startNoEnd(Runnable start, Subsystem... requirements) {
+    public static Command startNoEnd(Runnable start, Subsystem... requirements) {
         return new StartEndCommand(start, () -> {}, requirements);
     }
 
-    public static CommandBase runOnceAllowDisable(Runnable start, Subsystem... requirements) {
+    public static Command runOnceAllowDisable(Runnable start, Subsystem... requirements) {
         return Commands.runOnce(start, requirements).ignoringDisable(true);
     }
 

@@ -3,11 +3,11 @@ package frc.robot.commands.drive.characterize;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.DriveTrainConstants;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 
-public class DriveTestingCommand extends CommandBase {
+public class DriveTestingCommand extends Command {
     private final double rampRateMetersPerSecond;
     private final SwerveDriveSubsystem driveSubsystem;
     private double startTime;
@@ -27,7 +27,7 @@ public class DriveTestingCommand extends CommandBase {
     @Override
     public void execute() {
         double elapsedTime = Timer.getFPGATimestamp() - startTime;
-        SwerveModuleState[] states = new SwerveModuleState[DriveTrainConstants.NUM_MODULES];
+        SwerveModuleState[] states = new SwerveModuleState[SwerveConstants.NUM_MODULES];
         for (int i = 0; i < states.length; i++) {
             states[i] = new SwerveModuleState(rampRateMetersPerSecond * elapsedTime, Rotation2d.fromDegrees(0.0));
         }

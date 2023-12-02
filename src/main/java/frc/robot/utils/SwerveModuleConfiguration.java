@@ -22,15 +22,13 @@ public record SwerveModuleConfiguration(
             double drivePeakCurrentDurationSeconds,
             int steerFreeCurrentLimit,
             int steerStallCurrentLimit,
-            double nominalVoltage,
             double wheelDiameterMeters,
-            double openLoopMaxSpeed,
             double steerClosedLoopRamp,
             double driveClosedLoopRamp,
             double driveOpenLoopRamp,
             double maxSteerVoltage,
+            int odometryFrequency,
             TunablePIDGains driveVelocityPIDGains,
             TunableFFGains driveVelocityFFGains,
-            TunablePIDGains steerPositionPIDGains,
-            double allowableSteerErrorRadians) {}
+            TunablePIDGains steerPositionPIDGains) {}
 }

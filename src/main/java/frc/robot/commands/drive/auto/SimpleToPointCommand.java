@@ -4,7 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
@@ -12,7 +12,7 @@ import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
 import frc.robot.telemetry.types.rich.Pose2dEntry;
 import java.util.function.Supplier;
 
-public class SimpleToPointCommand extends CommandBase {
+public class SimpleToPointCommand extends Command {
     private final SwerveDriveSubsystem driveSubsystem;
     private final Supplier<Pose2d> desiredPoseSupplier;
     private final TunableTelemetryProfiledPIDController translationController =
