@@ -144,6 +144,6 @@ public final class Constants {
 
         public static final ModuleType POWER_MODULE_TYPE = ModuleType.kCTRE;
         public static final int POWER_MODULE_ID = 0;
-        public static final int CONFIGURATION_ITERATIONS = 10;
+        public static final int CONFIGURATION_ATTEMPTS = 5;
     }
 }

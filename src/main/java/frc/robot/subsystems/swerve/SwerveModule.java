@@ -10,6 +10,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.FaultID;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
@@ -142,6 +143,9 @@ public class SwerveModule {
     }
 
     private void configDriveMotor(SwerveModuleConfiguration config) {
+        driveMotor.setLoggingPositionConversionFactor(drivePositionConversion);
+        driveMotor.setLoggingVelocityConversionFactor(driveVelocityConversion);
+
         TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
         motorConfiguration.CurrentLimits.SupplyCurrentLimit =
                 config.sharedConfiguration().driveContinuousCurrentLimit();
@@ -158,31 +162,24 @@ public class SwerveModule {
         motorConfiguration.MotorOutput.Inverted = config.driveMotorInverted()
                 ? InvertedValue.Clockwise_Positive
                 : InvertedValue.CounterClockwise_Positive;
+        motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         drivePositionSignal = driveMotor.getPosition();
         driveVelocitySignal = driveMotor.getVelocity();
 
         boolean faultInitializing = false;
-        for (int i = 0; i < MiscConstants.CONFIGURATION_ITERATIONS; i++) {
-            faultInitializing |=
-                    !driveMotor.getConfigurator().apply(motorConfiguration).isOK();
+        faultInitializing |= RaiderUtils.applyAndCheck(() -> driveMotor.getConfigurator().apply(motorConfiguration).isOK(), () -> {
+            TalonFXConfiguration appliedConfig = new TalonFXConfiguration();
+            driveMotor.getConfigurator().refresh(appliedConfig);
+            return appliedConfig.equals(motorConfiguration);
+        }, MiscConstants.CONFIGURATION_ATTEMPTS);
 
-            faultInitializing |= !RaiderUtils.setTalonIdleMode(true, driveMotor).isOK();
+        faultInitializing |= RaiderUtils.applyAndCheck(() -> drivePositionSignal
+                .setUpdateFrequency(config.sharedConfiguration().odometryFrequency())
+                .isOK(), () -> drivePositionSignal.getAppliedUpdateFrequency() == config.sharedConfiguration().odometryFrequency(), MiscConstants.CONFIGURATION_ATTEMPTS);
+        faultInitializing|= RaiderUtils.applyAndCheck(() -> driveVelocitySignal.setUpdateFrequency(config.sharedConfiguration().odometryFrequency()).isOK(), () -> driveVelocitySignal.getAppliedUpdateFrequency() == config.sharedConfiguration().odometryFrequency(), MiscConstants.CONFIGURATION_ATTEMPTS);
 
-            driveMotor.setLoggingPositionConversionFactor(drivePositionConversion);
-            driveMotor.setLoggingVelocityConversionFactor(driveVelocityConversion);
-
-            faultInitializing |= !drivePositionSignal
-                    .setUpdateFrequency(config.sharedConfiguration().odometryFrequency())
-                    .isOK();
-            faultInitializing |= !driveVelocitySignal
-                    .setUpdateFrequency(config.sharedConfiguration().odometryFrequency())
-                    .isOK();
-
-            if (!faultInitializing) {
-                break;
-            }
-        }
+        driveMotor.optimizeBusUtilization();
 
         // Clear reset as this is on startup
         driveMotor.hasResetOccurred();
@@ -192,7 +189,7 @@ public class SwerveModule {
 
     private void configSteerMotor(SwerveModuleConfiguration config) {
         boolean faultInitializing = false;
-        for (int i = 0; i < MiscConstants.CONFIGURATION_ITERATIONS; i++) {
+        for (int i = 0; i < MiscConstants.CONFIGURATION_ATTEMPTS; i++) {
             faultInitializing |= checkRevError(steerMotor.setCANTimeout(250));
 
             faultInitializing |= checkRevError(steerMotor.restoreFactoryDefaults());
@@ -220,7 +217,7 @@ public class SwerveModule {
             faultInitializing |= checkRevError(steerMotor.setPeriodicFramePeriod(
                     PeriodicFrame.kStatus2, 1000 / SwerveConstants.ODOMETRY_FREQUENCY));
 
-            faultInitializing |= checkRevError(steerMotor.burnFlashIfShould());
+            faultInitializing |= checkRevError(steerMotor.burnFlashWithDelay());
 
             if (!faultInitializing) {
                 break;
@@ -238,7 +235,7 @@ public class SwerveModule {
         absoluteSteerPositionSignal = absoluteSteerEncoder.getAbsolutePosition();
 
         boolean faultInitializing = false;
-        for (int i = 0; i < MiscConstants.CONFIGURATION_ITERATIONS; i++) {
+        for (int i = 0; i < MiscConstants.CONFIGURATION_ATTEMPTS; i++) {
             faultInitializing |= !absoluteSteerEncoder
                     .getConfigurator()
                     .apply(encoderConfiguration)
@@ -396,6 +393,19 @@ public class SwerveModule {
         }
     }
 
+    private boolean shouldResetToAbsolute() {
+        double currentTime = Timer.getFPGATimestamp();
+        // If we have not reset in 5 seconds, been still for 1.5 seconds and our steer
+        // velocity is less than half a degree per second (could happen if we are being
+        // pushed), reset to absolute
+        return DriverStation.isDisabled()
+                && currentTime - lastAbsoluteResetTime > 5.0
+                && currentTime - lastMoveTime > 1.5
+                && Math.abs(Units.rotationsToRadians(
+                absoluteSteerEncoder.getVelocity().getValue()))
+                < Units.degreesToRadians(0.5);
+    }
+
     public void setCharacterizationVoltage(double voltage) {
         controlModeEntry.append(SwerveModuleControlMode.CHARACTERIZATION.logValue);
 
@@ -455,19 +465,6 @@ public class SwerveModule {
 
             moduleEventEntry.append("Updated steer gains due to value change");
         }
-    }
-
-    private boolean shouldResetToAbsolute() {
-        double currentTime = Timer.getFPGATimestamp();
-        // If we have not reset in 5 seconds, been still for 1.5 seconds and our steer
-        // velocity is less than half a degree per second (could happen if we are being
-        // pushed), reset to absolute
-        return DriverStation.isDisabled()
-                && currentTime - lastAbsoluteResetTime > 5.0
-                && currentTime - lastMoveTime > 1.5
-                && Math.abs(Units.rotationsToRadians(
-                                absoluteSteerEncoder.getVelocity().getValue()))
-                        < Units.degreesToRadians(0.5);
     }
 
     /** Log all telemetry values. Should be called (only) in subsystem periodic */

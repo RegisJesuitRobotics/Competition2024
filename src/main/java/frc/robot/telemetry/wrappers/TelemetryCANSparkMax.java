@@ -2,9 +2,9 @@ package frc.robot.telemetry.wrappers;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.REVLibError;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.telemetry.types.BooleanTelemetryEntry;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
-import frc.robot.utils.SparkMaxFlashManager;
 
 public class TelemetryCANSparkMax extends CANSparkMax {
     private final DoubleTelemetryEntry outputAmpsEntry;
@@ -34,21 +34,18 @@ public class TelemetryCANSparkMax extends CANSparkMax {
         return super.setIdleMode(mode);
     }
 
+    public REVLibError burnFlashWithDelay() {
+        Timer.delay(0.1);
+        REVLibError error = super.burnFlash();
+        Timer.delay(0.1);
+        return error;
+    }
+
     public void logValues() {
         outputAmpsEntry.append(super.getOutputCurrent());
         outputPercentEntry.append(super.getAppliedOutput());
         temperatureEntry.append(super.getMotorTemperature());
         positionEntry.append(super.getEncoder().getPosition());
         velocityEntry.append(super.getEncoder().getVelocity());
-    }
-
-    /**
-     * Burns the flash if it should according to {@link frc.robot.utils.SparkMaxFlashManager}
-     */
-    public REVLibError burnFlashIfShould() {
-        if (SparkMaxFlashManager.shouldFlash()) {
-            return super.burnFlash();
-        }
-        return REVLibError.kOk;
     }
 }

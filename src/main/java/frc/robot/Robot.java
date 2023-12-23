@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.MiscRobotTelemetryAndAlerts;
 import frc.robot.telemetry.wrappers.TelemetryPowerDistribution;
-import frc.robot.utils.SparkMaxFlashManager;
 
 /**
  * The VM is configured to automatically run this class, and to call the methods corresponding to
@@ -64,7 +63,6 @@ public class Robot extends TimedRobot {
         miscRobotTelemetryAndAlerts = new MiscRobotTelemetryAndAlerts();
         //        overrunAlertManager = new OverrunAlertManager();
 
-        SparkMaxFlashManager.init();
         robotContainer = new RobotContainer();
 
         DataLogManager.log("RobotInit took " + (Timer.getFPGATimestamp() - startTime) + " seconds");

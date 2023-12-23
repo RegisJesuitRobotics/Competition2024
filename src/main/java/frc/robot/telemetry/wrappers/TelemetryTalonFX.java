@@ -6,6 +6,9 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import frc.robot.telemetry.types.BooleanTelemetryEntry;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.IntegerTelemetryEntry;
+import frc.robot.utils.RaiderUtils;
+
+import java.util.List;
 
 public class TelemetryTalonFX extends TalonFX {
     private final StatusSignal<Double> outputAmpsSignal;
@@ -41,6 +44,17 @@ public class TelemetryTalonFX extends TalonFX {
         velocitySignal = super.getVelocity();
         faultsSignal = super.getFaultField();
         stickyFaultsSignal = super.getStickyFaultField();
+
+        // Set the update frequency to the default for all
+        List.of(
+                outputAmpsSignal,
+                inputAmpsSignal,
+                outputPercentSignal,
+                temperatureSignal,
+                positionSignal,
+                velocitySignal,
+                faultsSignal,
+                stickyFaultsSignal).forEach(RaiderUtils::explicitlySetSignalFrequency);
 
         telemetryPath += "/";
         outputAmpsEntry = new DoubleTelemetryEntry(telemetryPath + "outputAmps", tuningMode);
