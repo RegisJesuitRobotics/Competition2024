@@ -110,10 +110,9 @@ spotless {
             exclude '**/build/**', '**/build-*/**'
         }
         toggleOffOn()
-        palantirJavaFormat()
+        googleJavaFormat()
         removeUnusedImports()
         trimTrailingWhitespace()
-        indentWithSpaces(2)
         endWithNewline()
     }
     groovyGradle {

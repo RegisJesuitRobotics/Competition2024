@@ -10,62 +10,62 @@ import frc.robot.telemetry.types.DoubleTelemetryEntry;
  * value not in dashboard.
  */
 public class TunableDouble {
-    private final DoubleEntry networkEntry;
-    private final DoubleTelemetryEntry telemetryEntry;
-    private final boolean tuningMode;
-    private final double defaultValue;
-    private double lastHasChangedValue;
+  private final DoubleEntry networkEntry;
+  private final DoubleTelemetryEntry telemetryEntry;
+  private final boolean tuningMode;
+  private final double defaultValue;
+  private double lastHasChangedValue;
 
-    /**
-     * Create a new TunableNumber with the default value
-     *
-     * @param networkName Name for network tables
-     * @param defaultValue Default value
-     * @param tuningMode If false the value will be unchangeable
-     */
-    public TunableDouble(String networkName, double defaultValue, boolean tuningMode) {
-        this.networkEntry =
-                NetworkTableInstance.getDefault().getDoubleTopic(networkName).getEntry(defaultValue);
-        // Make sure it gets reset on each deploy
-        networkEntry.set(defaultValue);
-        this.telemetryEntry = new DoubleTelemetryEntry(networkName, false);
-        this.defaultValue = defaultValue;
-        this.tuningMode = tuningMode;
+  /**
+   * Create a new TunableNumber with the default value
+   *
+   * @param networkName Name for network tables
+   * @param defaultValue Default value
+   * @param tuningMode If false the value will be unchangeable
+   */
+  public TunableDouble(String networkName, double defaultValue, boolean tuningMode) {
+    this.networkEntry =
+        NetworkTableInstance.getDefault().getDoubleTopic(networkName).getEntry(defaultValue);
+    // Make sure it gets reset on each deploy
+    networkEntry.set(defaultValue);
+    this.telemetryEntry = new DoubleTelemetryEntry(networkName, false);
+    this.defaultValue = defaultValue;
+    this.tuningMode = tuningMode;
 
-        this.lastHasChangedValue = defaultValue;
+    this.lastHasChangedValue = defaultValue;
+  }
+
+  /**
+   * Get the current value from NT if available
+   *
+   * @return The current value
+   */
+  public double get() {
+    if (!tuningMode) {
+      return defaultValue;
+    }
+    double value = networkEntry.get();
+    telemetryEntry.append(value);
+    return value;
+  }
+
+  public void set(double value) {
+    networkEntry.set(value);
+  }
+
+  /**
+   * Checks whether the number has changed since our last check
+   *
+   * @return True if the number has changed since the last time this method was called, false
+   *     otherwise
+   */
+  public boolean hasChanged() {
+    double currentValue = get();
+    if (currentValue != lastHasChangedValue) {
+      lastHasChangedValue = currentValue;
+      return true;
     }
 
-    /**
-     * Get the current value from NT if available
-     *
-     * @return The current value
-     */
-    public double get() {
-        if (!tuningMode) {
-            return defaultValue;
-        }
-        double value = networkEntry.get();
-        telemetryEntry.append(value);
-        return value;
-    }
-
-    public void set(double value) {
-        networkEntry.set(value);
-    }
-
-    /**
-     * Checks whether the number has changed since our last check
-     *
-     * @return True if the number has changed since the last time this method was called, false
-     *     otherwise
-     */
-    public boolean hasChanged() {
-        double currentValue = get();
-        if (currentValue != lastHasChangedValue) {
-            lastHasChangedValue = currentValue;
-            return true;
-        }
-
-        return false;
-    }
+    return false;
+  }
 }

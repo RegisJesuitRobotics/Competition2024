@@ -27,281 +27,293 @@ import frc.robot.utils.RaiderMathUtils;
 /** The subsystem containing all the swerve modules */
 public class SwerveDriveSubsystem extends SubsystemBase {
 
-    enum DriveMode {
-        OPEN_LOOP,
-        CLOSE_LOOP,
-        CHARACTERIZATION,
-        RAW_VOLTAGE
+  enum DriveMode {
+    OPEN_LOOP,
+    CLOSE_LOOP,
+    CHARACTERIZATION,
+    RAW_VOLTAGE
+  }
+
+  private final SwerveModule[] modules = new SwerveModule[NUM_MODULES];
+
+  private final TelemetryPigeon2 gyro =
+      new TelemetryPigeon2(13, "/drive/gyro", MiscConstants.TUNING_MODE);
+  private final StatusSignal<Double> yawSignal = gyro.getYaw();
+
+  private final SwerveDrivePoseEstimator poseEstimator;
+
+  private final BooleanTelemetryEntry allModulesAtAbsoluteZeroEntry =
+      new BooleanTelemetryEntry("/drive/allModulesAtAbsoluteZero", true);
+  private final DoubleTelemetryEntry gyroEntry =
+      new DoubleTelemetryEntry("/drive/gyroDegrees", true);
+  private final ChassisSpeedsEntry chassisSpeedsEntry =
+      new ChassisSpeedsEntry("/drive/speeds", MiscConstants.TUNING_MODE);
+  private final ChassisSpeedsEntry desiredSpeedsEntry =
+      new ChassisSpeedsEntry("/drive/desiredSpeeds", MiscConstants.TUNING_MODE);
+  private final Pose2dEntry odometryEntry =
+      new Pose2dEntry("/drive/estimatedPose", MiscConstants.TUNING_MODE);
+  private final SwerveModuleStateArrayEntry advantageScopeSwerveDesiredStates =
+      new SwerveModuleStateArrayEntry("/drive/desiredStates", MiscConstants.TUNING_MODE);
+  private final SwerveModuleStateArrayEntry advantageScopeSwerveActualStates =
+      new SwerveModuleStateArrayEntry("/drive/actualStates", MiscConstants.TUNING_MODE);
+  private final EventTelemetryEntry driveEventLogger = new EventTelemetryEntry("/drive/events");
+
+  private final Field2d field2d = new Field2d();
+
+  private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(MODULE_TRANSLATIONS);
+
+  private SwerveModuleState[] desiredStates = new SwerveModuleState[NUM_MODULES];
+  private boolean activeSteer = true;
+  private DriveMode driveMode = DriveMode.OPEN_LOOP;
+  private double rawDriveVolts = 0.0;
+  private double rawSteerVolts = 0.0;
+
+  public SwerveDriveSubsystem() {
+    modules[0] = new SwerveModule(FRONT_LEFT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
+    modules[1] = new SwerveModule(FRONT_RIGHT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
+    modules[2] = new SwerveModule(BACK_LEFT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
+    modules[3] = new SwerveModule(BACK_RIGHT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
+
+    driveEventLogger.append("Swerve modules initialized");
+
+    poseEstimator =
+        new SwerveDrivePoseEstimator(
+            kinematics, getGyroRotation(), getModulePositions(), new Pose2d());
+
+    yawSignal.setUpdateFrequency(ODOMETRY_FREQUENCY);
+
+    stopMovement();
+
+    Robot.getInstance().addPeriodic(this::updateOdometry, 1.0 / ODOMETRY_FREQUENCY);
+  }
+
+  private void updateOdometry() {
+    poseEstimator.update(getGyroRotation(), getModulePositions());
+  }
+
+  /**
+   * @return the value from the gyro. This does not get reset when resetOdometry is called. Use
+   *     <code>getPose().getRotation2d()</code> for reset value. Counterclockwise is positive.
+   */
+  private Rotation2d getGyroRotation() {
+    return Rotation2d.fromDegrees(yawSignal.refresh().getValue());
+  }
+
+  /** Sets the odometry perceived location to zero */
+  public void zeroHeading() {
+    setHeading(Rotation2d.fromDegrees(0.0));
+  }
+
+  /**
+   * Set the odometry perceived location to the provided heading
+   *
+   * @param newHeading the provided heading
+   */
+  public void setHeading(Rotation2d newHeading) {
+    Pose2d currentPose = getPose();
+
+    Pose2d newPose = new Pose2d(currentPose.getTranslation(), newHeading);
+
+    resetOdometry(newPose);
+  }
+
+  /**
+   * Set the current perceived location of the robot to the provided pose
+   *
+   * @param pose2d the provided pose
+   */
+  public void resetOdometry(Pose2d pose2d) {
+    poseEstimator.resetPosition(getGyroRotation(), getModulePositions(), pose2d);
+
+    driveEventLogger.append("Estimator reset");
+  }
+
+  /**
+   * @return the estimated position of the robot
+   */
+  public Pose2d getPose() {
+    return poseEstimator.getEstimatedPosition();
+  }
+
+  public ChassisSpeeds getCurrentChassisSpeeds() {
+    return kinematics.toChassisSpeeds(getActualStates());
+  }
+
+  /**
+   * Set the desired speed of the robot. Chassis speeds are always robot centric but can be created
+   * from field centric values through {@link ChassisSpeeds#fromFieldRelativeSpeeds(double, double,
+   * double, Rotation2d)}
+   *
+   * @param chassisSpeeds the desired chassis speeds
+   * @param openLoop if true then velocity will be handled exclusivity with feedforward (mostly used
+   *     for teleop). If false a PIDF will be used (mostly used for auto)
+   */
+  public void setChassisSpeeds(ChassisSpeeds chassisSpeeds, boolean openLoop) {
+    desiredSpeedsEntry.append(chassisSpeeds);
+
+    setRawStates(
+        true,
+        openLoop,
+        kinematics.toSwerveModuleStates(RaiderMathUtils.correctForSwerveSkew(chassisSpeeds)));
+  }
+
+  /**
+   * Sets the desired swerve drive states for the modules. This method also takes a copy of the
+   * states, so they will not be changed. Assumes zero acceleration.
+   *
+   * @param activeSteer if false will not actively power the steer motor
+   * @param openLoop if true then velocity will be handled exclusivity with feedforward (for teleop
+   *     mostly). If false a PIDF will be used (for auto)
+   * @param desiredStates the desired states... Ordered front left, front right, back left, back
+   *     right
+   */
+  public void setRawStates(
+      boolean activeSteer, boolean openLoop, SwerveModuleState[] desiredStates) {
+    if (desiredStates.length != modules.length) {
+      throw new IllegalArgumentException("You must provide desiredStates for all modules");
     }
 
-    private final SwerveModule[] modules = new SwerveModule[NUM_MODULES];
+    driveMode = openLoop ? DriveMode.OPEN_LOOP : DriveMode.CLOSE_LOOP;
+    this.activeSteer = activeSteer;
 
-    private final TelemetryPigeon2 gyro = new TelemetryPigeon2(13, "/drive/gyro", MiscConstants.TUNING_MODE);
-    private final StatusSignal<Double> yawSignal = gyro.getYaw();
+    this.desiredStates = RaiderMathUtils.copySwerveStateArray(desiredStates);
+  }
 
-    private final SwerveDrivePoseEstimator poseEstimator;
+  /**
+   * Set the voltage directly for the motors.
+   *
+   * @param driveVolts the desired drive voltage
+   * @param steerVolts the desired steer voltage
+   */
+  public void setRawVolts(double driveVolts, double steerVolts) {
+    driveMode = DriveMode.RAW_VOLTAGE;
 
-    private final BooleanTelemetryEntry allModulesAtAbsoluteZeroEntry =
-            new BooleanTelemetryEntry("/drive/allModulesAtAbsoluteZero", true);
-    private final DoubleTelemetryEntry gyroEntry = new DoubleTelemetryEntry("/drive/gyroDegrees", true);
-    private final ChassisSpeedsEntry chassisSpeedsEntry =
-            new ChassisSpeedsEntry("/drive/speeds", MiscConstants.TUNING_MODE);
-    private final ChassisSpeedsEntry desiredSpeedsEntry =
-            new ChassisSpeedsEntry("/drive/desiredSpeeds", MiscConstants.TUNING_MODE);
-    private final Pose2dEntry odometryEntry = new Pose2dEntry("/drive/estimatedPose", MiscConstants.TUNING_MODE);
-    private final SwerveModuleStateArrayEntry advantageScopeSwerveDesiredStates =
-            new SwerveModuleStateArrayEntry("/drive/desiredStates", MiscConstants.TUNING_MODE);
-    private final SwerveModuleStateArrayEntry advantageScopeSwerveActualStates =
-            new SwerveModuleStateArrayEntry("/drive/actualStates", MiscConstants.TUNING_MODE);
-    private final EventTelemetryEntry driveEventLogger = new EventTelemetryEntry("/drive/events");
+    this.rawDriveVolts = driveVolts;
+    this.rawSteerVolts = steerVolts;
+  }
 
-    private final Field2d field2d = new Field2d();
+  /** Sets each module velocity to zero and desired angle to what it currently is */
+  public void stopMovement() {
+    SwerveModuleState[] newStates = new SwerveModuleState[modules.length];
+    for (int i = 0; i < modules.length; i++) {
+      newStates[i] = new SwerveModuleState(0.0, modules[i].getActualState().angle);
+    }
+    setRawStates(false, true, newStates);
+  }
 
-    private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(MODULE_TRANSLATIONS);
+  /**
+   * Set the module to characterization mode with the provided voltage
+   *
+   * @param voltage the voltage to apply to the drive motor
+   */
+  public void setCharacterizationVoltage(double voltage) {
+    driveMode = DriveMode.CHARACTERIZATION;
+    rawDriveVolts = voltage;
+  }
 
-    private SwerveModuleState[] desiredStates = new SwerveModuleState[NUM_MODULES];
-    private boolean activeSteer = true;
-    private DriveMode driveMode = DriveMode.OPEN_LOOP;
-    private double rawDriveVolts = 0.0;
-    private double rawSteerVolts = 0.0;
+  public double[] getActualDriveVoltages() {
+    double[] voltages = new double[modules.length];
+    for (int i = 0; i < modules.length; i++) {
+      voltages[i] = modules[i].getActualDriveVoltage();
+    }
+    return voltages;
+  }
 
-    public SwerveDriveSubsystem() {
-        modules[0] = new SwerveModule(FRONT_LEFT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
-        modules[1] = new SwerveModule(FRONT_RIGHT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
-        modules[2] = new SwerveModule(BACK_LEFT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
-        modules[3] = new SwerveModule(BACK_RIGHT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
+  public void setAllModulesToAbsolute() {
+    for (SwerveModule module : modules) {
+      module.resetSteerToAbsolute();
+    }
+  }
 
-        driveEventLogger.append("Swerve modules initialized");
+  private boolean allModulesAtAbsolute() {
+    boolean allSet = true;
+    for (SwerveModule module : modules) {
+      allSet &= module.isSetToAbsolute();
+    }
+    return allSet;
+  }
 
-        poseEstimator = new SwerveDrivePoseEstimator(kinematics, getGyroRotation(), getModulePositions(), new Pose2d());
+  /**
+   * Should only be used for characterization
+   *
+   * @return the angle in radians
+   */
+  public double getRawGyroAngle() {
+    return Units.degreesToRadians(gyro.getAngle());
+  }
 
-        yawSignal.setUpdateFrequency(ODOMETRY_FREQUENCY);
+  /**
+   * Should only be used for characterization
+   *
+   * @return the angle rate in radians/second
+   */
+  public double getRawGyroRate() {
+    return Units.degreesToRadians(gyro.getRate());
+  }
 
-        stopMovement();
+  public SwerveModuleState[] getActualStates() {
+    SwerveModuleState[] actualStates = new SwerveModuleState[modules.length];
+    for (int i = 0; i < modules.length; i++) {
+      actualStates[i] = modules[i].getActualState();
+    }
+    return actualStates;
+  }
 
-        Robot.getInstance().addPeriodic(this::updateOdometry, 1.0 / ODOMETRY_FREQUENCY);
+  public SwerveModulePosition[] getModulePositions() {
+    SwerveModulePosition[] actualPositions = new SwerveModulePosition[modules.length];
+    for (int i = 0; i < modules.length; i++) {
+      actualPositions[i] = modules[i].getActualPosition();
     }
 
-    private void updateOdometry() {
-        poseEstimator.update(getGyroRotation(), getModulePositions());
-    }
+    return actualPositions;
+  }
 
-    /**
-     * @return the value from the gyro. This does not get reset when resetOdometry is called. Use
-     *     <code>getPose().getRotation2d()</code> for reset value. Counterclockwise is positive.
-     */
-    private Rotation2d getGyroRotation() {
-        return Rotation2d.fromDegrees(yawSignal.refresh().getValue());
-    }
-
-    /** Sets the odometry perceived location to zero */
-    public void zeroHeading() {
-        setHeading(Rotation2d.fromDegrees(0.0));
-    }
-
-    /**
-     * Set the odometry perceived location to the provided heading
-     *
-     * @param newHeading the provided heading
-     */
-    public void setHeading(Rotation2d newHeading) {
-        Pose2d currentPose = getPose();
-
-        Pose2d newPose = new Pose2d(currentPose.getTranslation(), newHeading);
-
-        resetOdometry(newPose);
-    }
-
-    /**
-     * Set the current perceived location of the robot to the provided pose
-     *
-     * @param pose2d the provided pose
-     */
-    public void resetOdometry(Pose2d pose2d) {
-        poseEstimator.resetPosition(getGyroRotation(), getModulePositions(), pose2d);
-
-        driveEventLogger.append("Estimator reset");
-    }
-
-    /**
-     * @return the estimated position of the robot
-     */
-    public Pose2d getPose() {
-        return poseEstimator.getEstimatedPosition();
-    }
-
-    public ChassisSpeeds getCurrentChassisSpeeds() {
-        return kinematics.toChassisSpeeds(getActualStates());
-    }
-
-    /**
-     * Set the desired speed of the robot. Chassis speeds are always robot centric but can be created
-     * from field centric values through {@link ChassisSpeeds#fromFieldRelativeSpeeds(double, double,
-     * double, Rotation2d)}
-     *
-     * @param chassisSpeeds the desired chassis speeds
-     * @param openLoop if true then velocity will be handled exclusivity with feedforward (mostly used
-     *     for teleop). If false a PIDF will be used (mostly used for auto)
-     */
-    public void setChassisSpeeds(ChassisSpeeds chassisSpeeds, boolean openLoop) {
-        desiredSpeedsEntry.append(chassisSpeeds);
-
-        setRawStates(
-                true, openLoop, kinematics.toSwerveModuleStates(RaiderMathUtils.correctForSwerveSkew(chassisSpeeds)));
-    }
-
-    /**
-     * Sets the desired swerve drive states for the modules. This method also takes a copy of the
-     * states, so they will not be changed. Assumes zero acceleration.
-     *
-     * @param activeSteer if false will not actively power the steer motor
-     * @param openLoop if true then velocity will be handled exclusivity with feedforward (for teleop
-     *     mostly). If false a PIDF will be used (for auto)
-     * @param desiredStates the desired states... Ordered front left, front right, back left, back right
-     */
-    public void setRawStates(boolean activeSteer, boolean openLoop, SwerveModuleState[] desiredStates) {
-        if (desiredStates.length != modules.length) {
-            throw new IllegalArgumentException("You must provide desiredStates for all modules");
-        }
-
-        driveMode = openLoop ? DriveMode.OPEN_LOOP : DriveMode.CLOSE_LOOP;
-        this.activeSteer = activeSteer;
-
-        this.desiredStates = RaiderMathUtils.copySwerveStateArray(desiredStates);
-    }
-
-    /**
-     * Set the voltage directly for the motors.
-     *
-     * @param driveVolts the desired drive voltage
-     * @param steerVolts the desired steer voltage
-     */
-    public void setRawVolts(double driveVolts, double steerVolts) {
-        driveMode = DriveMode.RAW_VOLTAGE;
-
-        this.rawDriveVolts = driveVolts;
-        this.rawSteerVolts = steerVolts;
-    }
-
-    /** Sets each module velocity to zero and desired angle to what it currently is */
-    public void stopMovement() {
-        SwerveModuleState[] newStates = new SwerveModuleState[modules.length];
+  @Override
+  public void periodic() {
+    switch (driveMode) {
+      case OPEN_LOOP, CLOSE_LOOP -> {
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_VELOCITY_METERS_SECOND);
         for (int i = 0; i < modules.length; i++) {
-            newStates[i] = new SwerveModuleState(0.0, modules[i].getActualState().angle);
+          modules[i].setDesiredState(
+              desiredStates[i], activeSteer, driveMode == DriveMode.OPEN_LOOP);
         }
-        setRawStates(false, true, newStates);
-    }
-
-    /**
-     * Set the module to characterization mode with the provided voltage
-     *
-     * @param voltage the voltage to apply to the drive motor
-     */
-    public void setCharacterizationVoltage(double voltage) {
-        driveMode = DriveMode.CHARACTERIZATION;
-        rawDriveVolts = voltage;
-    }
-
-    public double[] getActualDriveVoltages() {
-        double[] voltages = new double[modules.length];
-        for (int i = 0; i < modules.length; i++) {
-            voltages[i] = modules[i].getActualDriveVoltage();
-        }
-        return voltages;
-    }
-
-    public void setAllModulesToAbsolute() {
+      }
+      case RAW_VOLTAGE -> {
         for (SwerveModule module : modules) {
-            module.resetSteerToAbsolute();
+          module.setRawVoltage(rawDriveVolts, rawSteerVolts);
         }
-    }
-
-    private boolean allModulesAtAbsolute() {
-        boolean allSet = true;
+      }
+      case CHARACTERIZATION -> {
         for (SwerveModule module : modules) {
-            allSet &= module.isSetToAbsolute();
+          module.setCharacterizationVoltage(rawDriveVolts);
         }
-        return allSet;
+      }
     }
 
-    /**
-     * Should only be used for characterization
-     * @return the angle in radians
-     */
-    public double getRawGyroAngle() {
-        return Units.degreesToRadians(gyro.getAngle());
+    logValues();
+  }
+
+  private void logValues() {
+    allModulesAtAbsoluteZeroEntry.append(allModulesAtAbsolute());
+
+    gyroEntry.append(getGyroRotation().getDegrees());
+
+    Pose2d estimatedPose = getPose();
+    odometryEntry.append(estimatedPose);
+
+    chassisSpeedsEntry.append(getCurrentChassisSpeeds());
+
+    field2d.setRobotPose(estimatedPose);
+
+    for (SwerveModule module : modules) {
+      module.logValues();
     }
 
-    /**
-     * Should only be used for characterization
-     * @return the angle rate in radians/second
-     */
-    public double getRawGyroRate() {
-        return Units.degreesToRadians(gyro.getRate());
-    }
+    advantageScopeSwerveDesiredStates.append(desiredStates);
+    advantageScopeSwerveActualStates.append(getActualStates());
+  }
 
-    public SwerveModuleState[] getActualStates() {
-        SwerveModuleState[] actualStates = new SwerveModuleState[modules.length];
-        for (int i = 0; i < modules.length; i++) {
-            actualStates[i] = modules[i].getActualState();
-        }
-        return actualStates;
-    }
-
-    public SwerveModulePosition[] getModulePositions() {
-        SwerveModulePosition[] actualPositions = new SwerveModulePosition[modules.length];
-        for (int i = 0; i < modules.length; i++) {
-            actualPositions[i] = modules[i].getActualPosition();
-        }
-
-        return actualPositions;
-    }
-
-    @Override
-    public void periodic() {
-        switch (driveMode) {
-            case OPEN_LOOP, CLOSE_LOOP -> {
-                SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_VELOCITY_METERS_SECOND);
-                for (int i = 0; i < modules.length; i++) {
-                    modules[i].setDesiredState(desiredStates[i], activeSteer, driveMode == DriveMode.OPEN_LOOP);
-                }
-            }
-            case RAW_VOLTAGE -> {
-                for (SwerveModule module : modules) {
-                    module.setRawVoltage(rawDriveVolts, rawSteerVolts);
-                }
-            }
-            case CHARACTERIZATION -> {
-                for (SwerveModule module : modules) {
-                    module.setCharacterizationVoltage(rawDriveVolts);
-                }
-            }
-        }
-
-        logValues();
-    }
-
-    private void logValues() {
-        allModulesAtAbsoluteZeroEntry.append(allModulesAtAbsolute());
-
-        gyroEntry.append(getGyroRotation().getDegrees());
-
-        Pose2d estimatedPose = getPose();
-        odometryEntry.append(estimatedPose);
-
-        chassisSpeedsEntry.append(getCurrentChassisSpeeds());
-
-        field2d.setRobotPose(estimatedPose);
-
-        for (SwerveModule module : modules) {
-            module.logValues();
-        }
-
-        advantageScopeSwerveDesiredStates.append(desiredStates);
-        advantageScopeSwerveActualStates.append(getActualStates());
-    }
-
-    public Field2d getField2d() {
-        return field2d;
-    }
+  public Field2d getField2d() {
+    return field2d;
+  }
 }

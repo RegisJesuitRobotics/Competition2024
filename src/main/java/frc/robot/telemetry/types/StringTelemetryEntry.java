@@ -6,43 +6,42 @@ import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 
 public class StringTelemetryEntry extends PrimitiveTelemetryEntry {
-    private final StringLogEntry logEntry;
-    private final StringPublisher networkPublisher;
-    private String lastValue;
+  private final StringLogEntry logEntry;
+  private final StringPublisher networkPublisher;
+  private String lastValue;
 
-    public StringTelemetryEntry(String path, boolean shouldNT) {
-        this(path, shouldNT, true);
+  public StringTelemetryEntry(String path, boolean shouldNT) {
+    this(path, shouldNT, true);
+  }
+
+  public StringTelemetryEntry(String path, boolean shouldNT, boolean shouldLazyLog) {
+    super(shouldLazyLog);
+
+    logEntry = new StringLogEntry(DataLogManager.getLog(), path);
+    if (shouldNT) {
+      networkPublisher = NetworkTableInstance.getDefault().getStringTopic(path).publish();
+      networkPublisher.setDefault("");
+    } else {
+      networkPublisher = null;
     }
+  }
 
-    public StringTelemetryEntry(String path, boolean shouldNT, boolean shouldLazyLog) {
-        super(shouldLazyLog);
+  public void append(String value) {
+    if (shouldLog(() -> lastValue.equals(value))) {
+      logEntry.append(value);
 
-        logEntry = new StringLogEntry(DataLogManager.getLog(), path);
-        if (shouldNT) {
-            networkPublisher =
-                    NetworkTableInstance.getDefault().getStringTopic(path).publish();
-            networkPublisher.setDefault("");
-        } else {
-            networkPublisher = null;
-        }
+      if (networkPublisher != null) {
+        networkPublisher.set(value);
+      }
+      lastValue = value;
     }
+  }
 
-    public void append(String value) {
-        if (shouldLog(() -> lastValue.equals(value))) {
-            logEntry.append(value);
-
-            if (networkPublisher != null) {
-                networkPublisher.set(value);
-            }
-            lastValue = value;
-        }
+  @Override
+  public void close() {
+    logEntry.finish();
+    if (networkPublisher != null) {
+      networkPublisher.close();
     }
-
-    @Override
-    public void close() {
-        logEntry.finish();
-        if (networkPublisher != null) {
-            networkPublisher.close();
-        }
-    }
+  }
 }

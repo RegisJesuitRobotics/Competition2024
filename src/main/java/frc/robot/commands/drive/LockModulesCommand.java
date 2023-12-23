@@ -10,35 +10,38 @@ import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
  * does not finish
  */
 public class LockModulesCommand extends Command {
-    private static final Rotation2d fortyFiveDegrees = Rotation2d.fromDegrees(45);
-    private static final SwerveModuleState[] states = new SwerveModuleState[] {
-        new SwerveModuleState(0.0, fortyFiveDegrees), new SwerveModuleState(0.0, fortyFiveDegrees.unaryMinus()),
-        new SwerveModuleState(0.0, fortyFiveDegrees.unaryMinus()), new SwerveModuleState(0.0, fortyFiveDegrees)
-    };
+  private static final Rotation2d fortyFiveDegrees = Rotation2d.fromDegrees(45);
+  private static final SwerveModuleState[] states =
+      new SwerveModuleState[] {
+        new SwerveModuleState(0.0, fortyFiveDegrees),
+            new SwerveModuleState(0.0, fortyFiveDegrees.unaryMinus()),
+        new SwerveModuleState(0.0, fortyFiveDegrees.unaryMinus()),
+            new SwerveModuleState(0.0, fortyFiveDegrees)
+      };
 
-    private final SwerveDriveSubsystem driveSubsystem;
+  private final SwerveDriveSubsystem driveSubsystem;
 
-    public LockModulesCommand(SwerveDriveSubsystem driveSubsystem) {
-        this.driveSubsystem = driveSubsystem;
+  public LockModulesCommand(SwerveDriveSubsystem driveSubsystem) {
+    this.driveSubsystem = driveSubsystem;
 
-        addRequirements(driveSubsystem);
-    }
+    addRequirements(driveSubsystem);
+  }
 
-    @Override
-    public void initialize() {}
+  @Override
+  public void initialize() {}
 
-    @Override
-    public void execute() {
-        driveSubsystem.setRawStates(true, true, states);
-    }
+  @Override
+  public void execute() {
+    driveSubsystem.setRawStates(true, true, states);
+  }
 
-    @Override
-    public void end(boolean interrupted) {
-        driveSubsystem.stopMovement();
-    }
+  @Override
+  public void end(boolean interrupted) {
+    driveSubsystem.stopMovement();
+  }
 
-    @Override
-    public boolean isFinished() {
-        return false;
-    }
+  @Override
+  public boolean isFinished() {
+    return false;
+  }
 }

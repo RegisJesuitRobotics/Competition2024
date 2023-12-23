@@ -35,149 +35,149 @@ import java.util.concurrent.locks.ReentrantLock;
  * @param <V> The type of the values to be stored
  */
 public class ListenableSendableChooser<V> implements NTSendable, AutoCloseable {
-    /** The key for the default value. */
-    private static final String DEFAULT = "default";
-    /** The key for the selected option. */
-    private static final String SELECTED = "selected";
-    /** The key for the active option. */
-    private static final String ACTIVE = "active";
-    /** The key for the option array. */
-    private static final String OPTIONS = "options";
-    /** The key for the instance number. */
-    private static final String INSTANCE = ".instance";
-    /** A map linking strings to the objects the represent. */
-    private final Map<String, V> map = new LinkedHashMap<>();
+  /** The key for the default value. */
+  private static final String DEFAULT = "default";
+  /** The key for the selected option. */
+  private static final String SELECTED = "selected";
+  /** The key for the active option. */
+  private static final String ACTIVE = "active";
+  /** The key for the option array. */
+  private static final String OPTIONS = "options";
+  /** The key for the instance number. */
+  private static final String INSTANCE = ".instance";
+  /** A map linking strings to the objects the represent. */
+  private final Map<String, V> map = new LinkedHashMap<>();
 
-    private String defaultChoice = "";
-    private final int instance;
-    private static final AtomicInteger s_instances = new AtomicInteger();
+  private String defaultChoice = "";
+  private final int instance;
+  private static final AtomicInteger s_instances = new AtomicInteger();
 
-    private boolean hasNewValue = true;
+  private boolean hasNewValue = true;
 
-    /** Instantiates a {@link ListenableSendableChooser}. */
-    public ListenableSendableChooser() {
-        instance = s_instances.getAndIncrement();
-        SendableRegistry.add(this, "SendableChooser", instance);
+  /** Instantiates a {@link ListenableSendableChooser}. */
+  public ListenableSendableChooser() {
+    instance = s_instances.getAndIncrement();
+    SendableRegistry.add(this, "SendableChooser", instance);
+  }
+
+  @Override
+  public void close() {
+    SendableRegistry.remove(this);
+    mutex.lock();
+    try {
+      for (StringPublisher pub : activePubs) {
+        pub.close();
+      }
+    } finally {
+      mutex.unlock();
     }
+  }
 
-    @Override
-    public void close() {
-        SendableRegistry.remove(this);
-        mutex.lock();
-        try {
-            for (StringPublisher pub : activePubs) {
-                pub.close();
-            }
-        } finally {
-            mutex.unlock();
-        }
+  public boolean hasNewValue() {
+    boolean temp = hasNewValue;
+    hasNewValue = false;
+    return temp;
+  }
+
+  /**
+   * Adds the given object to the list of options. On the {@link SmartDashboard} on the desktop, the
+   * object will appear as the given name.
+   *
+   * @param name the name of the option
+   * @param object the option
+   */
+  public void addOption(String name, V object) {
+    map.put(name, object);
+  }
+
+  /**
+   * Adds the given object to the list of options and marks it as the default. Functionally, this is
+   * very close to {@link #addOption(String, Object)} except that it will use this as the default
+   * option if none other is explicitly selected.
+   *
+   * @param name the name of the option
+   * @param object the option
+   */
+  public void setDefaultOption(String name, V object) {
+    requireNonNullParam(name, "name", "setDefaultOption");
+
+    defaultChoice = name;
+    addOption(name, object);
+  }
+
+  /**
+   * Returns the selected option. If there is none selected, it will return the default. If there is
+   * none selected and no default, then it will return {@code null}.
+   *
+   * @return the option selected
+   */
+  public V getSelected() {
+    mutex.lock();
+    try {
+      if (selected != null) {
+        return map.get(selected);
+      } else {
+        return map.get(defaultChoice);
+      }
+    } finally {
+      mutex.unlock();
     }
+  }
 
-    public boolean hasNewValue() {
-        boolean temp = hasNewValue;
-        hasNewValue = false;
-        return temp;
+  boolean overrideSelected = false;
+
+  public void setSelected(String val) {
+    mutex.lock();
+    try {
+      selected = val;
+      hasNewValue = true;
+      for (StringPublisher pub : activePubs) {
+        pub.set(val);
+      }
+      for (StringPublisher pub : selectedPubs) {
+        pub.set(val);
+      }
+    } finally {
+      mutex.unlock();
     }
+    overrideSelected = true;
+  }
 
-    /**
-     * Adds the given object to the list of options. On the {@link SmartDashboard} on the desktop, the
-     * object will appear as the given name.
-     *
-     * @param name the name of the option
-     * @param object the option
-     */
-    public void addOption(String name, V object) {
-        map.put(name, object);
-    }
+  private String selected;
+  private final List<StringPublisher> activePubs = new ArrayList<>();
+  private final List<StringPublisher> selectedPubs = new ArrayList<>();
+  private final ReentrantLock mutex = new ReentrantLock();
 
-    /**
-     * Adds the given object to the list of options and marks it as the default. Functionally, this is
-     * very close to {@link #addOption(String, Object)} except that it will use this as the default
-     * option if none other is explicitly selected.
-     *
-     * @param name the name of the option
-     * @param object the option
-     */
-    public void setDefaultOption(String name, V object) {
-        requireNonNullParam(name, "name", "setDefaultOption");
-
-        defaultChoice = name;
-        addOption(name, object);
-    }
-
-    /**
-     * Returns the selected option. If there is none selected, it will return the default. If there is
-     * none selected and no default, then it will return {@code null}.
-     *
-     * @return the option selected
-     */
-    public V getSelected() {
-        mutex.lock();
-        try {
+  @Override
+  public void initSendable(NTSendableBuilder builder) {
+    builder.setSmartDashboardType("String Chooser");
+    IntegerPublisher instancePub = new IntegerTopic(builder.getTopic(INSTANCE)).publish();
+    instancePub.set(instance);
+    builder.addCloseable(instancePub);
+    builder.addStringProperty(DEFAULT, () -> defaultChoice, null);
+    builder.addStringArrayProperty(OPTIONS, () -> map.keySet().toArray(new String[0]), null);
+    builder.addStringProperty(
+        ACTIVE,
+        () -> {
+          mutex.lock();
+          try {
             if (selected != null) {
-                return map.get(selected);
+              return selected;
             } else {
-                return map.get(defaultChoice);
+              return defaultChoice;
             }
-        } finally {
+          } finally {
             mutex.unlock();
-        }
+          }
+        },
+        null);
+    mutex.lock();
+    try {
+      activePubs.add(new StringTopic(builder.getTopic(ACTIVE)).publish());
+      selectedPubs.add(new StringTopic(builder.getTopic(SELECTED)).publish());
+    } finally {
+      mutex.unlock();
     }
-
-    boolean overrideSelected = false;
-
-    public void setSelected(String val) {
-        mutex.lock();
-        try {
-            selected = val;
-            hasNewValue = true;
-            for (StringPublisher pub : activePubs) {
-                pub.set(val);
-            }
-            for (StringPublisher pub : selectedPubs) {
-                pub.set(val);
-            }
-        } finally {
-            mutex.unlock();
-        }
-        overrideSelected = true;
-    }
-
-    private String selected;
-    private final List<StringPublisher> activePubs = new ArrayList<>();
-    private final List<StringPublisher> selectedPubs = new ArrayList<>();
-    private final ReentrantLock mutex = new ReentrantLock();
-
-    @Override
-    public void initSendable(NTSendableBuilder builder) {
-        builder.setSmartDashboardType("String Chooser");
-        IntegerPublisher instancePub = new IntegerTopic(builder.getTopic(INSTANCE)).publish();
-        instancePub.set(instance);
-        builder.addCloseable(instancePub);
-        builder.addStringProperty(DEFAULT, () -> defaultChoice, null);
-        builder.addStringArrayProperty(OPTIONS, () -> map.keySet().toArray(new String[0]), null);
-        builder.addStringProperty(
-                ACTIVE,
-                () -> {
-                    mutex.lock();
-                    try {
-                        if (selected != null) {
-                            return selected;
-                        } else {
-                            return defaultChoice;
-                        }
-                    } finally {
-                        mutex.unlock();
-                    }
-                },
-                null);
-        mutex.lock();
-        try {
-            activePubs.add(new StringTopic(builder.getTopic(ACTIVE)).publish());
-            selectedPubs.add(new StringTopic(builder.getTopic(SELECTED)).publish());
-        } finally {
-            mutex.unlock();
-        }
-        builder.addStringProperty(SELECTED, null, this::setSelected);
-    }
+    builder.addStringProperty(SELECTED, null, this::setSelected);
+  }
 }

@@ -15,32 +15,32 @@ import java.util.function.DoubleSupplier;
  * edu.wpi.first.math.trajectory.TrapezoidProfile} instead.
  */
 public class SupplierSlewRateLimiter {
-    private final DoubleSupplier rateLimit;
-    private double prevVal;
-    private double prevTime;
+  private final DoubleSupplier rateLimit;
+  private double prevVal;
+  private double prevTime;
 
-    public SupplierSlewRateLimiter(DoubleSupplier rateLimit) {
-        this.rateLimit = rateLimit;
-        prevVal = 0.0;
-        prevTime = MathSharedStore.getTimestamp();
-    }
+  public SupplierSlewRateLimiter(DoubleSupplier rateLimit) {
+    this.rateLimit = rateLimit;
+    prevVal = 0.0;
+    prevTime = MathSharedStore.getTimestamp();
+  }
 
-    public double calculate(double input) {
-        double currentTime = MathSharedStore.getTimestamp();
-        double elapsedTime = currentTime - prevTime;
-        double limit = rateLimit.getAsDouble();
-        prevVal += MathUtil.clamp(input - prevVal, -limit * elapsedTime, limit * elapsedTime);
-        prevTime = currentTime;
-        return prevVal;
-    }
+  public double calculate(double input) {
+    double currentTime = MathSharedStore.getTimestamp();
+    double elapsedTime = currentTime - prevTime;
+    double limit = rateLimit.getAsDouble();
+    prevVal += MathUtil.clamp(input - prevVal, -limit * elapsedTime, limit * elapsedTime);
+    prevTime = currentTime;
+    return prevVal;
+  }
 
-    /**
-     * Resets the slew rate limiter to the specified value; ignores the rate limit when doing so.
-     *
-     * @param value The value to reset to.
-     */
-    public void reset(double value) {
-        prevVal = value;
-        prevTime = MathSharedStore.getTimestamp();
-    }
+  /**
+   * Resets the slew rate limiter to the specified value; ignores the rate limit when doing so.
+   *
+   * @param value The value to reset to.
+   */
+  public void reset(double value) {
+    prevVal = value;
+    prevTime = MathSharedStore.getTimestamp();
+  }
 }

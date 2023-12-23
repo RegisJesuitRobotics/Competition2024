@@ -16,66 +16,72 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class MiscRobotTelemetryAndAlerts {
-    private static final String tableName = "/robot/";
+  private static final String tableName = "/robot/";
 
-    private final Alert highCanUsageAlert = new Alert("High CAN Usage", AlertType.WARNING);
-    private final LinearFilter highCanUsageFilter = LinearFilter.movingAverage(50);
+  private final Alert highCanUsageAlert = new Alert("High CAN Usage", AlertType.WARNING);
+  private final LinearFilter highCanUsageFilter = LinearFilter.movingAverage(50);
 
-    private final Alert[] controllerAlerts = new Alert[MiscConstants.USED_CONTROLLER_PORTS.length];
+  private final Alert[] controllerAlerts = new Alert[MiscConstants.USED_CONTROLLER_PORTS.length];
 
-    private final DoubleTelemetryEntry inputVoltageEntry = new DoubleTelemetryEntry(tableName + "inputVoltage", false);
-    private final DoubleTelemetryEntry inputCurrentEntry = new DoubleTelemetryEntry(tableName + "inputCurrent", false);
-    private final CANBusDataEntry canBusDataEntry = new CANBusDataEntry(tableName + "can", false);
+  private final DoubleTelemetryEntry inputVoltageEntry =
+      new DoubleTelemetryEntry(tableName + "inputVoltage", false);
+  private final DoubleTelemetryEntry inputCurrentEntry =
+      new DoubleTelemetryEntry(tableName + "inputCurrent", false);
+  private final CANBusDataEntry canBusDataEntry = new CANBusDataEntry(tableName + "can", false);
 
-    public MiscRobotTelemetryAndAlerts() {
-        for (int i = 0; i < controllerAlerts.length; i++) {
-            controllerAlerts[i] = new Alert(
-                    "Controller " + MiscConstants.USED_CONTROLLER_PORTS[i] + " is disconnected.", AlertType.WARNING);
-        }
-
-        if (MiscConstants.TUNING_MODE) {
-            Alert tuningModeAlert = new Alert("Tuning Mode is Enabled", AlertType.INFO);
-            tuningModeAlert.set(true);
-        }
-
-        loadAndSetBuildTimeAlert();
+  public MiscRobotTelemetryAndAlerts() {
+    for (int i = 0; i < controllerAlerts.length; i++) {
+      controllerAlerts[i] =
+          new Alert(
+              "Controller " + MiscConstants.USED_CONTROLLER_PORTS[i] + " is disconnected.",
+              AlertType.WARNING);
     }
 
-    private void loadAndSetBuildTimeAlert() {
-        File buildTimeFile = new File(Filesystem.getDeployDirectory(), "buildTime.txt");
-        Alert buildTimeAlert = null;
-        try (FileReader buildTimeReader = new FileReader(buildTimeFile)) {
-            char[] date = new char[19];
-            int read = buildTimeReader.read(date);
-            if (read == 19) {
-                DataLogManager.log("Code was built on " + new String(date));
-                buildTimeAlert = new Alert("Robot code was built " + new String(date) + ".", AlertType.INFO);
-            }
-        } catch (IOException ignored) {
-        }
-
-        if (buildTimeAlert == null) {
-            buildTimeAlert = new Alert("Build time file could not be read.", AlertType.WARNING);
-        }
-
-        buildTimeAlert.set(true);
+    if (MiscConstants.TUNING_MODE) {
+      Alert tuningModeAlert = new Alert("Tuning Mode is Enabled", AlertType.INFO);
+      tuningModeAlert.set(true);
     }
 
-    public void logValues() {
-        inputVoltageEntry.append(RobotController.getInputVoltage());
-        inputCurrentEntry.append(RobotController.getInputCurrent());
+    loadAndSetBuildTimeAlert();
+  }
 
-        CANStatus canStatus = RobotController.getCANStatus();
-        canBusDataEntry.append(canStatus);
-
-        // CAN Usage
-        double percentBusUsage = canStatus.percentBusUtilization;
-        double filtered = highCanUsageFilter.calculate(percentBusUsage);
-        highCanUsageAlert.set(filtered >= 0.9);
-
-        // Joysticks
-        for (int i = 0; i < controllerAlerts.length; i++) {
-            controllerAlerts[i].set(!DriverStation.isJoystickConnected(MiscConstants.USED_CONTROLLER_PORTS[i]));
-        }
+  private void loadAndSetBuildTimeAlert() {
+    File buildTimeFile = new File(Filesystem.getDeployDirectory(), "buildTime.txt");
+    Alert buildTimeAlert = null;
+    try (FileReader buildTimeReader = new FileReader(buildTimeFile)) {
+      char[] date = new char[19];
+      int read = buildTimeReader.read(date);
+      if (read == 19) {
+        DataLogManager.log("Code was built on " + new String(date));
+        buildTimeAlert =
+            new Alert("Robot code was built " + new String(date) + ".", AlertType.INFO);
+      }
+    } catch (IOException ignored) {
     }
+
+    if (buildTimeAlert == null) {
+      buildTimeAlert = new Alert("Build time file could not be read.", AlertType.WARNING);
+    }
+
+    buildTimeAlert.set(true);
+  }
+
+  public void logValues() {
+    inputVoltageEntry.append(RobotController.getInputVoltage());
+    inputCurrentEntry.append(RobotController.getInputCurrent());
+
+    CANStatus canStatus = RobotController.getCANStatus();
+    canBusDataEntry.append(canStatus);
+
+    // CAN Usage
+    double percentBusUsage = canStatus.percentBusUtilization;
+    double filtered = highCanUsageFilter.calculate(percentBusUsage);
+    highCanUsageAlert.set(filtered >= 0.9);
+
+    // Joysticks
+    for (int i = 0; i < controllerAlerts.length; i++) {
+      controllerAlerts[i].set(
+          !DriverStation.isJoystickConnected(MiscConstants.USED_CONTROLLER_PORTS[i]));
+    }
+  }
 }

@@ -13,92 +13,95 @@ import frc.robot.telemetry.types.rich.Pose2dEntry;
 import java.util.function.Supplier;
 
 public class SimpleToPointCommand extends Command {
-    private final SwerveDriveSubsystem driveSubsystem;
-    private final Supplier<Pose2d> desiredPoseSupplier;
-    private final TunableTelemetryProfiledPIDController translationController =
-            new TunableTelemetryProfiledPIDController(
-                    "/simpleToPoint/translationController",
-                    AutoConstants.TRANSLATION_POSITION_GAINS,
-                    AutoConstants.TRANSLATION_POSITION_TRAPEZOIDAL_GAINS);
-    private final TunableTelemetryProfiledPIDController rotationController = new TunableTelemetryProfiledPIDController(
-            "/simpleToPoint/rotationController",
-            AutoConstants.ANGULAR_POSITION_PID_GAINS,
-            AutoConstants.ANGULAR_POSITION_TRAPEZOIDAL_GAINS);
+  private final SwerveDriveSubsystem driveSubsystem;
+  private final Supplier<Pose2d> desiredPoseSupplier;
+  private final TunableTelemetryProfiledPIDController translationController =
+      new TunableTelemetryProfiledPIDController(
+          "/simpleToPoint/translationController",
+          AutoConstants.TRANSLATION_POSITION_GAINS,
+          AutoConstants.TRANSLATION_POSITION_TRAPEZOIDAL_GAINS);
+  private final TunableTelemetryProfiledPIDController rotationController =
+      new TunableTelemetryProfiledPIDController(
+          "/simpleToPoint/rotationController",
+          AutoConstants.ANGULAR_POSITION_PID_GAINS,
+          AutoConstants.ANGULAR_POSITION_TRAPEZOIDAL_GAINS);
 
-    private final Pose2dEntry desiredPoseEntry =
-            new Pose2dEntry("/simpleToPoint/desiredPose", MiscConstants.TUNING_MODE);
+  private final Pose2dEntry desiredPoseEntry =
+      new Pose2dEntry("/simpleToPoint/desiredPose", MiscConstants.TUNING_MODE);
 
-    private Pose2d currentDesiredPose = new Pose2d();
+  private Pose2d currentDesiredPose = new Pose2d();
 
-    public SimpleToPointCommand(Pose2d desiredPose, SwerveDriveSubsystem driveSubsystem) {
-        this(() -> desiredPose, driveSubsystem);
+  public SimpleToPointCommand(Pose2d desiredPose, SwerveDriveSubsystem driveSubsystem) {
+    this(() -> desiredPose, driveSubsystem);
+  }
+
+  public SimpleToPointCommand(
+      Supplier<Pose2d> desiredPoseSupplier, SwerveDriveSubsystem driveSubsystem) {
+    this.desiredPoseSupplier = desiredPoseSupplier;
+    this.driveSubsystem = driveSubsystem;
+
+    translationController.setTolerance(0.05);
+    rotationController.setTolerance(Units.degreesToRadians(5.0));
+    rotationController.enableContinuousInput(-Math.PI, Math.PI);
+
+    addRequirements(driveSubsystem);
+  }
+
+  @Override
+  public void initialize() {
+    currentDesiredPose = desiredPoseSupplier.get();
+    desiredPoseEntry.append(currentDesiredPose);
+
+    // Aim for zero error in translation
+    translationController.setGoal(0.0);
+    rotationController.setGoal(currentDesiredPose.getRotation().getRadians());
+
+    Translation2d translationError = getTranslationError();
+    ChassisSpeeds speeds = driveSubsystem.getCurrentChassisSpeeds();
+    // Use negative norm because it needs to be a positive feedback
+    translationController.reset(
+        -translationError.getNorm(),
+        Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond));
+    rotationController.reset(
+        driveSubsystem.getPose().getRotation().getRadians(), speeds.omegaRadiansPerSecond);
+  }
+
+  @Override
+  public void execute() {
+    Translation2d translationError = getTranslationError();
+    // Use negative norm because it needs to be a positive feedback
+    Translation2d translationVelocity = new Translation2d();
+    if (translationError.getNorm() > 0.05) {
+      double translationFeedback = translationController.calculate(-translationError.getNorm());
+      double translationFeedforward = translationController.getSetpoint().velocity;
+      translationVelocity =
+          new Translation2d(
+              translationFeedback + translationFeedforward, translationError.getAngle());
     }
 
-    public SimpleToPointCommand(Supplier<Pose2d> desiredPoseSupplier, SwerveDriveSubsystem driveSubsystem) {
-        this.desiredPoseSupplier = desiredPoseSupplier;
-        this.driveSubsystem = driveSubsystem;
+    double angularVelocity =
+        rotationController.calculate(driveSubsystem.getPose().getRotation().getRadians());
 
-        translationController.setTolerance(0.05);
-        rotationController.setTolerance(Units.degreesToRadians(5.0));
-        rotationController.enableContinuousInput(-Math.PI, Math.PI);
+    driveSubsystem.setChassisSpeeds(
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+            translationVelocity.getX(),
+            translationVelocity.getY(),
+            angularVelocity,
+            driveSubsystem.getPose().getRotation()),
+        false);
+  }
 
-        addRequirements(driveSubsystem);
-    }
+  private Translation2d getTranslationError() {
+    return currentDesiredPose.getTranslation().minus(driveSubsystem.getPose().getTranslation());
+  }
 
-    @Override
-    public void initialize() {
-        currentDesiredPose = desiredPoseSupplier.get();
-        desiredPoseEntry.append(currentDesiredPose);
+  @Override
+  public void end(boolean interrupted) {
+    driveSubsystem.stopMovement();
+  }
 
-        // Aim for zero error in translation
-        translationController.setGoal(0.0);
-        rotationController.setGoal(currentDesiredPose.getRotation().getRadians());
-
-        Translation2d translationError = getTranslationError();
-        ChassisSpeeds speeds = driveSubsystem.getCurrentChassisSpeeds();
-        // Use negative norm because it needs to be a positive feedback
-        translationController.reset(
-                -translationError.getNorm(), Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond));
-        rotationController.reset(driveSubsystem.getPose().getRotation().getRadians(), speeds.omegaRadiansPerSecond);
-    }
-
-    @Override
-    public void execute() {
-        Translation2d translationError = getTranslationError();
-        // Use negative norm because it needs to be a positive feedback
-        Translation2d translationVelocity = new Translation2d();
-        if (translationError.getNorm() > 0.05) {
-            double translationFeedback = translationController.calculate(-translationError.getNorm());
-            double translationFeedforward = translationController.getSetpoint().velocity;
-            translationVelocity =
-                    new Translation2d(translationFeedback + translationFeedforward, translationError.getAngle());
-        }
-
-        double angularVelocity = rotationController.calculate(
-                driveSubsystem.getPose().getRotation().getRadians());
-
-        driveSubsystem.setChassisSpeeds(
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                        translationVelocity.getX(),
-                        translationVelocity.getY(),
-                        angularVelocity,
-                        driveSubsystem.getPose().getRotation()),
-                false);
-    }
-
-    private Translation2d getTranslationError() {
-        return currentDesiredPose
-                .getTranslation()
-                .minus(driveSubsystem.getPose().getTranslation());
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        driveSubsystem.stopMovement();
-    }
-
-    @Override
-    public boolean isFinished() {
-        return translationController.atGoal() && rotationController.atGoal();
-    }
+  @Override
+  public boolean isFinished() {
+    return translationController.atGoal() && rotationController.atGoal();
+  }
 }

@@ -31,9 +31,12 @@
 //    // We don't use a profiled PID controller for the angle because the path should
 //    // already profile it for us
 //    private final PPHolonomicDriveController driveController = new PPHolonomicDriveController(
-//            AutoConstants.TRANSLATION_POSITION_GAINS.createLoggablePIDController("/followPath/xController"),
-//            AutoConstants.TRANSLATION_POSITION_GAINS.createLoggablePIDController("/followPath/yController"),
-//            AutoConstants.ANGULAR_POSITION_PID_GAINS.createLoggablePIDController("/followPath/thetaController"));
+//
+// AutoConstants.TRANSLATION_POSITION_GAINS.createLoggablePIDController("/followPath/xController"),
+//
+// AutoConstants.TRANSLATION_POSITION_GAINS.createLoggablePIDController("/followPath/yController"),
+//
+// AutoConstants.ANGULAR_POSITION_PID_GAINS.createLoggablePIDController("/followPath/thetaController"));
 //
 //    private final Timer timer = new Timer();
 //
@@ -41,7 +44,8 @@
 //        this(path, true, driveSubsystem);
 //    }
 //
-//    public FollowPathCommand(PathPlannerTrajectory path, boolean shouldFlipIfRed, SwerveDriveSubsystem driveSubsystem)
+//    public FollowPathCommand(PathPlannerTrajectory path, boolean shouldFlipIfRed,
+// SwerveDriveSubsystem driveSubsystem)
 // {
 //        this(
 //                () -> {
@@ -59,7 +63,8 @@
 //     * @param pathSupplier the trajectory
 //     * @param driveSubsystem the swerve drive subsystem
 //     */
-//    public FollowPathCommand(Supplier<PathPlannerTrajectory> pathSupplier, SwerveDriveSubsystem driveSubsystem) {
+//    public FollowPathCommand(Supplier<PathPlannerTrajectory> pathSupplier, SwerveDriveSubsystem
+// driveSubsystem) {
 //        this.pathSupplier = pathSupplier;
 //        this.driveSubsystem = driveSubsystem;
 //
@@ -96,7 +101,8 @@
 //        PathPlannerState desiredState = (PathPlannerState) currentPath.sample(currentTime);
 //        ChassisSpeeds chassisSpeeds = driveController.calculate(currentPose, desiredState);
 //
-//        Pose2d desiredPose = new Pose2d(desiredState.poseMeters.getTranslation(), desiredState.holonomicRotation);
+//        Pose2d desiredPose = new Pose2d(desiredState.poseMeters.getTranslation(),
+// desiredState.holonomicRotation);
 //
 //        desiredPoseEntry.append(desiredPose);
 //        driveSubsystem.getField2d().getObject("followPathDesired").setPose(desiredPose);
@@ -112,6 +118,7 @@
 //
 //    @Override
 //    public boolean isFinished() {
-//        return timer.hasElapsed(currentPath.getTotalTimeSeconds()) && driveController.atReference();
+//        return timer.hasElapsed(currentPath.getTotalTimeSeconds()) &&
+// driveController.atReference();
 //    }
 // }

@@ -4,31 +4,31 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 
 public class GreaseGearsCommand extends Command {
-    private static final double VOLTS = 6.0;
+  private static final double VOLTS = 6.0;
 
-    private final SwerveDriveSubsystem driveSubsystem;
+  private final SwerveDriveSubsystem driveSubsystem;
 
-    public GreaseGearsCommand(SwerveDriveSubsystem driveSubsystem) {
-        this.driveSubsystem = driveSubsystem;
+  public GreaseGearsCommand(SwerveDriveSubsystem driveSubsystem) {
+    this.driveSubsystem = driveSubsystem;
 
-        addRequirements(driveSubsystem);
-    }
+    addRequirements(driveSubsystem);
+  }
 
-    @Override
-    public void initialize() {}
+  @Override
+  public void initialize() {}
 
-    @Override
-    public void execute() {
-        driveSubsystem.setRawVolts(VOLTS, VOLTS);
-    }
+  @Override
+  public void execute() {
+    driveSubsystem.setRawVolts(VOLTS, VOLTS);
+  }
 
-    @Override
-    public void end(boolean interrupted) {
-        driveSubsystem.stopMovement();
-    }
+  @Override
+  public void end(boolean interrupted) {
+    driveSubsystem.stopMovement();
+  }
 
-    @Override
-    public boolean isFinished() {
-        return false;
-    }
+  @Override
+  public boolean isFinished() {
+    return false;
+  }
 }

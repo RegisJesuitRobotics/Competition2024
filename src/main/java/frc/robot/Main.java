@@ -14,14 +14,14 @@ import edu.wpi.first.wpilibj.RobotBase;
  */
 public final class Main {
 
-    private Main() {}
+  private Main() {}
 
-    /**
-     * Main initialization method. Do not perform any initialization here.
-     *
-     * <p>If you change your main Robot class (name), change the parameter type.
-     */
-    public static void main(String... args) {
-        RobotBase.startRobot(Robot::new);
-    }
+  /**
+   * Main initialization method. Do not perform any initialization here.
+   *
+   * <p>If you change your main Robot class (name), change the parameter type.
+   */
+  public static void main(String... args) {
+    RobotBase.startRobot(Robot::new);
+  }
 }

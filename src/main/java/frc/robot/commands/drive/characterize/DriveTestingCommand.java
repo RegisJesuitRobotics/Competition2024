@@ -8,40 +8,41 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 
 public class DriveTestingCommand extends Command {
-    private final double rampRateMetersPerSecond;
-    private final SwerveDriveSubsystem driveSubsystem;
-    private double startTime;
+  private final double rampRateMetersPerSecond;
+  private final SwerveDriveSubsystem driveSubsystem;
+  private double startTime;
 
-    public DriveTestingCommand(double rampRateMetersPerSecond, SwerveDriveSubsystem driveSubsystem) {
-        this.rampRateMetersPerSecond = rampRateMetersPerSecond;
-        this.driveSubsystem = driveSubsystem;
+  public DriveTestingCommand(double rampRateMetersPerSecond, SwerveDriveSubsystem driveSubsystem) {
+    this.rampRateMetersPerSecond = rampRateMetersPerSecond;
+    this.driveSubsystem = driveSubsystem;
 
-        addRequirements(driveSubsystem);
+    addRequirements(driveSubsystem);
+  }
+
+  @Override
+  public void initialize() {
+    startTime = Timer.getFPGATimestamp();
+  }
+
+  @Override
+  public void execute() {
+    double elapsedTime = Timer.getFPGATimestamp() - startTime;
+    SwerveModuleState[] states = new SwerveModuleState[SwerveConstants.NUM_MODULES];
+    for (int i = 0; i < states.length; i++) {
+      states[i] =
+          new SwerveModuleState(rampRateMetersPerSecond * elapsedTime, Rotation2d.fromDegrees(0.0));
     }
 
-    @Override
-    public void initialize() {
-        startTime = Timer.getFPGATimestamp();
-    }
+    driveSubsystem.setRawStates(true, false, states);
+  }
 
-    @Override
-    public void execute() {
-        double elapsedTime = Timer.getFPGATimestamp() - startTime;
-        SwerveModuleState[] states = new SwerveModuleState[SwerveConstants.NUM_MODULES];
-        for (int i = 0; i < states.length; i++) {
-            states[i] = new SwerveModuleState(rampRateMetersPerSecond * elapsedTime, Rotation2d.fromDegrees(0.0));
-        }
+  @Override
+  public void end(boolean interrupted) {
+    driveSubsystem.stopMovement();
+  }
 
-        driveSubsystem.setRawStates(true, false, states);
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        driveSubsystem.stopMovement();
-    }
-
-    @Override
-    public boolean isFinished() {
-        return false;
-    }
+  @Override
+  public boolean isFinished() {
+    return false;
+  }
 }

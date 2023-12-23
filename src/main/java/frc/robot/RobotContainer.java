@@ -25,109 +25,130 @@ import java.util.function.DoubleSupplier;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-    private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem();
+  private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem();
 
-    private final CommandNintendoSwitchController driverController = new CommandNintendoSwitchController(0);
-    private final CommandXboxPlaystationController operatorController = new CommandXboxPlaystationController(1);
+  private final CommandNintendoSwitchController driverController =
+      new CommandNintendoSwitchController(0);
+  private final CommandXboxPlaystationController operatorController =
+      new CommandXboxPlaystationController(1);
 
-    private final ListenableSendableChooser<Command> driveCommandChooser = new ListenableSendableChooser<>();
+  private final ListenableSendableChooser<Command> driveCommandChooser =
+      new ListenableSendableChooser<>();
 
-    public RobotContainer() {
-        configureDriverBindings();
-        configureOperatorBindings();
-        configureAutos();
+  public RobotContainer() {
+    configureDriverBindings();
+    configureOperatorBindings();
+    configureAutos();
 
-        SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
-    }
+    SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
+  }
 
-    private void configureAutos() {}
+  private void configureAutos() {}
 
-    private void configureDriverBindings() {
-        configureDriving();
+  private void configureDriverBindings() {
+    configureDriving();
 
-        driverController
-                .home()
-                .onTrue(RaiderCommands.runOnceAllowDisable(driveSubsystem::zeroHeading)
-                        .withName("ZeroHeading"));
-        driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
-    }
+    driverController
+        .home()
+        .onTrue(
+            RaiderCommands.runOnceAllowDisable(driveSubsystem::zeroHeading)
+                .withName("ZeroHeading"));
+    driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
+  }
 
-    private void configureOperatorBindings() {}
+  private void configureOperatorBindings() {}
 
-    private void configureDriving() {
-        TunableDouble maxTranslationSpeedPercent = new TunableDouble("/speed/maxTranslation", 0.9, true);
-        TunableDouble maxMaxAngularSpeedPercent = new TunableDouble("/speed/maxAngular", 0.6, true);
+  private void configureDriving() {
+    TunableDouble maxTranslationSpeedPercent =
+        new TunableDouble("/speed/maxTranslation", 0.9, true);
+    TunableDouble maxMaxAngularSpeedPercent = new TunableDouble("/speed/maxAngular", 0.6, true);
 
-        DoubleSupplier maxTranslationalSpeedSuppler = () -> maxTranslationSpeedPercent.get()
+    DoubleSupplier maxTranslationalSpeedSuppler =
+        () ->
+            maxTranslationSpeedPercent.get()
                 * SwerveConstants.MAX_VELOCITY_METERS_SECOND
                 * (driverController.leftBumper().getAsBoolean() ? 0.5 : 1);
-        DoubleSupplier maxAngularSpeedSupplier =
-                () -> maxMaxAngularSpeedPercent.get() * SwerveConstants.MAX_ANGULAR_VELOCITY_RADIANS_SECOND;
+    DoubleSupplier maxAngularSpeedSupplier =
+        () -> maxMaxAngularSpeedPercent.get() * SwerveConstants.MAX_ANGULAR_VELOCITY_RADIANS_SECOND;
 
-        SupplierSlewRateLimiter rotationLimiter =
-                new SupplierSlewRateLimiter(() -> TeleopConstants.ANGULAR_RATE_LIMIT_RADIANS_SECOND_SQUARED);
-        VectorRateLimiter vectorRateLimiter =
-                new VectorRateLimiter(() -> TeleopConstants.TRANSLATION_RATE_LIMIT_METERS_SECOND_SQUARED);
-        Runnable resetRateLimiters = () -> {
-            ChassisSpeeds currentSpeeds = driveSubsystem.getCurrentChassisSpeeds();
-            vectorRateLimiter.reset(
-                    new Translation2d(currentSpeeds.vxMetersPerSecond, currentSpeeds.vyMetersPerSecond));
-            rotationLimiter.reset(currentSpeeds.omegaRadiansPerSecond);
+    SupplierSlewRateLimiter rotationLimiter =
+        new SupplierSlewRateLimiter(
+            () -> TeleopConstants.ANGULAR_RATE_LIMIT_RADIANS_SECOND_SQUARED);
+    VectorRateLimiter vectorRateLimiter =
+        new VectorRateLimiter(() -> TeleopConstants.TRANSLATION_RATE_LIMIT_METERS_SECOND_SQUARED);
+    Runnable resetRateLimiters =
+        () -> {
+          ChassisSpeeds currentSpeeds = driveSubsystem.getCurrentChassisSpeeds();
+          vectorRateLimiter.reset(
+              new Translation2d(currentSpeeds.vxMetersPerSecond, currentSpeeds.vyMetersPerSecond));
+          rotationLimiter.reset(currentSpeeds.omegaRadiansPerSecond);
         };
 
-        driveCommandChooser.setDefaultOption(
-                "Hybrid (Default to Field Relative & absolute control but use robot centric when holding button)",
-                new SwerveDriveCommand(
-                                () -> vectorRateLimiter.calculate(new Translation2d(
-                                                RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getLeftY()),
-                                                RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getLeftX()))
-                                        .times(maxTranslationalSpeedSuppler.getAsDouble())),
-                                () -> rotationLimiter.calculate(
-                                        RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getRightX())
-                                                * maxAngularSpeedSupplier.getAsDouble()),
-                                driverController.rightBumper().negate(),
-                                driveSubsystem)
-                        .beforeStarting(resetRateLimiters));
+    driveCommandChooser.setDefaultOption(
+        "Hybrid (Default to Field Relative & absolute control but use robot centric when holding button)",
+        new SwerveDriveCommand(
+                () ->
+                    vectorRateLimiter.calculate(
+                        new Translation2d(
+                                RaiderMathUtils.deadZoneAndCubeJoystick(
+                                    -driverController.getLeftY()),
+                                RaiderMathUtils.deadZoneAndCubeJoystick(
+                                    -driverController.getLeftX()))
+                            .times(maxTranslationalSpeedSuppler.getAsDouble())),
+                () ->
+                    rotationLimiter.calculate(
+                        RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getRightX())
+                            * maxAngularSpeedSupplier.getAsDouble()),
+                driverController.rightBumper().negate(),
+                driveSubsystem)
+            .beforeStarting(resetRateLimiters));
 
-        driveCommandChooser.addOption(
-                "Robot Orientated",
-                new SwerveDriveCommand(
-                                () -> vectorRateLimiter.calculate(new Translation2d(
-                                                RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getLeftY()),
-                                                RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getLeftX()))
-                                        .times(maxTranslationalSpeedSuppler.getAsDouble())),
-                                () -> rotationLimiter.calculate(
-                                        RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getRightX())
-                                                * maxAngularSpeedSupplier.getAsDouble()),
-                                () -> false,
-                                driveSubsystem)
-                        .beforeStarting(resetRateLimiters));
+    driveCommandChooser.addOption(
+        "Robot Orientated",
+        new SwerveDriveCommand(
+                () ->
+                    vectorRateLimiter.calculate(
+                        new Translation2d(
+                                RaiderMathUtils.deadZoneAndCubeJoystick(
+                                    -driverController.getLeftY()),
+                                RaiderMathUtils.deadZoneAndCubeJoystick(
+                                    -driverController.getLeftX()))
+                            .times(maxTranslationalSpeedSuppler.getAsDouble())),
+                () ->
+                    rotationLimiter.calculate(
+                        RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getRightX())
+                            * maxAngularSpeedSupplier.getAsDouble()),
+                () -> false,
+                driveSubsystem)
+            .beforeStarting(resetRateLimiters));
 
-        SmartDashboard.putData("Drive Style", driveCommandChooser);
+    SmartDashboard.putData("Drive Style", driveCommandChooser);
 
-        evaluateDriveStyle(driveCommandChooser.getSelected());
-        new Trigger(driveCommandChooser::hasNewValue)
-                .onTrue(RaiderCommands.runOnceAllowDisable(() -> evaluateDriveStyle(driveCommandChooser.getSelected()))
-                        .withName("Drive Style Checker"));
+    evaluateDriveStyle(driveCommandChooser.getSelected());
+    new Trigger(driveCommandChooser::hasNewValue)
+        .onTrue(
+            RaiderCommands.runOnceAllowDisable(
+                    () -> evaluateDriveStyle(driveCommandChooser.getSelected()))
+                .withName("Drive Style Checker"));
+  }
+
+  private void evaluateDriveStyle(Command newCommand) {
+    Command oldCommand = driveSubsystem.getDefaultCommand();
+
+    // Check if they are the same
+    // we use the == operator instead of Command#equals() because we want to know if
+    // it is the exact same object in memory
+    if (newCommand == oldCommand) {
+      return;
     }
-
-    private void evaluateDriveStyle(Command newCommand) {
-        Command oldCommand = driveSubsystem.getDefaultCommand();
-
-        // Check if they are the same
-        // we use the == operator instead of Command#equals() because we want to know if
-        // it is the exact same object in memory
-        if (newCommand == oldCommand) {
-            return;
-        }
-        driveSubsystem.setDefaultCommand(newCommand);
-        if (oldCommand != null) {
-            // We have to cancel the command so the new default one will run
-            oldCommand.cancel();
-        }
+    driveSubsystem.setDefaultCommand(newCommand);
+    if (oldCommand != null) {
+      // We have to cancel the command so the new default one will run
+      oldCommand.cancel();
     }
+  }
 
-    public Command getAutonomousCommand() {
-        return Commands.none();
-    }
+  public Command getAutonomousCommand() {
+    return Commands.none();
+  }
 }
