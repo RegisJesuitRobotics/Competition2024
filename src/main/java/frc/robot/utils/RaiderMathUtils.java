@@ -1,13 +1,9 @@
 package frc.robot.utils;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.Constants;
 
 public class RaiderMathUtils {
   private RaiderMathUtils() {}
@@ -83,20 +79,6 @@ public class RaiderMathUtils {
 
   public static double deadZoneAndCubeJoystick(double value) {
     return signCopyPow(MathUtil.applyDeadband(value, 0.03), 3);
-  }
-
-  public static ChassisSpeeds correctForSwerveSkew(ChassisSpeeds speeds) {
-    // From Team 254
-    Pose2d robotVelocityPose =
-        new Pose2d(
-            speeds.vxMetersPerSecond * Constants.DT,
-            speeds.vyMetersPerSecond * Constants.DT,
-            Rotation2d.fromRadians(speeds.omegaRadiansPerSecond * Constants.DT));
-    Twist2d velocityTwist = new Pose2d().log(robotVelocityPose);
-    return new ChassisSpeeds(
-        velocityTwist.dx / Constants.DT,
-        velocityTwist.dy / Constants.DT,
-        velocityTwist.dtheta / Constants.DT);
   }
 
   public static long longClamp(long value, long low, long high) {

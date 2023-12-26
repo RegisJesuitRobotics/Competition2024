@@ -2,19 +2,16 @@ package frc.robot.telemetry;
 
 import edu.wpi.first.hal.can.CANStatus;
 import edu.wpi.first.math.filter.LinearFilter;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotController;
+import frc.robot.BuildConstants;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.StructTelemetryEntry;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
+import frc.robot.utils.Metadata;
 import frc.robot.utils.RaiderStructs;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 
 public class MiscRobotTelemetryAndAlerts {
   private static final String tableName = "/robot/";
@@ -25,11 +22,12 @@ public class MiscRobotTelemetryAndAlerts {
   private final Alert[] controllerAlerts = new Alert[MiscConstants.USED_CONTROLLER_PORTS.length];
 
   private final DoubleTelemetryEntry inputVoltageEntry =
-      new DoubleTelemetryEntry(tableName + "inputVoltage", false);
+      new DoubleTelemetryEntry(tableName + "inputVoltage", MiscConstants.TUNING_MODE);
   private final DoubleTelemetryEntry inputCurrentEntry =
-      new DoubleTelemetryEntry(tableName + "inputCurrent", false);
+      new DoubleTelemetryEntry(tableName + "inputCurrent", MiscConstants.TUNING_MODE);
   private final StructTelemetryEntry<CANStatus> canStatusEntry =
-      new StructTelemetryEntry<>(tableName + "canStatus", RaiderStructs.CANStatusStruct, true);
+      new StructTelemetryEntry<>(
+          tableName + "canStatus", RaiderStructs.CANStatusStruct, MiscConstants.TUNING_MODE);
 
   public MiscRobotTelemetryAndAlerts() {
     for (int i = 0; i < controllerAlerts.length; i++) {
@@ -44,28 +42,16 @@ public class MiscRobotTelemetryAndAlerts {
       tuningModeAlert.set(true);
     }
 
-    loadAndSetBuildTimeAlert();
-  }
-
-  private void loadAndSetBuildTimeAlert() {
-    File buildTimeFile = new File(Filesystem.getDeployDirectory(), "buildTime.txt");
-    Alert buildTimeAlert = null;
-    try (FileReader buildTimeReader = new FileReader(buildTimeFile)) {
-      char[] date = new char[19];
-      int read = buildTimeReader.read(date);
-      if (read == 19) {
-        DataLogManager.log("Code was built on " + new String(date));
-        buildTimeAlert =
-            new Alert("Robot code was built " + new String(date) + ".", AlertType.INFO);
-      }
-    } catch (IOException ignored) {
-    }
-
-    if (buildTimeAlert == null) {
-      buildTimeAlert = new Alert("Build time file could not be read.", AlertType.WARNING);
-    }
-
-    buildTimeAlert.set(true);
+    Metadata.add("MavenGroup", BuildConstants.MAVEN_GROUP);
+    Metadata.add("MavenName", BuildConstants.MAVEN_NAME);
+    Metadata.add("Version", BuildConstants.VERSION);
+    Metadata.add("GitRevision", String.valueOf(BuildConstants.GIT_REVISION));
+    Metadata.add("GitSha", BuildConstants.GIT_SHA);
+    Metadata.add("GitDate", BuildConstants.GIT_DATE);
+    Metadata.add("GitBranch", BuildConstants.GIT_BRANCH);
+    Metadata.add("BuildDate", BuildConstants.BUILD_DATE);
+    Metadata.add("BuildUnixTime", String.valueOf(BuildConstants.BUILD_UNIX_TIME));
+    Metadata.add("Dirty", String.valueOf(BuildConstants.DIRTY));
   }
 
   public void logValues() {

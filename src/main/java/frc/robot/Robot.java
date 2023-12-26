@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.MiscRobotTelemetryAndAlerts;
 import frc.robot.telemetry.wrappers.TelemetryPowerDistribution;
+import frc.robot.utils.Metadata;
 
 /**
  * The VM is configured to automatically run this class, and to call the methods corresponding to
@@ -53,8 +54,8 @@ public class Robot extends TimedRobot {
     DataLogManager.start();
 
     DataLog dataLog = DataLogManager.getLog();
-    // Log all photon traffic and other things we specifically want to log
     NetworkTableInstance.getDefault().startConnectionDataLog(dataLog, "NTConnection");
+    Metadata.init(dataLog);
 
     DriverStation.startDataLog(dataLog);
 
@@ -83,6 +84,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
 
     miscRobotTelemetryAndAlerts.logValues();
+    powerDistribution.logValues();
   }
 
   /** This method is called once each time the robot enters Disabled mode. */

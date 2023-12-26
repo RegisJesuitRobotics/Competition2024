@@ -3,6 +3,7 @@ import java.text.SimpleDateFormat
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2024.1.1-beta-4"
+    id "com.peterabeles.gversion" version "1.10"
     id 'com.diffplug.spotless' version '6.11.0'
 }
 
@@ -155,13 +156,14 @@ spotless {
 
 repositories {
     mavenCentral()
-    maven { url 'https://jitpack.io' }
 }
 
-tasks.register("writeBuildTime") {
-    Date date = new Date()
-    SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-    new File(projectDir.toString() + "/src/main/deploy", "buildTime.txt").text = dateFormatter.format(date)
+project.compileJava.dependsOn(createVersionFile)
+gversion {
+    srcDir       = "src/main/java/"
+    classPackage = "frc.robot"
+    className    = "BuildConstants"
+    dateFormat   = "yyyy-MM-dd HH:mm:ss z"
+    timeZone     = "America/Denver"
+    indent       = "  "
 }
-
-jar.dependsOn tasks.named("writeBuildTime")

@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.Robot;
 import frc.robot.telemetry.types.*;
@@ -33,7 +34,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   private final SwerveModule[] modules = new SwerveModule[NUM_MODULES];
 
   private final TelemetryPigeon2 pigeon =
-      new TelemetryPigeon2(GYRO_ID, "/drive/gyro", MiscConstants.TUNING_MODE);
+      new TelemetryPigeon2(PIGEON_ID, "/drive/gyro", MiscConstants.TUNING_MODE);
   private final StatusSignal<Double> yawSignal = pigeon.getYaw();
 
   private final SwerveDrivePoseEstimator poseEstimator;
@@ -160,7 +161,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     setRawStates(
         true,
         openLoop,
-        kinematics.toSwerveModuleStates(RaiderMathUtils.correctForSwerveSkew(chassisSpeeds)));
+        kinematics.toSwerveModuleStates(ChassisSpeeds.discretize(chassisSpeeds, Constants.DT)));
   }
 
   /**

@@ -265,6 +265,22 @@ public class SwerveModule {
 
     faultInitializing |=
         RaiderUtils.applyAndCheckRev(
+            () -> steerController.setPositionPIDWrappingEnabled(true),
+            () -> steerController.getPositionPIDWrappingEnabled(),
+            MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> steerController.setPositionPIDWrappingMinInput(-Math.PI),
+            () -> steerController.getPositionPIDWrappingMinInput() == -Math.PI,
+            MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> steerController.setPositionPIDWrappingMaxInput(Math.PI),
+            () -> steerController.getPositionPIDWrappingMaxInput() == Math.PI,
+            MiscConstants.CONFIGURATION_ATTEMPTS);
+
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
             () -> steerRelativeEncoder.setPositionConversionFactor(steerPositionConversion),
             () -> steerRelativeEncoder.getPositionConversionFactor() == steerPositionConversion,
             MiscConstants.CONFIGURATION_ATTEMPTS);
@@ -415,22 +431,19 @@ public class SwerveModule {
    *     velocity control.
    */
   public void setDesiredState(SwerveModuleState state, boolean activeSteer, boolean openLoop) {
-    checkForSteerMotorReset();
     checkForDriveMotorReset();
+    checkForSteerMotorReset();
     checkAndUpdateGains();
 
     controlModeEntry.append(SwerveModuleControlMode.NORMAL.logValue);
 
-    double currentTime = Timer.getFPGATimestamp();
-
     if (state.speedMetersPerSecond != 0.0 || activeSteer) {
-      lastMoveTime = currentTime;
+      lastMoveTime = Timer.getFPGATimestamp();
     }
 
     state = SwerveModuleState.optimize(state, getSteerAngle());
 
     setDriveReference(state.speedMetersPerSecond, openLoop);
-
     setSteerReference(state.angle.getRadians(), activeSteer);
 
     if (shouldResetToAbsolute()) {
@@ -469,10 +482,7 @@ public class SwerveModule {
     steerPositionGoalEntry.append(targetAngleRadians);
 
     if (activeSteer) {
-      steerController.setReference(
-          RaiderMathUtils.calculateContinuousInputSetpoint(
-              getSteerAngleRadiansNoWrap(), targetAngleRadians),
-          CANSparkMax.ControlType.kPosition);
+      steerController.setReference(targetAngleRadians, CANSparkMax.ControlType.kPosition);
     } else {
       steerMotor.setVoltage(0.0);
     }

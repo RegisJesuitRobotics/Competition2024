@@ -18,7 +18,7 @@ public final class Constants {
   public static class SwerveConstants {
     private SwerveConstants() {}
 
-    public static final int GYRO_ID = 13;
+    public static final int PIGEON_ID = 13;
 
     public static final int NUM_MODULES = 4;
     public static final double WHEEL_DIAMETER_METERS = Units.inchesToMeters(3.875);
