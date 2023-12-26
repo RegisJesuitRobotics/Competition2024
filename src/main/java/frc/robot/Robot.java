@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.MiscRobotTelemetryAndAlerts;
 import frc.robot.telemetry.wrappers.TelemetryPowerDistribution;
-import frc.robot.utils.Metadata;
 
 /**
  * The VM is configured to automatically run this class, and to call the methods corresponding to
@@ -47,17 +46,17 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    DataLogManager.log("*****START*****");
-
-    DriverStation.silenceJoystickConnectionWarning(true);
     DataLogManager.logNetworkTables(false);
     DataLogManager.start();
+    DataLogManager.log("*****START*****");
 
     DataLog dataLog = DataLogManager.getLog();
+    // Log connections and FMSInfo
     NetworkTableInstance.getDefault().startConnectionDataLog(dataLog, "NTConnection");
-    Metadata.init(dataLog);
-
+    NetworkTableInstance.getDefault().startEntryDataLog(dataLog, "/FMSInfo/", "FMSInfo/");
     DriverStation.startDataLog(dataLog);
+
+    DriverStation.silenceJoystickConnectionWarning(true);
 
     powerDistribution =
         new TelemetryPowerDistribution(

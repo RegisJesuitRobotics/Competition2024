@@ -40,6 +40,8 @@ public class RobotContainer {
     configureOperatorBindings();
     configureAutos();
 
+    SmartDashboard.putData("Music", OrchestraInstance.playCommand("song1.chrp"));
+
     SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
   }
 

@@ -37,7 +37,7 @@ public class TelemetryCANSparkMax extends CANSparkMax {
 
   public REVLibError burnFlashWithDelay() {
     Timer.delay(0.1);
-    REVLibError error = super.burnFlash();
+    REVLibError error = burnFlash();
     Timer.delay(0.1);
     return error;
   }

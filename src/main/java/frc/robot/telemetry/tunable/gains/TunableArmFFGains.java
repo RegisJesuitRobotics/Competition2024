@@ -19,7 +19,7 @@ public class TunableArmFFGains {
   public TunableArmFFGains(
       String networkName, double sFF, double gFF, double vFF, double aFF, boolean tuningMode) {
     networkName += "/";
-    this.sFF = new TunableDouble(networkName + "arbFF", sFF, tuningMode);
+    this.sFF = new TunableDouble(networkName + "sFF", sFF, tuningMode);
     this.gFF = new TunableDouble(networkName + "gFF", gFF, tuningMode);
     this.vFF = new TunableDouble(networkName + "vFF", vFF, tuningMode);
     this.aFF = new TunableDouble(networkName + "aFF", aFF, tuningMode);

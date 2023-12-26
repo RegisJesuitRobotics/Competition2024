@@ -1,17 +1,18 @@
 package frc.robot.utils;
 
-import edu.wpi.first.util.datalog.DataLog;
-import edu.wpi.first.util.datalog.StringLogEntry;
+import frc.robot.Constants.MiscConstants;
+import frc.robot.telemetry.types.StringTelemetryEntry;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Metadata {
-  private static DataLog log;
-
-  public static void init(DataLog log) {
-    Metadata.log = log;
-  }
+  private static final List<StringTelemetryEntry> entries = new ArrayList<>();
 
   public static void add(String key, String value) {
-    StringLogEntry entry = new StringLogEntry(log, "/Metadata/" + key);
+    StringTelemetryEntry entry =
+        new StringTelemetryEntry("/Metadata/" + key, MiscConstants.TUNING_MODE);
     entry.append(value);
+
+    entries.add(entry);
   }
 }
