@@ -4,12 +4,12 @@ import frc.robot.telemetry.tunable.gains.TunableFFGains;
 import frc.robot.telemetry.tunable.gains.TunablePIDGains;
 
 public record SwerveModuleConfiguration(
-    int driveMotorPort,
-    int steerMotorPort,
-    int steerEncoderPort,
+    int driveMotorID,
+    int steerMotorID,
+    int steerEncoderID,
     boolean driveMotorInverted,
     boolean steerMotorInverted,
-    double offsetRadians,
+    double steerOffsetRadians,
     boolean steerEncoderInverted,
     SharedSwerveModuleConfiguration sharedConfiguration) {
   /** This is all the options that are not module specific */
@@ -23,10 +23,6 @@ public record SwerveModuleConfiguration(
       int steerFreeCurrentLimit,
       int steerStallCurrentLimit,
       double wheelDiameterMeters,
-      double steerClosedLoopRamp,
-      double driveClosedLoopRamp,
-      double driveOpenLoopRamp,
-      double maxSteerVoltage,
       int odometryFrequency,
       TunablePIDGains driveVelocityPIDGains,
       TunableFFGains driveVelocityFFGains,

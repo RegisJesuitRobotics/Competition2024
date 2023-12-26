@@ -174,3 +174,5 @@ simgui.json
 networktables.json
 **/.$*.*
 /.vscode/
+/logs/
+/ctre_sim/

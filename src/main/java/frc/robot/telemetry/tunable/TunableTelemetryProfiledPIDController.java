@@ -1,17 +1,19 @@
 package frc.robot.telemetry.tunable;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import frc.robot.telemetry.tunable.gains.TunablePIDGains;
 import frc.robot.telemetry.tunable.gains.TunableTrapezoidalProfileGains;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
-import frc.robot.telemetry.types.rich.TrapezoidalStateEntry;
+import frc.robot.telemetry.types.StructTelemetryEntry;
+import frc.robot.utils.RaiderStructs;
 
 public class TunableTelemetryProfiledPIDController extends ProfiledPIDController {
 
   private final DoubleTelemetryEntry currentMeasurementEntry;
-  private final TrapezoidalStateEntry goalEntry;
-  private final TrapezoidalStateEntry setpointEntry;
+  private final StructTelemetryEntry<TrapezoidProfile.State> goalEntry;
+  private final StructTelemetryEntry<TrapezoidProfile.State> setpointEntry;
   private final DoubleTelemetryEntry outputEntry;
 
   private final TunablePIDGains pidGains;
@@ -38,8 +40,8 @@ public class TunableTelemetryProfiledPIDController extends ProfiledPIDController
 
     logTable += "/";
     currentMeasurementEntry = new DoubleTelemetryEntry(logTable + "currentMeasurement", true);
-    goalEntry = new TrapezoidalStateEntry(logTable + "goal", true);
-    setpointEntry = new TrapezoidalStateEntry(logTable + "setpoint", true);
+    goalEntry = new StructTelemetryEntry<>(logTable + "goal", RaiderStructs.trapezoidStateStruct, true);
+    setpointEntry = new StructTelemetryEntry<>(logTable + "setpoint", RaiderStructs.trapezoidStateStruct, true);
     outputEntry = new DoubleTelemetryEntry(logTable + "output", true);
   }
 

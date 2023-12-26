@@ -8,9 +8,11 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
-import frc.robot.telemetry.types.rich.CANBusDataEntry;
+import frc.robot.telemetry.types.StructTelemetryEntry;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
+import frc.robot.utils.RaiderStructs;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -27,7 +29,8 @@ public class MiscRobotTelemetryAndAlerts {
       new DoubleTelemetryEntry(tableName + "inputVoltage", false);
   private final DoubleTelemetryEntry inputCurrentEntry =
       new DoubleTelemetryEntry(tableName + "inputCurrent", false);
-  private final CANBusDataEntry canBusDataEntry = new CANBusDataEntry(tableName + "can", false);
+  private final StructTelemetryEntry<CANStatus> canStatusEntry = new StructTelemetryEntry<>(
+      tableName + "canStatus", RaiderStructs.CANStatusStruct, true);
 
   public MiscRobotTelemetryAndAlerts() {
     for (int i = 0; i < controllerAlerts.length; i++) {
@@ -71,7 +74,7 @@ public class MiscRobotTelemetryAndAlerts {
     inputCurrentEntry.append(RobotController.getInputCurrent());
 
     CANStatus canStatus = RobotController.getCANStatus();
-    canBusDataEntry.append(canStatus);
+    canStatusEntry.append(canStatus);
 
     // CAN Usage
     double percentBusUsage = canStatus.percentBusUtilization;

@@ -91,9 +91,9 @@ public class RobotContainer {
                     vectorRateLimiter.calculate(
                         new Translation2d(
                                 RaiderMathUtils.deadZoneAndCubeJoystick(
-                                    -driverController.getLeftY()),
+                                    -1 * driverController.getLeftY()),
                                 RaiderMathUtils.deadZoneAndCubeJoystick(
-                                    -driverController.getLeftX()))
+                                    -1 * driverController.getLeftX()))
                             .times(maxTranslationalSpeedSuppler.getAsDouble())),
                 () ->
                     rotationLimiter.calculate(
@@ -110,9 +110,9 @@ public class RobotContainer {
                     vectorRateLimiter.calculate(
                         new Translation2d(
                                 RaiderMathUtils.deadZoneAndCubeJoystick(
-                                    -driverController.getLeftY()),
+                                    -1 * driverController.getLeftY()),
                                 RaiderMathUtils.deadZoneAndCubeJoystick(
-                                    -driverController.getLeftX()))
+                                    -1 * driverController.getLeftX()))
                             .times(maxTranslationalSpeedSuppler.getAsDouble())),
                 () ->
                     rotationLimiter.calculate(

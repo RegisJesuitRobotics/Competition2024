@@ -18,6 +18,8 @@ public final class Constants {
   public static class SwerveConstants {
     private SwerveConstants() {}
 
+    public static final int GYRO_ID = 13;
+
     public static final int NUM_MODULES = 4;
     public static final double WHEEL_DIAMETER_METERS = Units.inchesToMeters(3.875);
     public static final double DRIVE_GEAR_REDUCTION = (50.0 / 14) * (17.0 / 27) * (45.0 / 15);
@@ -59,11 +61,6 @@ public final class Constants {
     public static final double MAX_ANGULAR_ACCELERATION_RADIANS_SECOND_SQUARED =
         MAX_ANGULAR_VELOCITY_RADIANS_SECOND / 2.0;
 
-    public static final double STEER_CLOSED_LOOP_RAMP = 0.03;
-    public static final double DRIVE_CLOSED_LOOP_RAMP = 0.0;
-    public static final double DRIVE_OPEN_LOOP_RAMP = 0.03;
-    public static final double MAX_STEER_VOLTAGE = 12.0;
-
     public static final int ODOMETRY_FREQUENCY = 250;
 
     public static final String CAN_BUS = "rio";
@@ -78,10 +75,6 @@ public final class Constants {
             STEER_FREE_CURRENT_LIMIT,
             STEER_STALL_CURRENT_LIMIT,
             WHEEL_DIAMETER_METERS,
-            STEER_CLOSED_LOOP_RAMP,
-            DRIVE_CLOSED_LOOP_RAMP,
-            DRIVE_OPEN_LOOP_RAMP,
-            MAX_STEER_VOLTAGE,
             ODOMETRY_FREQUENCY,
             DRIVE_VELOCITY_PID_GAINS,
             DRIVE_VELOCITY_FF_GAINS,

@@ -15,14 +15,10 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.Robot;
-import frc.robot.telemetry.types.BooleanTelemetryEntry;
-import frc.robot.telemetry.types.DoubleTelemetryEntry;
-import frc.robot.telemetry.types.EventTelemetryEntry;
-import frc.robot.telemetry.types.rich.ChassisSpeedsEntry;
-import frc.robot.telemetry.types.rich.Pose2dEntry;
-import frc.robot.telemetry.types.rich.SwerveModuleStateArrayEntry;
+import frc.robot.telemetry.types.*;
 import frc.robot.telemetry.wrappers.TelemetryPigeon2;
 import frc.robot.utils.RaiderMathUtils;
+import frc.robot.utils.RaiderUtils;
 
 /** The subsystem containing all the swerve modules */
 public class SwerveDriveSubsystem extends SubsystemBase {
@@ -36,9 +32,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
   private final SwerveModule[] modules = new SwerveModule[NUM_MODULES];
 
-  private final TelemetryPigeon2 gyro =
-      new TelemetryPigeon2(13, "/drive/gyro", MiscConstants.TUNING_MODE);
-  private final StatusSignal<Double> yawSignal = gyro.getYaw();
+  private final TelemetryPigeon2 pigeon =
+      new TelemetryPigeon2(GYRO_ID, "/drive/gyro", MiscConstants.TUNING_MODE);
+  private final StatusSignal<Double> yawSignal = pigeon.getYaw();
 
   private final SwerveDrivePoseEstimator poseEstimator;
 
@@ -46,16 +42,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
       new BooleanTelemetryEntry("/drive/allModulesAtAbsoluteZero", true);
   private final DoubleTelemetryEntry gyroEntry =
       new DoubleTelemetryEntry("/drive/gyroDegrees", true);
-  private final ChassisSpeedsEntry chassisSpeedsEntry =
-      new ChassisSpeedsEntry("/drive/speeds", MiscConstants.TUNING_MODE);
-  private final ChassisSpeedsEntry desiredSpeedsEntry =
-      new ChassisSpeedsEntry("/drive/desiredSpeeds", MiscConstants.TUNING_MODE);
-  private final Pose2dEntry odometryEntry =
-      new Pose2dEntry("/drive/estimatedPose", MiscConstants.TUNING_MODE);
-  private final SwerveModuleStateArrayEntry advantageScopeSwerveDesiredStates =
-      new SwerveModuleStateArrayEntry("/drive/desiredStates", MiscConstants.TUNING_MODE);
-  private final SwerveModuleStateArrayEntry advantageScopeSwerveActualStates =
-      new SwerveModuleStateArrayEntry("/drive/actualStates", MiscConstants.TUNING_MODE);
+  private final StructTelemetryEntry<ChassisSpeeds> chassisSpeedsEntry =
+      new StructTelemetryEntry<>("/drive/speeds", ChassisSpeeds.struct, MiscConstants.TUNING_MODE);
+  private final StructTelemetryEntry<ChassisSpeeds> desiredSpeedsEntry =
+          new StructTelemetryEntry<>("/drive/desiredSpeeds", ChassisSpeeds.struct, MiscConstants.TUNING_MODE);
+  private final StructTelemetryEntry<Pose2d> odometryEntry = new StructTelemetryEntry<>("/drive/estimatedPose", Pose2d.struct, MiscConstants.TUNING_MODE);
+  private final StructArrayTelemetryEntry<SwerveModuleState> desiredSwerveStatesEntry =
+      new StructArrayTelemetryEntry<>("/drive/desiredStates", SwerveModuleState.struct, MiscConstants.TUNING_MODE);
+  private final StructArrayTelemetryEntry<SwerveModuleState> actualSwerveStatesEntry =
+          new StructArrayTelemetryEntry<>("/drive/actualStates", SwerveModuleState.struct, MiscConstants.TUNING_MODE);
   private final EventTelemetryEntry driveEventLogger = new EventTelemetryEntry("/drive/events");
 
   private final Field2d field2d = new Field2d();
@@ -80,15 +75,24 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         new SwerveDrivePoseEstimator(
             kinematics, getGyroRotation(), getModulePositions(), new Pose2d());
 
-    yawSignal.setUpdateFrequency(ODOMETRY_FREQUENCY);
+    RaiderUtils.applyAndCheckCTRE(
+        () -> yawSignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
+        () -> yawSignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    RaiderUtils.applyAndCheckCTRE(
+            pigeon::optimizeBusUtilization,
+            () -> true,
+            MiscConstants.CONFIGURATION_ATTEMPTS);
+
+    // Start odometry thread
+    Robot.getInstance().addPeriodic(this::updateOdometry, 1.0 / ODOMETRY_FREQUENCY);
 
     stopMovement();
-
-    Robot.getInstance().addPeriodic(this::updateOdometry, 1.0 / ODOMETRY_FREQUENCY);
   }
 
   private void updateOdometry() {
-    poseEstimator.update(getGyroRotation(), getModulePositions());
+    Pose2d pose = poseEstimator.update(getGyroRotation(), getModulePositions());
+    odometryEntry.append(pose);
   }
 
   /**
@@ -239,7 +243,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
    * @return the angle in radians
    */
   public double getRawGyroAngle() {
-    return Units.degreesToRadians(gyro.getAngle());
+    return Units.degreesToRadians(pigeon.getAngle());
   }
 
   /**
@@ -248,7 +252,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
    * @return the angle rate in radians/second
    */
   public double getRawGyroRate() {
-    return Units.degreesToRadians(gyro.getRate());
+    return Units.degreesToRadians(pigeon.getRate());
   }
 
   public SwerveModuleState[] getActualStates() {
@@ -295,22 +299,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
   private void logValues() {
     allModulesAtAbsoluteZeroEntry.append(allModulesAtAbsolute());
-
     gyroEntry.append(getGyroRotation().getDegrees());
-
-    Pose2d estimatedPose = getPose();
-    odometryEntry.append(estimatedPose);
-
     chassisSpeedsEntry.append(getCurrentChassisSpeeds());
-
-    field2d.setRobotPose(estimatedPose);
+    desiredSwerveStatesEntry.append(desiredStates);
+    actualSwerveStatesEntry.append(getActualStates());
 
     for (SwerveModule module : modules) {
       module.logValues();
     }
-
-    advantageScopeSwerveDesiredStates.append(desiredStates);
-    advantageScopeSwerveActualStates.append(getActualStates());
+    field2d.setRobotPose(getPose());
   }
 
   public Field2d getField2d() {

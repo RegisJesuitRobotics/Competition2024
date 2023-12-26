@@ -4,6 +4,9 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
+import frc.robot.utils.RaiderUtils;
+
+import java.util.List;
 
 public class TelemetryPigeon2 extends Pigeon2 {
   private final StatusSignal<Double> yawSignal;
@@ -48,6 +51,20 @@ public class TelemetryPigeon2 extends Pigeon2 {
     accelZSignal = super.getAccelerationZ();
     supplyVoltageSignal = super.getSupplyVoltage();
     temperatureSignal = super.getTemperature();
+
+    List.of(
+            yawSignal,
+            pitchSignal,
+            rollSignal,
+            angularVelocityXSignal,
+            angularVelocityYSignal,
+            angularVelocityZSignal,
+            accelXSignal,
+            accelYSignal,
+            accelZSignal,
+            supplyVoltageSignal,
+            temperatureSignal)
+        .forEach(RaiderUtils::explicitlySetSignalFrequency);
 
     telemetryPath += "/";
     yawEntry = new DoubleTelemetryEntry(telemetryPath + "yaw", tuningMode);

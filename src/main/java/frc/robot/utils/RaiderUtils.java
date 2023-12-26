@@ -7,6 +7,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.REVLibError;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 public class RaiderUtils {
   public static boolean anyTrue(boolean[] array) {
@@ -49,6 +50,16 @@ public class RaiderUtils {
     }
     return false;
   }
+
+  public static boolean applyAndCheckRev(
+      Supplier<REVLibError> apply, BooleanSupplier check, int attempts) {
+    return applyAndCheck(() -> checkRevError(apply.get()), check, attempts);
+  }
+
+  public static boolean applyAndCheckCTRE(
+        Supplier<StatusCode> apply, BooleanSupplier check, int attempts) {
+        return applyAndCheck(() -> apply.get().isOK(), check, attempts);
+    }
 
   public static boolean checkRevError(REVLibError code) {
     return code != REVLibError.kOk;
