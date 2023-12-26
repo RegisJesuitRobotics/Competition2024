@@ -40,8 +40,10 @@ public class TunableTelemetryProfiledPIDController extends ProfiledPIDController
 
     logTable += "/";
     currentMeasurementEntry = new DoubleTelemetryEntry(logTable + "currentMeasurement", true);
-    goalEntry = new StructTelemetryEntry<>(logTable + "goal", RaiderStructs.trapezoidStateStruct, true);
-    setpointEntry = new StructTelemetryEntry<>(logTable + "setpoint", RaiderStructs.trapezoidStateStruct, true);
+    goalEntry =
+        new StructTelemetryEntry<>(logTable + "goal", RaiderStructs.trapezoidStateStruct, true);
+    setpointEntry =
+        new StructTelemetryEntry<>(logTable + "setpoint", RaiderStructs.trapezoidStateStruct, true);
     outputEntry = new DoubleTelemetryEntry(logTable + "output", true);
   }
 

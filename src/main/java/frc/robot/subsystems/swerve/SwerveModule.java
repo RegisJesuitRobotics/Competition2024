@@ -185,8 +185,8 @@ public class SwerveModule {
     faultInitializing |=
         RaiderUtils.applyAndCheckCTRE(
             () ->
-                drivePositionSignal
-                    .setUpdateFrequency(config.sharedConfiguration().odometryFrequency()),
+                drivePositionSignal.setUpdateFrequency(
+                    config.sharedConfiguration().odometryFrequency()),
             () ->
                 drivePositionSignal.getAppliedUpdateFrequency()
                     == config.sharedConfiguration().odometryFrequency(),
@@ -194,16 +194,16 @@ public class SwerveModule {
     faultInitializing |=
         RaiderUtils.applyAndCheckCTRE(
             () ->
-                driveVelocitySignal
-                    .setUpdateFrequency(config.sharedConfiguration().odometryFrequency()),
+                driveVelocitySignal.setUpdateFrequency(
+                    config.sharedConfiguration().odometryFrequency()),
             () ->
                 driveVelocitySignal.getAppliedUpdateFrequency()
                     == config.sharedConfiguration().odometryFrequency(),
             MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |= RaiderUtils.applyAndCheckCTRE(driveMotor::optimizeBusUtilization,
-            () -> true,
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckCTRE(
+            driveMotor::optimizeBusUtilization, () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
 
     // Clear reset as this is on startup
     driveMotor.hasResetOccurred();
@@ -225,9 +225,7 @@ public class SwerveModule {
 
     faultInitializing |=
         RaiderUtils.applyAndCheckRev(
-                steerMotor::restoreFactoryDefaults,
-            () -> true,
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+            steerMotor::restoreFactoryDefaults, () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
 
     faultInitializing |=
         RaiderUtils.applyAndCheckRev(
@@ -265,35 +263,35 @@ public class SwerveModule {
             () -> steerController.getD() == steerPositionPIDGains.d.get(),
             MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |= RaiderUtils.applyAndCheckRev(
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
             () -> steerRelativeEncoder.setPositionConversionFactor(steerPositionConversion),
             () -> steerRelativeEncoder.getPositionConversionFactor() == steerPositionConversion,
-            MiscConstants.CONFIGURATION_ATTEMPTS
-    );
+            MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |= RaiderUtils.applyAndCheckRev(
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
             () -> steerRelativeEncoder.setVelocityConversionFactor(steerVelocityConversion),
             () -> steerRelativeEncoder.getVelocityConversionFactor() == steerVelocityConversion,
-            MiscConstants.CONFIGURATION_ATTEMPTS
-    );
+            MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |= RaiderUtils.applyAndCheckRev(
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
             () -> steerMotor.setIdleMode(CANSparkMax.IdleMode.kBrake),
             () -> steerMotor.getIdleMode() == CANSparkMax.IdleMode.kBrake,
-            MiscConstants.CONFIGURATION_ATTEMPTS
-    );
+            MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |= RaiderUtils.applyAndCheckRev(
-            () -> steerMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 1000 / SwerveConstants.ODOMETRY_FREQUENCY),
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () ->
+                steerMotor.setPeriodicFramePeriod(
+                    PeriodicFrame.kStatus2, 1000 / SwerveConstants.ODOMETRY_FREQUENCY),
             () -> true,
-            MiscConstants.CONFIGURATION_ATTEMPTS
-    );
+            MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |= RaiderUtils.applyAndCheckRev(
-            steerMotor::burnFlashWithDelay,
-            () -> true,
-            MiscConstants.CONFIGURATION_ATTEMPTS
-    );
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            steerMotor::burnFlashWithDelay, () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
 
     steerMotorFaultAlert.set(faultInitializing);
     moduleEventEntry.append("Steer motor initialized" + (faultInitializing ? " with faults" : ""));

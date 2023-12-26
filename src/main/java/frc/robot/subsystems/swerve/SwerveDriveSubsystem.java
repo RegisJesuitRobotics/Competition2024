@@ -45,12 +45,16 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   private final StructTelemetryEntry<ChassisSpeeds> chassisSpeedsEntry =
       new StructTelemetryEntry<>("/drive/speeds", ChassisSpeeds.struct, MiscConstants.TUNING_MODE);
   private final StructTelemetryEntry<ChassisSpeeds> desiredSpeedsEntry =
-          new StructTelemetryEntry<>("/drive/desiredSpeeds", ChassisSpeeds.struct, MiscConstants.TUNING_MODE);
-  private final StructTelemetryEntry<Pose2d> odometryEntry = new StructTelemetryEntry<>("/drive/estimatedPose", Pose2d.struct, MiscConstants.TUNING_MODE);
+      new StructTelemetryEntry<>(
+          "/drive/desiredSpeeds", ChassisSpeeds.struct, MiscConstants.TUNING_MODE);
+  private final StructTelemetryEntry<Pose2d> odometryEntry =
+      new StructTelemetryEntry<>("/drive/estimatedPose", Pose2d.struct, MiscConstants.TUNING_MODE);
   private final StructArrayTelemetryEntry<SwerveModuleState> desiredSwerveStatesEntry =
-      new StructArrayTelemetryEntry<>("/drive/desiredStates", SwerveModuleState.struct, MiscConstants.TUNING_MODE);
+      new StructArrayTelemetryEntry<>(
+          "/drive/desiredStates", SwerveModuleState.struct, MiscConstants.TUNING_MODE);
   private final StructArrayTelemetryEntry<SwerveModuleState> actualSwerveStatesEntry =
-          new StructArrayTelemetryEntry<>("/drive/actualStates", SwerveModuleState.struct, MiscConstants.TUNING_MODE);
+      new StructArrayTelemetryEntry<>(
+          "/drive/actualStates", SwerveModuleState.struct, MiscConstants.TUNING_MODE);
   private final EventTelemetryEntry driveEventLogger = new EventTelemetryEntry("/drive/events");
 
   private final Field2d field2d = new Field2d();
@@ -80,9 +84,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         () -> yawSignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
         MiscConstants.CONFIGURATION_ATTEMPTS);
     RaiderUtils.applyAndCheckCTRE(
-            pigeon::optimizeBusUtilization,
-            () -> true,
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+        pigeon::optimizeBusUtilization, () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
 
     // Start odometry thread
     Robot.getInstance().addPeriodic(this::updateOdometry, 1.0 / ODOMETRY_FREQUENCY);

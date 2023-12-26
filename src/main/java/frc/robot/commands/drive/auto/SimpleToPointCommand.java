@@ -9,7 +9,6 @@ import frc.robot.Constants.AutoConstants;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
 import frc.robot.telemetry.types.StructTelemetryEntry;
-
 import java.util.function.Supplier;
 
 public class SimpleToPointCommand extends Command {
@@ -26,7 +25,8 @@ public class SimpleToPointCommand extends Command {
           AutoConstants.ANGULAR_POSITION_PID_GAINS,
           AutoConstants.ANGULAR_POSITION_TRAPEZOIDAL_GAINS);
 
-  private final StructTelemetryEntry<Pose2d> desiredPoseEntry = new StructTelemetryEntry<>("simpleToPoint/desiredPose", Pose2d.struct, true);
+  private final StructTelemetryEntry<Pose2d> desiredPoseEntry =
+      new StructTelemetryEntry<>("simpleToPoint/desiredPose", Pose2d.struct, true);
 
   private Pose2d currentDesiredPose = new Pose2d();
 

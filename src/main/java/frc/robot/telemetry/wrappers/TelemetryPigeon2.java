@@ -5,7 +5,6 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.utils.RaiderUtils;
-
 import java.util.List;
 
 public class TelemetryPigeon2 extends Pigeon2 {
