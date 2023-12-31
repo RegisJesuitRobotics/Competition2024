@@ -9,7 +9,6 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.FaultID;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
@@ -371,7 +370,7 @@ public class SwerveModule {
     double absolutePosition = absoluteSteerPositionSignal.waitForUpdate(timeout).getValue();
     if (absoluteSteerPositionSignal.getStatus().isOK()) {
       REVLibError settingPositionError = steerRelativeEncoder.setPosition(absolutePosition);
-      if (!RaiderUtils.checkRevError(settingPositionError)) {
+      if (RaiderUtils.isRevOk(settingPositionError)) {
         setToAbsolute = true;
         lastAbsoluteResetTime = Timer.getFPGATimestamp();
         moduleEventEntry.append("Reset steer motor encoder to position: " + absolutePosition);
@@ -545,9 +544,5 @@ public class SwerveModule {
     notSetToAbsoluteAlert.set(!setToAbsolute);
     absoluteHeadingEntry.append(absoluteSteerPositionSignal.refresh().getValue());
     setToAbsoluteEntry.append(setToAbsolute);
-  }
-
-  public TalonFXSimState getDriveSimState() {
-    return driveMotor.getSimState();
   }
 }

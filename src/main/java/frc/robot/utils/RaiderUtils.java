@@ -53,7 +53,7 @@ public class RaiderUtils {
 
   public static boolean applyAndCheckRev(
       Supplier<REVLibError> apply, BooleanSupplier check, int attempts) {
-    return applyAndCheck(() -> checkRevError(apply.get()), check, attempts);
+    return applyAndCheck(() -> isRevOk(apply.get()), check, attempts);
   }
 
   public static boolean applyAndCheckCTRE(
@@ -61,7 +61,7 @@ public class RaiderUtils {
     return applyAndCheck(() -> apply.get().isOK(), check, attempts);
   }
 
-  public static boolean checkRevError(REVLibError code) {
-    return code != REVLibError.kOk;
+  public static boolean isRevOk(REVLibError code) {
+    return code == REVLibError.kOk;
   }
 }
