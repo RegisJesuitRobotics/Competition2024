@@ -123,6 +123,17 @@ public final class Constants {
             MiscConstants.TUNING_MODE);
   }
 
+  public static class ShooterConstants{
+
+    public static int TOP_SHOOTER_ID = 5;
+    public static int BOTTOM_SHOOTER_ID = 6;
+
+    public static int SHOOTING_RPM = 2;
+
+    //TODO TUNE FF GAINS
+    public static TunableFFGains SHOOTER_FF_GAINS = new TunableFFGains("/shooter/FF", 0, 0, 0, true);
+  }
+
   public static class TeleopConstants {
     private TeleopConstants() {}
 
