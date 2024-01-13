@@ -11,6 +11,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -20,6 +21,10 @@ import frc.robot.telemetry.types.*;
 import frc.robot.telemetry.wrappers.TelemetryPigeon2;
 import frc.robot.utils.RaiderMathUtils;
 import frc.robot.utils.RaiderUtils;
+import org.photonvision.EstimatedRobotPose;
+
+import java.util.List;
+import java.util.function.Function;
 
 /** The subsystem containing all the swerve modules */
 public class SwerveDriveSubsystem extends SubsystemBase {
@@ -32,6 +37,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   }
 
   private final SwerveModule[] modules = new SwerveModule[NUM_MODULES];
+
+  private final Function<Pose2d, List<EstimatedRobotPose>> cameraPoseDataSupplier;
 
   private final TelemetryPigeon2 pigeon =
       new TelemetryPigeon2(PIGEON_ID, "/drive/gyro", MiscConstants.TUNING_MODE);
@@ -68,13 +75,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   private double rawDriveVolts = 0.0;
   private double rawSteerVolts = 0.0;
 
-  public SwerveDriveSubsystem() {
+  public SwerveDriveSubsystem(Function<Pose2d, List<EstimatedRobotPose>> cameraPoseDataSupplier) {
     modules[0] = new SwerveModule(FRONT_LEFT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
     modules[1] = new SwerveModule(FRONT_RIGHT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
     modules[2] = new SwerveModule(BACK_LEFT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
     modules[3] = new SwerveModule(BACK_RIGHT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
 
     driveEventLogger.append("Swerve modules initialized");
+
+  this.cameraPoseDataSupplier = cameraPoseDataSupplier;
 
     poseEstimator =
         new SwerveDrivePoseEstimator(
@@ -295,9 +304,17 @@ public class SwerveDriveSubsystem extends SubsystemBase {
           module.setCharacterizationVoltage(rawDriveVolts);
         }
       }
+
     }
 
     logValues();
+    List<EstimatedRobotPose> estimatedRobotPoses = cameraPoseDataSupplier.apply(getPose());
+    for (EstimatedRobotPose estimatedRobotPose : estimatedRobotPoses) {
+      if (!DriverStation.isAutonomousEnabled()) {
+        poseEstimator.addVisionMeasurement(
+                estimatedRobotPose.estimatedPose.toPose2d(), estimatedRobotPose.timestampSeconds);
+      }
+    }
   }
 
   private void logValues() {
