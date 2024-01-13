@@ -15,6 +15,21 @@ public final class Constants {
 
   public static final double DT = 0.02;
 
+  public static class ElevatorConstants {
+
+    public static final int LEFT_ELEVATOR_MOTOR = 0;
+    public static final int RIGHT_ELEVATOR_MOTOR = 1;
+    public static final double ELEVATOR_GEAR_RATIO = 500.0/2;
+
+    //TODO: Do These PID GAINS
+    public static final TunablePIDGains PID_GAINS = new TunablePIDGains("gains/elevator", 0, 0, 0, true);
+    public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
+            new TunableTrapezoidalProfileGains("/gains/extension", 0.5, 0.6, MiscConstants.TUNING_MODE);
+
+    //TODO: TUNE FF GAINS
+    public static final TunableFFGains FF_GAINS = new TunableFFGains("gains/elevator", 0,0,0,true);
+  }
+
   public static class SwerveConstants {
     private SwerveConstants() {}
 
