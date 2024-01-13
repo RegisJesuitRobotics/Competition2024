@@ -19,6 +19,8 @@ public final class Constants {
 
     public static final int LEFT_ELEVATOR_MOTOR = 0;
     public static final int RIGHT_ELEVATOR_MOTOR = 1;
+
+    public static final int ELEVATOR_LIMIT_SWITCH = 2;
     public static final double ELEVATOR_GEAR_RATIO = 500.0/2;
 
     //TODO: Do These PID GAINS
