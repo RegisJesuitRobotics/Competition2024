@@ -33,6 +33,8 @@ import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.telemetry.wrappers.TelemetryTalonFX;
 import frc.robot.utils.*;
 import frc.robot.utils.Alert.AlertType;
+import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule {
   private enum SwerveModuleControlMode {
@@ -151,7 +153,6 @@ public class SwerveModule {
             tableName + "steerMotor",
             tuningMode);
     configSteerMotor(config);
-
     resetSteerToAbsolute(0.25);
   }
 
@@ -318,8 +319,9 @@ public class SwerveModule {
 
   private void configSteerEncoder(SwerveModuleConfiguration config) {
     CANcoderConfiguration encoderConfiguration = new CANcoderConfiguration();
-    encoderConfiguration.MagnetSensor.MagnetOffset =
-        Units.radiansToRotations(config.steerOffsetRadians());
+
+            encoderConfiguration.MagnetSensor.MagnetOffset = Units.radiansToRotations(config.steerOffsetRadians());
+    encoderConfiguration.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
 
     absoluteSteerPositionSignal = absoluteSteerEncoder.getAbsolutePosition();
 
@@ -367,7 +369,7 @@ public class SwerveModule {
    * @param timeout The timeout in seconds to wait.
    */
   public void resetSteerToAbsolute(double timeout) {
-    double absolutePosition = absoluteSteerPositionSignal.waitForUpdate(timeout).getValue();
+    double absolutePosition = Units.rotationsToRadians(absoluteSteerPositionSignal.waitForUpdate(timeout).getValue());
     if (absoluteSteerPositionSignal.getStatus().isOK()) {
       REVLibError settingPositionError = steerRelativeEncoder.setPosition(absolutePosition);
       if (RaiderUtils.isRevOk(settingPositionError)) {
@@ -542,7 +544,7 @@ public class SwerveModule {
     steerMotor.logValues();
 
     notSetToAbsoluteAlert.set(!setToAbsolute);
-    absoluteHeadingEntry.append(absoluteSteerPositionSignal.refresh().getValue());
+    absoluteHeadingEntry.append(absoluteSteerPositionSignal.refresh().getValue()* Math.PI * 2);
     setToAbsoluteEntry.append(setToAbsolute);
   }
 }
