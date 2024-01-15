@@ -125,10 +125,17 @@ public final class Constants {
 
   public static class ShooterConstants{
 
-    public static int TOP_SHOOTER_ID = 5;
-    public static int BOTTOM_SHOOTER_ID = 6;
+    public static final int TOP_SHOOTER_ID = 5;
+    public static final int BOTTOM_SHOOTER_ID = 6;
 
-    public static int SHOOTING_RPM = 2;
+    public static final int TOP_TRANSPORT_ID = 7;
+    public static final int BOTTOM_TRANSPORT_ID = 8;
+
+    public static final double TRANSPORT_VOLTAGE = 0.5;
+
+    public static final int SHOOTER_SENSOR = 9;
+
+    public static final int SHOOTING_RPM = 2;
 
     //TODO TUNE FF GAINS
     public static TunableFFGains SHOOTER_FF_GAINS = new TunableFFGains("/shooter/FF", 0, 0, 0, true);
