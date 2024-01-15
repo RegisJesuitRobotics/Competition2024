@@ -50,6 +50,6 @@ public class WristSubsystem extends SubsystemBase {
 
         setVoltage(combinedOutput);
 
-        
+
     }
 }
