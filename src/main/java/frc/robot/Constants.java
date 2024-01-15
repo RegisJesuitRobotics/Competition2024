@@ -123,6 +123,18 @@ public final class Constants {
             MiscConstants.TUNING_MODE);
   }
 
+  public static class WristConstants{
+    public static final int WRIST_SWITCH_ID = 10;
+    public static final int WRIST_MOTOR_ID = 11;
+
+    //TODO: TUNE PID & TRAP & FF
+
+    public static final TunableFFGains WRIST_FF_GAINS = new TunableFFGains("/wrist/FFGAINS", 0, 0, 0, true);
+    public static final TunablePIDGains WRIST_PID_GAINS = new TunablePIDGains("/wrist/pidGains", 0, 0, 0, true);
+
+    public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS = new TunableTrapezoidalProfileGains("/wrist/trapGains", 0, 0, true);
+  }
+
   public static class ShooterConstants{
 
     public static final int TOP_SHOOTER_ID = 5;
