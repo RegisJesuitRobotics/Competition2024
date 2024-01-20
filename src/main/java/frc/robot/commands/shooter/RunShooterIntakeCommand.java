@@ -7,26 +7,37 @@ package frc.robot.commands.shooter;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class RunShooterIntake extends Command {
-  /** Creates a new RunShooterIntake. */
-  public RunShooterIntake() {
-    // Use addRequirements() here to declare subsystem dependencies.
+
+  ShooterSubsystem shooterSubsystem;
+
+  public RunShooterIntake(ShooterSubsystem shooterSubsystem) {
+    this.shooterSubsystem = shooterSubsystem;
+ 
   }
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {}
 
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void initialize() {
+  
 
-  // Called once the command ends or is interrupted.
+
+  }
+
+
   @Override
-  public void end(boolean interrupted) {}
+  public void execute() {shooterSubsystem.runShooterTransportIn()}
 
-  // Returns true when the command should end.
+
+  @Override
+  public void end(boolean interrupted) {
+    shooterSubsystem.TransportStop()
+    shooterSubsystem.setBothFlyVoltage(0);
+    
+  }
+
+
   @Override
   public boolean isFinished() {
-    return false;
+    return shooterSubsystem.isAtSensor();
   }
 }

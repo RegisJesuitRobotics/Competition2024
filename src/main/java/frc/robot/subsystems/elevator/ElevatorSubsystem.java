@@ -27,6 +27,7 @@ private SimpleMotorFeedforward feedforward = FF_GAINS.createFeedforward();
 private final RelativeEncoder leftEncoder = leftMotor.getEncoder();
 private final RelativeEncoder rightEncoder = rightMotor.getEncoder();
 
+<<<<<<< HEAD
 SysIdRoutine routine = new SysIdRoutine(
     new SysIdRoutine.Config(),
     //Add Logmotors at somepoint                      \/
@@ -39,6 +40,8 @@ public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return routine.dynamic(direction);
   }
+=======
+>>>>>>> ec71cf4c7196ce83a55f70828e044d3b23427e0e
 
 
 public ElevatorSubsystem() {
