@@ -28,6 +28,21 @@ private final RelativeEncoder leftEncoder = leftMotor.getEncoder();
 private final RelativeEncoder rightEncoder = rightMotor.getEncoder();
 
 private final DigitalInput bottomLimit = new DigitalInput(ELEVATOR_LIMIT_SWITCH);
+<<<<<<< HEAD
+SysIdRoutine routine = new SysIdRoutine(
+    new SysIdRoutine.Config(),
+    //Add Logmotors at somepoint                      \/
+    new SysIdRoutine.Mechanism(this::setVoltage, this::, this)
+);
+public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return routine.quasistatic(direction);
+  }
+  
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return routine.dynamic(direction);
+  }
+=======
+>>>>>>> ec71cf4c7196ce83a55f70828e044d3b23427e0e
 
 
 
