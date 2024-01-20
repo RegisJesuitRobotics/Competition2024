@@ -92,7 +92,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         () -> yawSignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
         () -> yawSignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
         MiscConstants.CONFIGURATION_ATTEMPTS);
-        
+
     RaiderUtils.applyAndCheckCTRE(
         pigeon::optimizeBusUtilization, () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
 

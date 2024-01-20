@@ -11,75 +11,75 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class TreeTracer {
-    private static final long MIN_PRINT_PERIOD = 0;
+  private static final long MIN_PRINT_PERIOD = 0;
 
-    private long lastEpochsPrintTime;
+  private long lastEpochsPrintTime;
 
-    private Node currentNode;
+  private Node currentNode;
 
-    public TreeTracer() {
-        resetEpochs();
+  public TreeTracer() {
+    resetEpochs();
+  }
+
+  /** Clears all epochs. */
+  public void resetEpochs() {
+    long currentTime = RobotController.getFPGATime();
+    currentNode = new Node("Base", currentTime, null);
+  }
+
+  public void addNode(String name) {
+    Node newNode = new Node(name, RobotController.getFPGATime(), currentNode);
+    currentNode.children.add(newNode);
+    currentNode = newNode;
+  }
+
+  public void endCurrentNode() {
+    currentNode.endTime = RobotController.getFPGATime();
+    currentNode = currentNode.parent;
+  }
+
+  private void printNode(Node node, StringBuilder out, int indent) {
+    out.append("\n");
+    if (indent > 0) {
+      out.append(" ".repeat(indent * 4 - 2)).append("↳ ");
     }
-
-    /** Clears all epochs. */
-    public void resetEpochs() {
-        long currentTime = RobotController.getFPGATime();
-        currentNode = new Node("Base", currentTime, null);
+    out.append(node.name)
+        .append(": ")
+        .append(String.format("%.6f", (node.endTime - node.startTime) / 1000000.0))
+        .append("s");
+    for (Node child : node.children) {
+      printNode(child, out, indent + 1);
     }
+  }
 
-    public void addNode(String name) {
-        Node newNode = new Node(name, RobotController.getFPGATime(), currentNode);
-        currentNode.children.add(newNode);
-        currentNode = newNode;
+  public void printEpochs() {
+    printEpochs(out -> DriverStation.reportWarning(out, false));
+  }
+
+  public void printEpochs(Consumer<String> output) {
+    currentNode.endTime = RobotController.getFPGATime();
+    long now = RobotController.getFPGATime();
+    if (now - lastEpochsPrintTime > MIN_PRINT_PERIOD) {
+      lastEpochsPrintTime = now;
+      StringBuilder sb = new StringBuilder();
+      printNode(currentNode, sb, 0);
+      if (sb.length() > 0) {
+        output.accept(sb.toString());
+      }
     }
+  }
 
-    public void endCurrentNode() {
-        currentNode.endTime = RobotController.getFPGATime();
-        currentNode = currentNode.parent;
+  static class Node {
+    private final String name;
+    private final long startTime;
+    private long endTime;
+    private final Node parent;
+    private final List<Node> children = new ArrayList<>();
+
+    Node(String name, long startTime, Node parent) {
+      this.name = name;
+      this.startTime = startTime;
+      this.parent = parent;
     }
-
-    private void printNode(Node node, StringBuilder out, int indent) {
-        out.append("\n");
-        if (indent > 0) {
-            out.append(" ".repeat(indent * 4 - 2)).append("↳ ");
-        }
-        out.append(node.name)
-                .append(": ")
-                .append(String.format("%.6f", (node.endTime - node.startTime) / 1000000.0))
-                .append("s");
-        for (Node child : node.children) {
-            printNode(child, out, indent + 1);
-        }
-    }
-
-    public void printEpochs() {
-        printEpochs(out -> DriverStation.reportWarning(out, false));
-    }
-
-    public void printEpochs(Consumer<String> output) {
-        currentNode.endTime = RobotController.getFPGATime();
-        long now = RobotController.getFPGATime();
-        if (now - lastEpochsPrintTime > MIN_PRINT_PERIOD) {
-            lastEpochsPrintTime = now;
-            StringBuilder sb = new StringBuilder();
-            printNode(currentNode, sb, 0);
-            if (sb.length() > 0) {
-                output.accept(sb.toString());
-            }
-        }
-    }
-
-    static class Node {
-        private final String name;
-        private final long startTime;
-        private long endTime;
-        private final Node parent;
-        private final List<Node> children = new ArrayList<>();
-
-        Node(String name, long startTime, Node parent) {
-            this.name = name;
-            this.startTime = startTime;
-            this.parent = parent;
-        }
-    }
+  }
 }

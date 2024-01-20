@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 
 public class RunIntakeInCommand extends Command {
- 
+
   private final IntakeSubsystem intakesubsystem;
 
   public RunIntakeInCommand(IntakeSubsystem intakesubsystem) {
@@ -17,21 +17,17 @@ public class RunIntakeInCommand extends Command {
     addRequirements(intakesubsystem);
   }
 
-  
   @Override
   public void initialize() {}
-
 
   @Override
   public void execute() {
     intakesubsystem.motorVoltage();
   }
 
-  
   @Override
   public void end(boolean interrupted) {}
 
-  
   @Override
   public boolean isFinished() {
     return intakesubsystem.atIntakeSensor();

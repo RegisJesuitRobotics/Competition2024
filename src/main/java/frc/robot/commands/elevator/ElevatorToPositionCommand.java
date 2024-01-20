@@ -4,32 +4,33 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 
 public class ElevatorToPositionCommand extends Command {
-    private final ElevatorSubsystem elevatorSubsystem;
-    private final double desiredPosition;
-    public ElevatorToPositionCommand(ElevatorSubsystem elevatorSubsystem, double desiredPosition){
-        this.elevatorSubsystem = elevatorSubsystem;
-        this.desiredPosition = desiredPosition;
+  private final ElevatorSubsystem elevatorSubsystem;
+  private final double desiredPosition;
 
-        addRequirements(elevatorSubsystem);
-    }
+  public ElevatorToPositionCommand(ElevatorSubsystem elevatorSubsystem, double desiredPosition) {
+    this.elevatorSubsystem = elevatorSubsystem;
+    this.desiredPosition = desiredPosition;
 
-    @Override
-    public void initialize(){
-        elevatorSubsystem.setDesiredPosition(desiredPosition);
-    }
+    addRequirements(elevatorSubsystem);
+  }
 
-    @Override
-    public void execute(){
-        elevatorSubsystem.atBottomLimit();
-    }
+  @Override
+  public void initialize() {
+    elevatorSubsystem.setDesiredPosition(desiredPosition);
+  }
 
-    @Override
-    public void end(boolean interrupted){
-        elevatorSubsystem.stopMove();
-    }
+  @Override
+  public void execute() {
+    elevatorSubsystem.atBottomLimit();
+  }
 
-    @Override
-    public boolean isFinished(){
-        return elevatorSubsystem.atGoal();
-    }
+  @Override
+  public void end(boolean interrupted) {
+    elevatorSubsystem.stopMove();
+  }
+
+  @Override
+  public boolean isFinished() {
+    return elevatorSubsystem.atGoal();
+  }
 }

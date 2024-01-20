@@ -14,8 +14,7 @@ import frc.robot.utils.SwerveModuleConfiguration.SharedSwerveModuleConfiguration
 public final class Constants {
   private Constants() {}
 
-
-  public static class IntakeConstants{
+  public static class IntakeConstants {
     public static final int INTAKE_SENSOR_ID = 11;
     public static final int INTAKE_VOLTAGE = -3;
     public static final int INTAKE_MOTOR_ID = 12;
@@ -29,15 +28,17 @@ public final class Constants {
     public static final int RIGHT_ELEVATOR_MOTOR = 1;
 
     public static final int ELEVATOR_LIMIT_SWITCH = 2;
-    public static final double ELEVATOR_GEAR_RATIO = 500.0/2;
+    public static final double ELEVATOR_GEAR_RATIO = 500.0 / 2;
 
-    //TODO: Do These PID GAINS
-    public static final TunablePIDGains PID_GAINS = new TunablePIDGains("gains/elevator", 0, 0, 0, true);
+    // TODO: Do These PID GAINS
+    public static final TunablePIDGains PID_GAINS =
+        new TunablePIDGains("gains/elevator", 0, 0, 0, true);
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
-            new TunableTrapezoidalProfileGains("/gains/extension", 0.5, 0.6, MiscConstants.TUNING_MODE);
+        new TunableTrapezoidalProfileGains("/gains/extension", 0.5, 0.6, MiscConstants.TUNING_MODE);
 
-    //TODO: TUNE FF GAINS
-    public static final TunableFFGains FF_GAINS = new TunableFFGains("gains/elevator", 0,0,0,true);
+    // TODO: TUNE FF GAINS
+    public static final TunableFFGains FF_GAINS =
+        new TunableFFGains("gains/elevator", 0, 0, 0, true);
   }
 
   public static class SwerveConstants {
@@ -56,7 +57,6 @@ public final class Constants {
     public static final double DRIVE_CONTINUOUS_CURRENT_LIMIT_TIME_SECONDS = 0.2;
     public static final int STEER_STALL_CURRENT_LIMIT = 45;
     public static final int STEER_FREE_CURRENT_LIMIT = 25;
-  
 
     public static final TunablePIDGains DRIVE_VELOCITY_PID_GAINS =
         new TunablePIDGains("/gains/drive", 0.3, 0.0, 0.0, MiscConstants.TUNING_MODE);
@@ -149,24 +149,27 @@ public final class Constants {
             MiscConstants.TUNING_MODE);
   }
 
-  public static class WristConstants{
+  public static class WristConstants {
 
-    //TODO FIND WRIST CLAMPS
-    public static final Rotation2d WRIST_HIGH = new Rotation2d(0,0);
+    // TODO FIND WRIST CLAMPS
+    public static final Rotation2d WRIST_HIGH = new Rotation2d(0, 0);
     public static final Rotation2d WRIST_LOW = new Rotation2d(0, 0);
 
     public static final int WRIST_SWITCH_ID = 10;
     public static final int WRIST_MOTOR_ID = 11;
 
-    //TODO: TUNE PID & TRAP & FF
+    // TODO: TUNE PID & TRAP & FF
 
-    public static final TunableFFGains WRIST_FF_GAINS = new TunableFFGains("/wrist/FFGAINS", 0, 0, 0, true);
-    public static final TunablePIDGains WRIST_PID_GAINS = new TunablePIDGains("/wrist/pidGains", 0, 0, 0, true);
+    public static final TunableFFGains WRIST_FF_GAINS =
+        new TunableFFGains("/wrist/FFGAINS", 0, 0, 0, true);
+    public static final TunablePIDGains WRIST_PID_GAINS =
+        new TunablePIDGains("/wrist/pidGains", 0, 0, 0, true);
 
-    public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS = new TunableTrapezoidalProfileGains("/wrist/trapGains", 0, 0, true);
+    public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
+        new TunableTrapezoidalProfileGains("/wrist/trapGains", 0, 0, true);
   }
 
-  public static class ShooterConstants{
+  public static class ShooterConstants {
 
     public static final double INTAKE_VOLTAGE = -1;
 
@@ -182,8 +185,9 @@ public final class Constants {
 
     public static final int SHOOTING_RPM = 2;
 
-    //TODO TUNE FF GAINS
-    public static TunableFFGains SHOOTER_FF_GAINS = new TunableFFGains("/shooter/FF", 0, 0, 0, true);
+    // TODO TUNE FF GAINS
+    public static TunableFFGains SHOOTER_FF_GAINS =
+        new TunableFFGains("/shooter/FF", 0, 0, 0, true);
   }
 
   public static class TeleopConstants {

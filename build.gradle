@@ -5,11 +5,10 @@ plugins {
     id "edu.wpi.first.GradleRIO" version "2024.1.1"
     id "com.peterabeles.gversion" version "1.10"
     id 'com.diffplug.spotless' version '6.11.0'
-
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+sourceCompatibility = JavaVersion.VERSION_18
+targetCompatibility = JavaVersion.VERSION_18
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 

@@ -1,35 +1,38 @@
 package frc.robot.commands.wrist;
 
+import static frc.robot.Constants.WristConstants.*;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.wrist.WristSubsystem;
-import static frc.robot.Constants.WristConstants.*;
 
 public class WristToPositionCommand extends Command {
-    private final WristSubsystem wristSubsystem;
-    private final double desiredPosition;
-    public WristToPositionCommand(WristSubsystem wristSubsystem, Rotation2d desiredPosition){
-        this.wristSubsystem = wristSubsystem;
+  private final WristSubsystem wristSubsystem;
+  private final double desiredPosition;
 
-        addRequirements(wristSubsystem);
+  public WristToPositionCommand(WristSubsystem wristSubsystem, Rotation2d desiredPosition) {
+    this.wristSubsystem = wristSubsystem;
 
-        this.desiredPosition = MathUtil.clamp(desiredPosition.getRadians(), WRIST_LOW.getRadians(), WRIST_HIGH.getRadians());
+    addRequirements(wristSubsystem);
 
-    }
+    this.desiredPosition =
+        MathUtil.clamp(
+            desiredPosition.getRadians(), WRIST_LOW.getRadians(), WRIST_HIGH.getRadians());
+  }
 
-    @Override
-    public void initialize(){
-        wristSubsystem.setDesiredPosition(Rotation2d.fromRadians(desiredPosition));
-    }
+  @Override
+  public void initialize() {
+    wristSubsystem.setDesiredPosition(Rotation2d.fromRadians(desiredPosition));
+  }
 
-    @Override
-    public void end(boolean interrupted){
-        wristSubsystem.stopMovement();
-    }
+  @Override
+  public void end(boolean interrupted) {
+    wristSubsystem.stopMovement();
+  }
 
-    @Override
-    public boolean isFinished(){
-        return wristSubsystem.atGoal();
-    }
+  @Override
+  public boolean isFinished() {
+    return wristSubsystem.atGoal();
+  }
 }

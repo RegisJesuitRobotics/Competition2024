@@ -8,20 +8,24 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 public class RunIntakeInElevatorDownCommand extends ParallelCommandGroup {
-    private final ElevatorSubsystem elevatorSubsystem;
-    private final IntakeSubsystem intakeSubsystem;
-    private final ShooterSubsystem shooterSubsystem;
-    public RunIntakeInElevatorDownCommand(ElevatorSubsystem elevatorSubsystem, IntakeSubsystem intakeSubsystem, ShooterSubsystem shooterSubsystem){
-        this.elevatorSubsystem = elevatorSubsystem;
-        this.intakeSubsystem = intakeSubsystem;
-        this.shooterSubsystem = shooterSubsystem;
+  private final ElevatorSubsystem elevatorSubsystem;
+  private final IntakeSubsystem intakeSubsystem;
+  private final ShooterSubsystem shooterSubsystem;
 
-        addRequirements(elevatorSubsystem);
-        addRequirements(intakeSubsystem);
-        addRequirements(shooterSubsystem);
+  public RunIntakeInElevatorDownCommand(
+      ElevatorSubsystem elevatorSubsystem,
+      IntakeSubsystem intakeSubsystem,
+      ShooterSubsystem shooterSubsystem) {
+    this.elevatorSubsystem = elevatorSubsystem;
+    this.intakeSubsystem = intakeSubsystem;
+    this.shooterSubsystem = shooterSubsystem;
 
-        addCommands(new ElevatorToPositionCommand(elevatorSubsystem, 0));
-        addCommands(new RunIntakeInCommand(intakeSubsystem));
-        addCommands(new ShooterIntakeCommand(shooterSubsystem));
-    }
+    addRequirements(elevatorSubsystem);
+    addRequirements(intakeSubsystem);
+    addRequirements(shooterSubsystem);
+
+    addCommands(new ElevatorToPositionCommand(elevatorSubsystem, 0));
+    addCommands(new RunIntakeInCommand(intakeSubsystem));
+    addCommands(new ShooterIntakeCommand(shooterSubsystem));
+  }
 }
