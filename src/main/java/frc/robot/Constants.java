@@ -31,6 +31,7 @@ public final class Constants {
     public static final double DRIVE_CONTINUOUS_CURRENT_LIMIT_TIME_SECONDS = 0.2;
     public static final int STEER_STALL_CURRENT_LIMIT = 45;
     public static final int STEER_FREE_CURRENT_LIMIT = 25;
+  
 
     public static final TunablePIDGains DRIVE_VELOCITY_PID_GAINS =
         new TunablePIDGains("/gains/drive", 0.3, 0.0, 0.0, MiscConstants.TUNING_MODE);
@@ -131,6 +132,7 @@ public final class Constants {
 
     public static final TunableFFGains WRIST_FF_GAINS = new TunableFFGains("/wrist/FFGAINS", 0, 0, 0, true);
     public static final TunablePIDGains WRIST_PID_GAINS = new TunablePIDGains("/wrist/pidGains", 0, 0, 0, true);
+    public static final boolean Set_Shooter_Angle = new boolean(0);
 
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS = new TunableTrapezoidalProfileGains("/wrist/trapGains", 0, 0, true);
   }

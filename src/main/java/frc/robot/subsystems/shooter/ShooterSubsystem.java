@@ -38,8 +38,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private double bottomVoltage = 0;
 
     public  void setBothFlyVoltage(double voltage){
-topFly.setVoltage(voltage);
-bottomFly.setVoltage(voltage);
+        topFly.setVoltage(voltage);
+        bottomFly.setVoltage(voltage);
     }
     public void setTopVoltage(double voltage){
         topFly.setVoltage(voltage);
@@ -52,7 +52,7 @@ bottomFly.setVoltage(voltage);
     public void setRPM(int rpm){
        double forwardVol = FF.calculate(rpm);
 
-    setBothFlyVoltage(forwardVol);
+        setBothFlyVoltage(forwardVol);
 
     }
 
