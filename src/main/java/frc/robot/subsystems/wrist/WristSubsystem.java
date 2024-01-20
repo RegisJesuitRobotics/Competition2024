@@ -23,19 +23,6 @@ public class WristSubsystem extends SubsystemBase {
     private final TunableTelemetryProfiledPIDController controller = new TunableTelemetryProfiledPIDController("wrist/pid", WRIST_PID_GAINS, TRAPEZOIDAL_PROFILE_GAINS);
     private final RelativeEncoder relativeEncoder = wristMotor.getEncoder();
 
-    SysIdRoutine routine = new SysIdRoutine(
-    new SysIdRoutine.Config(),
-    //Add logmotors at somepoint                        ||     
-    new SysIdRoutine.Mechanism(this::setVoltage, this::  , this)
-  );
-
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return routine.quasistatic(direction);
-  }
-  
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return routine.dynamic(direction);
-  }
 
     
     public WristSubsystem(){
