@@ -27,15 +27,28 @@ private SimpleMotorFeedforward feedforward = FF_GAINS.createFeedforward();
 private final RelativeEncoder leftEncoder = leftMotor.getEncoder();
 private final RelativeEncoder rightEncoder = rightMotor.getEncoder();
 
+private final DigitalInput bottomLimit = new DigitalInput(ELEVATOR_LIMIT_SWITCH);
+
 
 
 public ElevatorSubsystem() {
 
 }
 
+public void atBottomLimit(){
+    if (bottomLimit.get()){
+        leftEncoder.setPosition(0);
+        rightEncoder.setPosition(0);
+    }
+}
+
 public void setDesiredPosition(double desiredPosition){
     //TODO: CLAMP THIS
     controller.setGoal(desiredPosition);
+}
+
+public boolean atGoal(){
+    return controller.atGoal();
 }
 
 public void setEncoderPosition(double position){

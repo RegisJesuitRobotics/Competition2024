@@ -5,13 +5,16 @@
 package frc.robot.commands.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 
 public class RunIntakeInCommand extends Command {
  
-  priavte final IntakeSubsystem intakesubsystem;
+  private final IntakeSubsystem intakesubsystem;
 
   public RunIntakeInCommand(IntakeSubsystem intakesubsystem) {
+
     this.intakesubsystem = intakesubsystem;
+    addRequirements(intakesubsystem);
   }
 
   
@@ -31,6 +34,6 @@ public class RunIntakeInCommand extends Command {
   
   @Override
   public boolean isFinished() {
-    return intakesubsystem.isAtSensor();
+    return intakesubsystem.atIntakeSensor();
   }
 }

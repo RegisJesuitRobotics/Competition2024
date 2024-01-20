@@ -33,6 +33,11 @@ public class SimpleShootCommand extends Command {
         shooterSubsystem.TransportStop();
     }
 
+    @Override
+    public boolean isFinished(){
+        return shooterSubsystem.isAtSensor();
+    }
+
 
 
 

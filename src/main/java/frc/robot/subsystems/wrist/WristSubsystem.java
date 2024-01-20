@@ -3,8 +3,11 @@ package frc.robot.subsystems.wrist;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.proto.Rotation2dProto;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
@@ -43,13 +46,19 @@ public class WristSubsystem extends SubsystemBase {
         return atBottom.get();
     }
     
-    public double getPosition(){
-        return relativeEncoder.getPosition();
+    public Rotation2d getPosition(){
+        return Rotation2d.fromRadians(relativeEncoder.getPosition());
     }
-    
-    public void setDesiredPosition(double desiredPosition){
 
-        controller.setGoal(desiredPosition);
+    public boolean atGoal(){
+      return controller.atGoal();
+    }
+    public void stopMovement(){
+      wristMotor.setVoltage(0);
+    }
+    public void setDesiredPosition(Rotation2d desiredPosition){
+
+        controller.setGoal(desiredPosition.getRadians());
     }
 
     public void setVoltage(double voltage){
@@ -58,7 +67,7 @@ public class WristSubsystem extends SubsystemBase {
 
     @Override
     public void periodic(){
-        double feedbackOutput = controller.calculate(getPosition());
+        double feedbackOutput = controller.calculate(getPosition().getRadians());
 
         TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
         double combinedOutput = feedbackOutput + feedforward.calculate(currentSetpoint.velocity);

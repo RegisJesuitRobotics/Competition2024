@@ -19,7 +19,6 @@ public class ShooterSubsystem extends SubsystemBase {
     private final TelemetryCANSparkMax bottomFly = new TelemetryCANSparkMax(BOTTOM_SHOOTER_ID, CANSparkMaxLowLevel.MotorType.kBrushless, "/shooter/bottom", true);
 
     private final TelemetryCANSparkMax topTransport = new TelemetryCANSparkMax(TOP_TRANSPORT_ID, CANSparkMaxLowLevel.MotorType.kBrushless, "/shooterTransport/top", true);
-    private final TelemetryCANSparkMax bottomTransport = new TelemetryCANSparkMax(BOTTOM_TRANSPORT_ID, CANSparkMaxLowLevel.MotorType.kBrushless, "/shooterTransport/bottom", true);
     private final RelativeEncoder topFlyEncoder = topFly.getEncoder();
     private final RelativeEncoder bottomFlyEncoder = bottomFly.getEncoder();
     private final SimpleMotorFeedforward FF = new SimpleMotorFeedforward(SHOOTER_FF_GAINS.sFF.get(), SHOOTER_FF_GAINS.sFF.get(), SHOOTER_FF_GAINS.vFF.get());
@@ -58,15 +57,16 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void runShooterTransportIn(){
         topTransport.setVoltage(TRANSPORT_VOLTAGE);
-        bottomTransport.setVoltage(TRANSPORT_VOLTAGE);
+    }
+
+    public void shooterTransportStop(){
+        topTransport.setVoltage(0);
     }
     public void runShooterTransportOut(){
         topTransport.setVoltage(-TRANSPORT_VOLTAGE);
-        bottomTransport.setVoltage(-TRANSPORT_VOLTAGE);
     }
     public void TransportStop(){
         topTransport.setVoltage(0);
-        bottomTransport.setVoltage(0);
     }
 
     public boolean isAtSensor(){

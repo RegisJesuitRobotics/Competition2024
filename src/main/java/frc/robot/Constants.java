@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -14,6 +15,11 @@ public final class Constants {
   private Constants() {}
 
 
+  public static class IntakeConstants{
+    public static final int INTAKE_SENSOR_ID = 11;
+    public static final int INTAKE_VOLTAGE = -3;
+    public static final int INTAKE_MOTOR_ID = 12;
+  }
 
   public static final double DT = 0.02;
 
@@ -144,6 +150,11 @@ public final class Constants {
   }
 
   public static class WristConstants{
+
+    //TODO FIND WRIST CLAMPS
+    public static final Rotation2d WRIST_HIGH = new Rotation2d(0,0);
+    public static final Rotation2d WRIST_LOW = new Rotation2d(0, 0);
+
     public static final int WRIST_SWITCH_ID = 10;
     public static final int WRIST_MOTOR_ID = 11;
 
@@ -151,12 +162,13 @@ public final class Constants {
 
     public static final TunableFFGains WRIST_FF_GAINS = new TunableFFGains("/wrist/FFGAINS", 0, 0, 0, true);
     public static final TunablePIDGains WRIST_PID_GAINS = new TunablePIDGains("/wrist/pidGains", 0, 0, 0, true);
-    public static final boolean Set_Shooter_Angle = new boolean(0);
 
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS = new TunableTrapezoidalProfileGains("/wrist/trapGains", 0, 0, true);
   }
 
   public static class ShooterConstants{
+
+    public static final double INTAKE_VOLTAGE = -1;
 
     public static final int TOP_SHOOTER_ID = 5;
     public static final int BOTTOM_SHOOTER_ID = 6;

@@ -5,18 +5,22 @@
 package frc.robot.subsystems.intake;
 
 import com.revrobotics.CANSparkMaxLowLevel;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
+import static frc.robot.Constants.IntakeConstants.*;
 
 public class IntakeSubsystem extends SubsystemBase {
-  private TelemetryCANSparkMax sparkMax = new TelemetryCANSparkMax(0, CANSparkMaxLowLevel.MotorType.kBrushless, "intake/motors", true);
+  private final TelemetryCANSparkMax intakeMotor = new TelemetryCANSparkMax(INTAKE_MOTOR_ID, CANSparkMaxLowLevel.MotorType.kBrushless, "intake/motors", true);
 
+  private final DigitalInput intakeSensor = new DigitalInput(INTAKE_SENSOR_ID);
   public void motorVoltage(){
-    sparkMax.setVoltage(3);
+
+    intakeMotor.setVoltage(INTAKE_VOLTAGE);
   }
 
-  public void motorSpeed(){
-    sparkMax.set(5);
+  public boolean atIntakeSensor(){
+    return intakeSensor.get();
   }
 
   public IntakeSubsystem() {}
