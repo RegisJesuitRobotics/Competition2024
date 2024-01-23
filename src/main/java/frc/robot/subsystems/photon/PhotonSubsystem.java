@@ -27,22 +27,31 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class PhotonSubsystem extends SubsystemBase {
     private final AprilTagFieldLayout fieldLayout;
+
     PhotonPoseEstimator poseEstimator;
+
     private final List<Pose3dEntry> estimatedPoseEntries = new ArrayList<>();
+
     private final Pose3dArrayEntry visionTargetEntries =
             new Pose3dArrayEntry("/photon/targets", MiscConstants.TUNING_MODE);
+
     private final Pose3dArrayEntry unusedVisionTargetEntries =
             new Pose3dArrayEntry("/photon/unusedTargets", MiscConstants.TUNING_MODE);
+
     private final PhotonCamera camera = new PhotonCamera("Camera");
+
     private final Alert cameraNotConnectedAlert =
             new Alert("AprilTag Camera is Not Powered or Not Connected", AlertType.ERROR);
+
     private double[] temp = new double[7];
+
     private Pose3dEntry poseEntry = new Pose3dEntry("/vision/estimatedPose", false);
 
     public PhotonSubsystem() {
         try {
             fieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
             fieldLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -76,15 +85,20 @@ public class PhotonSubsystem extends SubsystemBase {
                     .getTranslation()
                     .getNorm()
                     < Constants.VisionConstants.DISTANCE_CUTOFF;
+
             if (fieldLayout.getTagPose(target.getFiducialId()).isPresent()) {
                 Pose3d tagPose =
                         fieldLayout.getTagPose(target.getFiducialId()).get();
+
                 if (shouldUse) {
                     targetPoses.add(tagPose);
-                } else {
+                } 
+                
+                else {
                     unusedTargetPoses.add(tagPose);
                 }
             }
+            
             if (!shouldUse) {
                 result.targets.remove(j);
             }

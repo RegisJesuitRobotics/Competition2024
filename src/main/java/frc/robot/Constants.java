@@ -144,7 +144,6 @@ public static class VisionConstants {
 
 
     public static final String FRONT_CAMERA_NAME = "FrontCamera";
-    public static final String BACK_CAMERA_NAME = "BackCamera";
 
     public static final double POSE_AMBIGUITY_CUTOFF = 0.05;
     public static final double DISTANCE_CUTOFF = 4.0;
