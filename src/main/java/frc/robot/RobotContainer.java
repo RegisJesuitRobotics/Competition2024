@@ -26,8 +26,9 @@ import java.util.function.DoubleSupplier;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  PhotonSubsystem photonSubsystem = new PhotonSubsystem();
-  private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
+  private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
+  private final SwerveDriveSubsystem driveSubsystem =
+      new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
 
   private final CommandNintendoSwitchController driverController =
       new CommandNintendoSwitchController(0);

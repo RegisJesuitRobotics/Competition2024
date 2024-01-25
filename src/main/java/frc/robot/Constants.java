@@ -3,7 +3,6 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import frc.robot.telemetry.tunable.gains.TunableFFGains;
@@ -17,7 +16,6 @@ public final class Constants {
   private Constants() {}
 
   public static final double DT = 0.02;
-
 
   public static class SwerveConstants {
     private SwerveConstants() {}
@@ -136,20 +134,16 @@ public final class Constants {
     public static final double MINIMUM_VELOCITY_METERS_SECOND = 0.10;
     public static final double MINIMUM_ANGULAR_VELOCITY_RADIANS_SECOND = 0.10;
   }
-public static class VisionConstants {
+
+  public static class VisionConstants {
     private VisionConstants() {}
 
-
-    public static final Transform3d ROBOT_TO_CAM = new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0));
-
-
-    public static final String FRONT_CAMERA_NAME = "FrontCamera";
-    public static final String BACK_CAMERA_NAME = "BackCamera";
+    public static final Transform3d ROBOT_TO_CAM =
+        new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0));
 
     public static final double POSE_AMBIGUITY_CUTOFF = 0.05;
     public static final double DISTANCE_CUTOFF = 4.0;
   }
-
 
   public static class MiscConstants {
 
@@ -161,7 +155,5 @@ public static class VisionConstants {
     public static final ModuleType POWER_MODULE_TYPE = ModuleType.kCTRE;
     public static final int POWER_MODULE_ID = 0;
     public static final int CONFIGURATION_ATTEMPTS = 5;
-
-
   }
 }

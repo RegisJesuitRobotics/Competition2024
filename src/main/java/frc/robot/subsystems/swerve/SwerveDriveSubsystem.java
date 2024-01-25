@@ -21,10 +21,9 @@ import frc.robot.telemetry.types.*;
 import frc.robot.telemetry.wrappers.TelemetryPigeon2;
 import frc.robot.utils.RaiderMathUtils;
 import frc.robot.utils.RaiderUtils;
-import org.photonvision.EstimatedRobotPose;
-
 import java.util.List;
 import java.util.function.Function;
+import org.photonvision.EstimatedRobotPose;
 
 /** The subsystem containing all the swerve modules */
 public class SwerveDriveSubsystem extends SubsystemBase {
@@ -83,7 +82,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     driveEventLogger.append("Swerve modules initialized");
 
-  this.cameraPoseDataSupplier = cameraPoseDataSupplier;
+    this.cameraPoseDataSupplier = cameraPoseDataSupplier;
 
     poseEstimator =
         new SwerveDrivePoseEstimator(
@@ -304,15 +303,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
           module.setCharacterizationVoltage(rawDriveVolts);
         }
       }
-
     }
 
+    // validate timeStamp
     logValues();
     List<EstimatedRobotPose> estimatedRobotPoses = cameraPoseDataSupplier.apply(getPose());
     for (EstimatedRobotPose estimatedRobotPose : estimatedRobotPoses) {
       if (!DriverStation.isAutonomousEnabled()) {
         poseEstimator.addVisionMeasurement(
-                estimatedRobotPose.estimatedPose.toPose2d(), estimatedRobotPose.timestampSeconds);
+            estimatedRobotPose.estimatedPose.toPose2d(), estimatedRobotPose.timestampSeconds);
       }
     }
   }
