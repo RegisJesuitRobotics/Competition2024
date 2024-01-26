@@ -8,6 +8,7 @@ import java.util.List;
 public class Pose3dArrayEntry implements TelemetryEntry {
   private final DoubleArrayTelemetryEntry posesEntry;
 
+
   public Pose3dArrayEntry(String path, boolean shouldNT) {
     posesEntry = new DoubleArrayTelemetryEntry(path, shouldNT);
   }
@@ -20,6 +21,7 @@ public class Pose3dArrayEntry implements TelemetryEntry {
 
     posesEntry.append(poses);
   }
+  
 
   public void append(List<Pose3d> values) {
     double[] poses = new double[values.size() * 7];
