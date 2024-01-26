@@ -26,7 +26,7 @@ public class SimpleShootCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    shooterSubsystem.setBothFlyVoltage(0);
+    shooterSubsystem.setMotorFlyVoltage(0);
     shooterSubsystem.TransportStop();
   }
 

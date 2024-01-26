@@ -16,7 +16,7 @@ public final class Constants {
 
   public static class IntakeConstants {
     public static final int INTAKE_SENSOR_ID = 11;
-    public static final int INTAKE_VOLTAGE = -3;
+    public static final int INTAKE_VOLTAGE = setInverted(3);
     public static final int INTAKE_MOTOR_ID = 12;
   }
 
@@ -32,7 +32,7 @@ public final class Constants {
 
     // TODO: Do These PID GAINS
     public static final TunablePIDGains PID_GAINS =
-        new TunablePIDGains("gains/elevator", 0, 0, 0, true);
+        new TunablePIDGains("gains/elevator", 0, 0, 0, TUNING_MODE);
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
         new TunableTrapezoidalProfileGains("/gains/extension", 0.5, 0.6, MiscConstants.TUNING_MODE);
 
@@ -173,11 +173,9 @@ public final class Constants {
 
     public static final double INTAKE_VOLTAGE = -1;
 
-    public static final int TOP_SHOOTER_ID = 5;
-    public static final int BOTTOM_SHOOTER_ID = 6;
+    public static final int MOTOR_SHOOTER_ID = 5;
 
-    public static final int TOP_TRANSPORT_ID = 7;
-    public static final int BOTTOM_TRANSPORT_ID = 8;
+    public static final int MOTOR_TRANSPORT_ID = 7;
 
     public static final double TRANSPORT_VOLTAGE = 0.5;
 
