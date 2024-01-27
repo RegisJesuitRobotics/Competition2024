@@ -51,6 +51,7 @@ public ShooterSubsystem(){
   int instanceID = instance++;
 
   topFlyAlert = new Alert("Module " + instanceID + ": ", Alert.AlertType.ERROR);
+  configMotor();
 }
 
 public void configMotor(){
