@@ -18,7 +18,6 @@ import frc.robot.utils.RaiderUtils;
 public class ShooterSubsystem extends SubsystemBase {
   // TODO I have no clue what the final cad looks like so these are all arbitrary
 
-<<<<<<< HEAD
   private static int instance = 0;
   private Alert topFlyAlert;
   private final TelemetryCANSparkMax topFly =
@@ -28,39 +27,26 @@ public class ShooterSubsystem extends SubsystemBase {
   private final TelemetryCANSparkMax topTransport =
       new TelemetryCANSparkMax(
           TOP_TRANSPORT_ID,
-=======
-  private final TelemetryCANSparkMax motorFly =
-      new TelemetryCANSparkMax(
-          MOTOR_SHOOTER_ID, CANSparkMaxLowLevel.MotorType.kBrushless, "/shooter/motor", true);
-  
-  private final TelemetryCANSparkMax motorTransport =
-      new TelemetryCANSparkMax(
-          MOTOR_TRANSPORT_ID,
->>>>>>> 83696f14c15fa740f27dfef23cc8265f01b9937a
           CANSparkMaxLowLevel.MotorType.kBrushless,
-          "/shooterTransport/motor",
+          "/shooterTransport/top",
           true);
-<<<<<<< HEAD
   private RelativeEncoder topFlyEncoder;
-=======
-
-  private final RelativeEncoder motorFlyEncoder = motorFly.getEncoder();
-
->>>>>>> 83696f14c15fa740f27dfef23cc8265f01b9937a
   private final SimpleMotorFeedforward FF =
       new SimpleMotorFeedforward(
           SHOOTER_FF_GAINS.sFF.get(), SHOOTER_FF_GAINS.sFF.get(), SHOOTER_FF_GAINS.vFF.get());
 
-  private final DoubleTelemetryEntry motorFlyVoltageReq =
-      new DoubleTelemetryEntry("/shooter/motorVoltage", false);
+  private final DoubleTelemetryEntry topFlyVoltageReq =
+      new DoubleTelemetryEntry("/shooter/topVoltage", false);
+  private final DoubleTelemetryEntry bottomFlyVoltageReq =
+      new DoubleTelemetryEntry("/shooter/bottomVoltage", false);
 
-  private final DoubleTelemetryEntry motorTransportVoltageReq =
-      new DoubleTelemetryEntry("/shooterTransport/motorVoltage", false);
-
+  private final DoubleTelemetryEntry topTransportVoltageReq =
+      new DoubleTelemetryEntry("/shooterTransport/topVoltage", false);
+  private final DoubleTelemetryEntry bottomTransportVoltageReq =
+      new DoubleTelemetryEntry("/shooterTransport/bottomVoltage", false);
 
   private final DigitalInput shooterFrisbeeSensor = new DigitalInput(SHOOTER_SENSOR);
 
-<<<<<<< HEAD
 public ShooterSubsystem(){
   int instanceID = instance++;
 
@@ -124,58 +110,34 @@ public void configMotor(){
   public void setFlyVoltage(double voltage) {
     topFly.setVoltage(voltage);
   }
-=======
-  private double topVoltage = 0;
-
-  public void setMotorFlyVoltage(double voltage) {
-    motorFly.setVoltage(voltage);
-  }
-
->>>>>>> 83696f14c15fa740f27dfef23cc8265f01b9937a
 
   public void setRPM(int rpm) {
     double forwardVol = FF.calculate(rpm);
 
-<<<<<<< HEAD
     setFlyVoltage(forwardVol);
   }
 
   public void runShooterTransportIn() {
     topTransport.setVoltage(INTAKE_VOLTAGE);
-=======
-    setMotorFlyVoltage(forwardVol);
-  }
-
-  public void runShooterTransportIn() {
-    motorTransport.setVoltage(TRANSPORT_VOLTAGE);
->>>>>>> 83696f14c15fa740f27dfef23cc8265f01b9937a
   }
 
   public void shooterTransportStop() {
-    motorTransport.setVoltage(0);
+    topTransport.setVoltage(0);
   }
 
   public void runShooterTransportOut() {
-<<<<<<< HEAD
     topTransport.setVoltage(INTAKE_VOLTAGE);
-=======
-    motorTransport.setVoltage(-TRANSPORT_VOLTAGE);
->>>>>>> 83696f14c15fa740f27dfef23cc8265f01b9937a
   }
 
   public void TransportStop() {
-    motorTransport.setVoltage(0);
+    topTransport.setVoltage(0);
   }
 
   public boolean isAtSensor() {
     return shooterFrisbeeSensor.get();
   }
 
-  public double getMotorEncoderVelocity() {
-    return motorFlyEncoder.getVelocity();
+  public double getTopEncoderVelocity() {
+    return topFlyEncoder.getVelocity();
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> 83696f14c15fa740f27dfef23cc8265f01b9937a
 }

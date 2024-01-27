@@ -22,18 +22,12 @@ public class WristSubsystem extends SubsystemBase {
       new TelemetryCANSparkMax(
           WRIST_MOTOR_ID, CANSparkMaxLowLevel.MotorType.kBrushless, "/wrist/motors", true);
 
-<<<<<<< HEAD
   private final ArmFeedforward feedforward =
-=======
-  private final ArmFeedForward feedforward =
->>>>>>> 83696f14c15fa740f27dfef23cc8265f01b9937a
       new ArmFeedforward(
           WRIST_FF_GAINS.aFF.get(), WRIST_FF_GAINS.sFF.get(), WRIST_FF_GAINS.vFF.get());
-
   private final TunableTelemetryProfiledPIDController controller =
       new TunableTelemetryProfiledPIDController(
           "wrist/pid", WRIST_PID_GAINS, TRAPEZOIDAL_PROFILE_GAINS);
-          
   private final RelativeEncoder relativeEncoder = wristMotor.getEncoder();
 
   public WristSubsystem() {

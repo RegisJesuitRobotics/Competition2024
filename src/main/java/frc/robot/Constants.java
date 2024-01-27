@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -65,7 +66,6 @@ public final class Constants {
     public static final double DRIVE_CONTINUOUS_CURRENT_LIMIT_TIME_SECONDS = 0.2;
     public static final int STEER_STALL_CURRENT_LIMIT = 45;
     public static final int STEER_FREE_CURRENT_LIMIT = 25;
-  
 
     public static final TunablePIDGains DRIVE_VELOCITY_PID_GAINS =
         new TunablePIDGains("/gains/drive", 0.3, 0.0, 0.0, MiscConstants.TUNING_MODE);
@@ -170,7 +170,7 @@ public final class Constants {
     public static final int WRIST_SWITCH_ID = 12;
     public static final int WRIST_MOTOR_ID = 11;
 
-    //TODO: TUNE PID & TRAP & FF
+    // TODO: TUNE PID & TRAP & FF
 
     public static final TunableFFGains WRIST_FF_GAINS =
         new TunableFFGains("/wrist/FFGAINS", 0, 0, 0, TUNING_MODE);
@@ -205,8 +205,9 @@ public final class Constants {
 
     public static final double SHOOTING_RPM = 2;
 
-    //TODO TUNE FF GAINS
-    public static TunableFFGains SHOOTER_FF_GAINS = new TunableFFGains("/shooter/FF", 0, 0, 0, true);
+    // TODO TUNE FF GAINS
+    public static TunableFFGains SHOOTER_FF_GAINS =
+        new TunableFFGains("/shooter/FF", 0, 0, 0, true);
   }
 
   public static class TeleopConstants {
