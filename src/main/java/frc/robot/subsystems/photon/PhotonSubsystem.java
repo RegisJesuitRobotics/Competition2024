@@ -36,7 +36,7 @@ public class PhotonSubsystem extends SubsystemBase {
   private final PhotonCamera camera = new PhotonCamera("Camera");
   private final Alert cameraNotConnectedAlert =
       new Alert("AprilTag Camera is Not Powered or Not Connected", AlertType.ERROR);
-  private StructArrayTelemetryEntry<Pose3d> poseEntry =
+  private final StructArrayTelemetryEntry<Pose3d> poseEntry =
       new StructArrayTelemetryEntry<>("/vision/estimatedPose", Pose3d.struct, false);
 
   public PhotonSubsystem() {
@@ -59,7 +59,6 @@ public class PhotonSubsystem extends SubsystemBase {
     //        Robot.startWNode("PhotonSubsystem#getEstimatedGlobalPose");
     List<EstimatedRobotPose> updatedPoses = new ArrayList<>();
     List<Pose3d> targetPoses = new ArrayList<>();
-    List<Pose3d> unusedTargetPoses = new ArrayList<>();
 
     PhotonPipelineResult result = camera.getLatestResult();
 
@@ -87,18 +86,15 @@ public class PhotonSubsystem extends SubsystemBase {
       visionTargetEntries.append(new Pose3d[] {element});
     }
 
-    //        Robot.endWNode();
     return updatedPoses;
   }
 
   @Override
   public void periodic() {
-    //        Robot.startWNode("PhotonSubsystem#periodic");
     boolean allCamerasConnected = true;
 
     allCamerasConnected &= camera.isConnected();
 
     cameraNotConnectedAlert.set(!allCamerasConnected);
-    //        Robot.endWNode();
   }
 }
