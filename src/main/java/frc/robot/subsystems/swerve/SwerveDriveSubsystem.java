@@ -62,6 +62,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   private final StructArrayTelemetryEntry<SwerveModuleState> actualSwerveStatesEntry =
       new StructArrayTelemetryEntry<>(
           "/drive/actualStates", SwerveModuleState.struct, MiscConstants.TUNING_MODE);
+
   private final EventTelemetryEntry driveEventLogger = new EventTelemetryEntry("/drive/events");
 
   private final Field2d field2d = new Field2d();

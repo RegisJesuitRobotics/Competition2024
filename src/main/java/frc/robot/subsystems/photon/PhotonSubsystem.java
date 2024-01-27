@@ -8,10 +8,8 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.MiscConstants;
-import frc.robot.telemetry.types.rich.Pose3dArrayEntry;
-import frc.robot.telemetry.types.rich.Pose3dEntry;
+import frc.robot.telemetry.types.StructArrayTelemetryEntry;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
 import java.io.IOException;
@@ -28,16 +26,18 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 public class PhotonSubsystem extends SubsystemBase {
   private final AprilTagFieldLayout fieldLayout;
   PhotonPoseEstimator poseEstimator;
-  private final List<Pose3dEntry> estimatedPoseEntries = new ArrayList<>();
-  private final Pose3dArrayEntry visionTargetEntries =
-      new Pose3dArrayEntry("/photon/targets", MiscConstants.TUNING_MODE);
-  private final Pose3dArrayEntry unusedVisionTargetEntries =
-      new Pose3dArrayEntry("/photon/unusedTargets", MiscConstants.TUNING_MODE);
+
+  private final StructArrayTelemetryEntry<Pose3d> estimatedPoseEntries =
+      new StructArrayTelemetryEntry<>(
+          "/vision/estimatedPoses", Pose3d.struct, MiscConstants.TUNING_MODE);
+  private final StructArrayTelemetryEntry<Pose3d> visionTargetEntries =
+      new StructArrayTelemetryEntry<>("/photon/targets", Pose3d.struct, MiscConstants.TUNING_MODE);
+
   private final PhotonCamera camera = new PhotonCamera("Camera");
   private final Alert cameraNotConnectedAlert =
       new Alert("AprilTag Camera is Not Powered or Not Connected", AlertType.ERROR);
-  private double[] temp = new double[7];
-  private Pose3dEntry poseEntry = new Pose3dEntry("/vision/estimatedPose", false);
+  private StructArrayTelemetryEntry<Pose3d> poseEntry =
+      new StructArrayTelemetryEntry<>("/vision/estimatedPose", Pose3d.struct, false);
 
   public PhotonSubsystem() {
     try {
@@ -52,7 +52,7 @@ public class PhotonSubsystem extends SubsystemBase {
         new PhotonPoseEstimator(
             fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camera, ROBOT_TO_CAM);
 
-    estimatedPoseEntries.add(new Pose3dEntry("/photon/estimatedPoses/", MiscConstants.TUNING_MODE));
+    estimatedPoseEntries.append(new Pose3d[0]);
   }
 
   public List<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
@@ -70,24 +70,22 @@ public class PhotonSubsystem extends SubsystemBase {
       if (fieldLayout.getTagPose(target.getFiducialId()).isPresent()) {
         Pose3d tagPose = fieldLayout.getTagPose(target.getFiducialId()).get();
 
-          targetPoses.add(tagPose);
-
+        targetPoses.add(tagPose);
       }
 
-        result.targets.remove(j);
-
+      result.targets.remove(j);
     }
 
     poseEstimator.setReferencePose(prevEstimatedRobotPose);
     Optional<EstimatedRobotPose> estimatedRobotPose = poseEstimator.update(result);
-    poseEntry.append(estimatedRobotPose.get().estimatedPose);
     if (estimatedRobotPose.isPresent()) {
-      estimatedPoseEntries.add(poseEntry);
+      estimatedPoseEntries.append(new Pose3d[] {estimatedRobotPose.get().estimatedPose});
       updatedPoses.add(estimatedRobotPose.get());
     }
 
-    visionTargetEntries.append(targetPoses);
-    unusedVisionTargetEntries.append(unusedTargetPoses);
+    for (Pose3d element : targetPoses) {
+      visionTargetEntries.append(new Pose3d[] {element});
+    }
 
     //        Robot.endWNode();
     return updatedPoses;
