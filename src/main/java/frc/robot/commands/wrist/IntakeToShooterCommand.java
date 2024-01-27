@@ -25,11 +25,6 @@ public class IntakeToShooterCommand extends SequentialCommandGroup {
     this.elevatorSubsystem = elevatorSubsystem;
     this.wristSubsystem = wristSubsystem;
 
-    addRequirements(intakeSubsystem);
-    addRequirements(elevatorSubsystem);
-    addRequirements(wristSubsystem);
-    addRequirements(shooterSubsystem);
-
     addCommands(new WristToPositionCommand(wristSubsystem, WRIST_LOW));
     addCommands(
         new RunIntakeInElevatorDownCommand(elevatorSubsystem, intakeSubsystem, shooterSubsystem));

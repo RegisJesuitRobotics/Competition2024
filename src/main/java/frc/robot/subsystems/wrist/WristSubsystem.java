@@ -4,33 +4,39 @@ import static frc.robot.Constants.WristConstants.*;
 
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.RelativeEncoder;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 
 public class WristSubsystem extends SubsystemBase {
 
-  private final DigitalInput atBottom = new DigitalInput(WRIST_SWITCH_ID);
+  private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(WRIST_ENCODER_ID_A);
+
+  private final DigitalInput wristSwitch = new DigitalInput(WRIST_SWITCH_ID);
   private final TelemetryCANSparkMax wristMotor =
       new TelemetryCANSparkMax(
           WRIST_MOTOR_ID, CANSparkMaxLowLevel.MotorType.kBrushless, "/wrist/motors", true);
 
-  private final SimpleMotorFeedforward feedforward =
-      new SimpleMotorFeedforward(
+  private final ArmFeedforward feedforward =
+      new ArmFeedforward(
           WRIST_FF_GAINS.aFF.get(), WRIST_FF_GAINS.sFF.get(), WRIST_FF_GAINS.vFF.get());
   private final TunableTelemetryProfiledPIDController controller =
       new TunableTelemetryProfiledPIDController(
           "wrist/pid", WRIST_PID_GAINS, TRAPEZOIDAL_PROFILE_GAINS);
   private final RelativeEncoder relativeEncoder = wristMotor.getEncoder();
 
-  public WristSubsystem() {}
+  public WristSubsystem() {
+    // TODO: FIGURE MAX AND MIN ROT
+    absoluteEncoder.setDutyCycleRange(0, 0);
+  }
 
   public boolean atTransportAngle() {
-    return atBottom.get();
+    return absoluteEncoder.get() == 0;
   }
 
   public Rotation2d getPosition() {
@@ -59,8 +65,13 @@ public class WristSubsystem extends SubsystemBase {
     double feedbackOutput = controller.calculate(getPosition().getRadians());
 
     TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
-    double combinedOutput = feedbackOutput + feedforward.calculate(currentSetpoint.velocity);
+    double combinedOutput =
+        feedbackOutput
+            + feedforward.calculate(getPosition().getRadians(), currentSetpoint.velocity);
 
     setVoltage(combinedOutput);
+    if (wristSwitch.get()) {
+      absoluteEncoder.reset();
+    }
   }
 }

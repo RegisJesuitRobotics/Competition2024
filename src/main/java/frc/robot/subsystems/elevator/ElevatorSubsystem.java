@@ -2,46 +2,115 @@ package frc.robot.subsystems.elevator;
 
 import static frc.robot.Constants.ElevatorConstants.*;
 
-import com.revrobotics.CANSparkMaxLowLevel;
-import com.revrobotics.RelativeEncoder;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Robot;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
-import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
+import frc.robot.telemetry.wrappers.TelemetryTalonFX;
+import frc.robot.utils.Alert;
+import frc.robot.utils.RaiderUtils;
 
 public class ElevatorSubsystem extends SubsystemBase {
-  private final TelemetryCANSparkMax leftMotor =
-      new TelemetryCANSparkMax(
-          ElevatorConstants.LEFT_ELEVATOR_MOTOR,
-          CANSparkMaxLowLevel.MotorType.kBrushless,
-          "elevator/left",
-          true);
-  private final TelemetryCANSparkMax rightMotor =
-      new TelemetryCANSparkMax(
-          ElevatorConstants.RIGHT_ELEVATOR_MOTOR,
-          CANSparkMaxLowLevel.MotorType.kBrushless,
-          "elevator/right",
-          true);
+
+  public static int instances = 0;
+
+  private final Alert leftMotorFaultAlert, rightMotorFaultAlert;
+  private StatusSignal<Double> leftPositionSignal, leftVelocitySignal;
+  private StatusSignal<Double> rightPositionSignal, rightVelocitySignal;
+  private final TelemetryTalonFX leftMotor =
+      new TelemetryTalonFX(ElevatorConstants.LEFT_ELEVATOR_MOTOR, "elevator/left", true);
+
+  private final TelemetryTalonFX rightMotor =
+      new TelemetryTalonFX(ElevatorConstants.RIGHT_ELEVATOR_MOTOR, "elevator/right", true);
 
   private final TunableTelemetryProfiledPIDController controller =
       new TunableTelemetryProfiledPIDController(
           "elevator/controller", PID_GAINS, TRAPEZOIDAL_PROFILE_GAINS);
   private SimpleMotorFeedforward feedforward = FF_GAINS.createFeedforward();
-  private final RelativeEncoder leftEncoder = leftMotor.getEncoder();
-  private final RelativeEncoder rightEncoder = rightMotor.getEncoder();
 
   private final DigitalInput bottomLimit = new DigitalInput(ELEVATOR_LIMIT_SWITCH);
 
-  public ElevatorSubsystem() {}
+  public ElevatorSubsystem() {
+    int instanceID = instances++;
+    leftMotorFaultAlert = new Alert("Module " + instanceID + ": ", Alert.AlertType.ERROR);
+    rightMotorFaultAlert = new Alert("Module " + instanceID + ": ", Alert.AlertType.ERROR);
+    configMotors();
+  }
+
+  private void configMotors() {
+    TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
+    motorConfiguration.CurrentLimits.SupplyCurrentLimit = CONTINUOUS_CURRENT_LIMIT;
+    motorConfiguration.CurrentLimits.SupplyCurrentThreshold = PEAK_CURRENT_LMIT;
+    motorConfiguration.CurrentLimits.SupplyTimeThreshold = PEAK_CURRENT_LIMIT_SECONDS;
+    motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
+    motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    leftPositionSignal = leftMotor.getPosition();
+    leftVelocitySignal = leftMotor.getVelocity();
+
+    rightPositionSignal = rightMotor.getPosition();
+    rightVelocitySignal = rightMotor.getVelocity();
+
+    boolean faultInitializingRight = false;
+    boolean faultInitializingLeft = false;
+    faultInitializingLeft |=
+        RaiderUtils.applyAndCheckCTRE(
+            () -> leftMotor.getConfigurator().apply(motorConfiguration),
+            () -> {
+              TalonFXConfiguration appliedConfig = new TalonFXConfiguration();
+              leftMotor.getConfigurator().refresh(appliedConfig);
+              return appliedConfig.equals(motorConfiguration);
+            },
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializingRight |=
+        RaiderUtils.applyAndCheckCTRE(
+            () -> rightMotor.getConfigurator().apply(motorConfiguration),
+            () -> {
+              TalonFXConfiguration appliedConfig = new TalonFXConfiguration();
+              rightMotor.getConfigurator().refresh(appliedConfig);
+              return appliedConfig.equals(motorConfiguration);
+            },
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+
+    faultInitializingLeft |=
+        RaiderUtils.applyAndCheckCTRE(
+            () -> leftPositionSignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
+            () -> leftPositionSignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+
+    faultInitializingRight |=
+        RaiderUtils.applyAndCheckCTRE(
+            () -> rightPositionSignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
+            () -> rightPositionSignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializingLeft |=
+        RaiderUtils.applyAndCheckCTRE(
+            () -> leftVelocitySignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
+            () -> leftVelocitySignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializingRight |=
+        RaiderUtils.applyAndCheckCTRE(
+            () -> rightVelocitySignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
+            () -> rightVelocitySignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+
+    leftMotor.hasResetOccurred();
+    rightMotor.hasResetOccurred();
+
+    leftMotorFaultAlert.set(faultInitializingLeft);
+    rightMotorFaultAlert.set(faultInitializingRight);
+  }
 
   public void atBottomLimit() {
     if (bottomLimit.get()) {
-      leftEncoder.setPosition(0);
-      rightEncoder.setPosition(0);
+      leftMotor.setPosition(0);
+      rightMotor.setPosition(0);
     }
   }
 
@@ -55,8 +124,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public void setEncoderPosition(double position) {
-    leftEncoder.setPosition(position);
-    rightEncoder.setPosition(position);
+    leftMotor.setPosition(position);
+    rightMotor.setPosition(position);
   }
 
   public void setVoltage(double voltage) {
@@ -65,7 +134,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public double getPosition() {
-    return leftEncoder.getPosition();
+    return leftMotor.getPosition().getValue();
   }
 
   public void stopMove() {
@@ -81,11 +150,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     double combinedOutput = feedbackOutput + feedforward.calculate(currentSetpoint.velocity);
     leftMotor.setVoltage(combinedOutput);
     rightMotor.setVoltage(combinedOutput);
-
-    Robot.startWNode("LogValues");
+    atBottomLimit();
     logValues();
-    Robot.endWNode();
-    Robot.endWNode();
   }
 
   private void logValues() {

@@ -18,6 +18,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private final DigitalInput intakeSensor = new DigitalInput(INTAKE_SENSOR_ID);
 
+  public IntakeSubsystem() {
+    intakeMotor.setInverted(true);
+  }
+
   public void motorVoltage() {
 
     intakeMotor.setVoltage(INTAKE_VOLTAGE);
@@ -26,8 +30,6 @@ public class IntakeSubsystem extends SubsystemBase {
   public boolean atIntakeSensor() {
     return intakeSensor.get();
   }
-
-  public IntakeSubsystem() {}
 
   @Override
   public void periodic() {

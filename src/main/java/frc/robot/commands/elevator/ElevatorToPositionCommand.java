@@ -20,9 +20,7 @@ public class ElevatorToPositionCommand extends Command {
   }
 
   @Override
-  public void execute() {
-    elevatorSubsystem.atBottomLimit();
-  }
+  public void execute() {}
 
   @Override
   public void end(boolean interrupted) {

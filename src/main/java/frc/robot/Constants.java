@@ -16,13 +16,22 @@ public final class Constants {
 
   public static class IntakeConstants {
     public static final int INTAKE_SENSOR_ID = 11;
-    public static final int INTAKE_VOLTAGE = -3;
+    public static final int INTAKE_VOLTAGE = 3;
     public static final int INTAKE_MOTOR_ID = 12;
   }
 
   public static final double DT = 0.02;
 
   public static class ElevatorConstants {
+
+    // TODO: Figure these out
+    public static final double PEAK_CURRENT_LMIT = 0;
+    public static final double GEAR_REDUCTION = 0;
+    public static final double CONTINUOUS_CURRENT_LIMIT = 0;
+    public static final double PEAK_CURRENT_LIMIT_SECONDS = 0.2;
+
+    public static final int ODOMETRY_FREQUENCY = 250;
+    public static final boolean TUNING_MODE = true;
 
     public static final int LEFT_ELEVATOR_MOTOR = 0;
     public static final int RIGHT_ELEVATOR_MOTOR = 1;
@@ -32,13 +41,13 @@ public final class Constants {
 
     // TODO: Do These PID GAINS
     public static final TunablePIDGains PID_GAINS =
-        new TunablePIDGains("gains/elevator", 0, 0, 0, true);
+        new TunablePIDGains("gains/elevator", 0, 0, 0, TUNING_MODE);
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
-        new TunableTrapezoidalProfileGains("/gains/extension", 0.5, 0.6, MiscConstants.TUNING_MODE);
+        new TunableTrapezoidalProfileGains("/gains/extension", 0.5, 0.6, TUNING_MODE);
 
     // TODO: TUNE FF GAINS
     public static final TunableFFGains FF_GAINS =
-        new TunableFFGains("gains/elevator", 0, 0, 0, true);
+        new TunableFFGains("gains/elevator", 0, 0, 0, TUNING_MODE);
   }
 
   public static class SwerveConstants {
@@ -151,39 +160,50 @@ public final class Constants {
 
   public static class WristConstants {
 
+    public static final boolean TUNING_MODE = true;
+
     // TODO FIND WRIST CLAMPS
     public static final Rotation2d WRIST_HIGH = new Rotation2d(0, 0);
     public static final Rotation2d WRIST_LOW = new Rotation2d(0, 0);
 
-    public static final int WRIST_SWITCH_ID = 10;
+    public static final int WRIST_ENCODER_ID_A = 10;
+    public static final int WRIST_SWITCH_ID = 12;
     public static final int WRIST_MOTOR_ID = 11;
 
     // TODO: TUNE PID & TRAP & FF
 
     public static final TunableFFGains WRIST_FF_GAINS =
-        new TunableFFGains("/wrist/FFGAINS", 0, 0, 0, true);
+        new TunableFFGains("/wrist/FFGAINS", 0, 0, 0, TUNING_MODE);
     public static final TunablePIDGains WRIST_PID_GAINS =
-        new TunablePIDGains("/wrist/pidGains", 0, 0, 0, true);
+        new TunablePIDGains("/wrist/pidGains", 0, 0, 0, TUNING_MODE);
 
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
-        new TunableTrapezoidalProfileGains("/wrist/trapGains", 0, 0, true);
+        new TunableTrapezoidalProfileGains("/wrist/trapGains", 0, 0, TUNING_MODE);
+  }
+
+  public static class TransportConstants {
+    public static final boolean TUNING_MODE = false;
+    public static final int TRANSPORT_MOTOR_ID = 16;
   }
 
   public static class ShooterConstants {
 
+    public static final double ODOMETRY_FREQUENCY = 250;
+    public static final double SHOOTER_VELOCITY_CONVERSION = 0;
+    public static final double SHOOTER_POSITION_CONVERSION = 0;
+
+    public static final int FREE_MOTOR_CURRENT = 0;
+    public static final int STALL_MOTOR_CURRENT = 0;
+
     public static final double INTAKE_VOLTAGE = -1;
 
-    public static final int TOP_SHOOTER_ID = 5;
-    public static final int BOTTOM_SHOOTER_ID = 6;
+    public static final int SHOOTER_ID = 5;
 
     public static final int TOP_TRANSPORT_ID = 7;
-    public static final int BOTTOM_TRANSPORT_ID = 8;
-
-    public static final double TRANSPORT_VOLTAGE = 0.5;
 
     public static final int SHOOTER_SENSOR = 9;
 
-    public static final int SHOOTING_RPM = 2;
+    public static final double SHOOTING_RPM = 2;
 
     // TODO TUNE FF GAINS
     public static TunableFFGains SHOOTER_FF_GAINS =

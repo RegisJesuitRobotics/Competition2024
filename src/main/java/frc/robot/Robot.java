@@ -4,13 +4,13 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.MiscRobotTelemetryAndAlerts;
 import frc.robot.telemetry.wrappers.TelemetryPowerDistribution;
-import frc.robot.utils.wpilib.TreeTimedRobot;
 
 /**
  * The VM is configured to automatically run this class, and to call the methods corresponding to
@@ -18,15 +18,7 @@ import frc.robot.utils.wpilib.TreeTimedRobot;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
-public class Robot extends TreeTimedRobot {
-
-  public static void startWNode(String nodeName) {
-    instance.watchdog.addNode(nodeName);
-  }
-
-  public static void endWNode() {
-    instance.watchdog.endCurrentNode();
-  }
+public class Robot extends TimedRobot {
 
   private static Robot instance;
 

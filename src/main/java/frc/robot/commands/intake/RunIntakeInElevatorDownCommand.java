@@ -20,10 +20,6 @@ public class RunIntakeInElevatorDownCommand extends ParallelCommandGroup {
     this.intakeSubsystem = intakeSubsystem;
     this.shooterSubsystem = shooterSubsystem;
 
-    addRequirements(elevatorSubsystem);
-    addRequirements(intakeSubsystem);
-    addRequirements(shooterSubsystem);
-
     addCommands(new ElevatorToPositionCommand(elevatorSubsystem, 0));
     addCommands(new RunIntakeInCommand(intakeSubsystem));
     addCommands(new ShooterIntakeCommand(shooterSubsystem));
