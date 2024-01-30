@@ -24,12 +24,6 @@ public class ShooterSubsystem extends SubsystemBase {
       new TelemetryCANSparkMax(
           SHOOTER_ID, CANSparkMaxLowLevel.MotorType.kBrushless, "/shooter/top", true);
 
-  /**private final TelemetryCANSparkMax topTransport =
-      new TelemetryCANSparkMax(
-          TOP_TRANSPORT_ID,
-          CANSparkMaxLowLevel.MotorType.kBrushless,
-          "/shooterTransport/top",
-          true);*/
   private RelativeEncoder topFlyEncoder;
   private final SimpleMotorFeedforward FF =
       new SimpleMotorFeedforward(
@@ -39,11 +33,6 @@ public class ShooterSubsystem extends SubsystemBase {
       new DoubleTelemetryEntry("/shooter/topVoltage", false);
   private final DoubleTelemetryEntry bottomFlyVoltageReq =
       new DoubleTelemetryEntry("/shooter/bottomVoltage", false);
-
-  private final DoubleTelemetryEntry topTransportVoltageReq =
-      new DoubleTelemetryEntry("/shooterTransport/topVoltage", false);
-  private final DoubleTelemetryEntry bottomTransportVoltageReq =
-      new DoubleTelemetryEntry("/shooterTransport/bottomVoltage", false);
 
   private final DigitalInput shooterFrisbeeSensor = new DigitalInput(SHOOTER_SENSOR);
 
@@ -117,23 +106,6 @@ public void configMotor(){
 
     setFlyVoltage(forwardVol);
   }
-
-  /**public void runShooterTransportIn() {
-    topTransport.setVoltage(INTAKE_VOLTAGE);
-  }
-
-  public void shooterTransportStop() {
-    topTransport.setVoltage(0);
-  }
-
-  public void runShooterTransportOut() {
-    topTransport.setVoltage(INTAKE_VOLTAGE);
-  }
-
-  public void TransportStop() {
-    topTransport.setVoltage(0);
-  }*/
-
   public boolean isAtSensor() {
     return shooterFrisbeeSensor.get();
   }

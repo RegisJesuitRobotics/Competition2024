@@ -17,7 +17,7 @@ public class ShooterIntakeCommand extends Command {
   @Override
   public void initialize() {
     shooterSubsystem.setFlyVoltage(INTAKE_VOLTAGE);
-    shooterSubsystem.runShooterTransportIn();
+    shooterSubsystem.runShooterTransportVoltage();
   }
 
   @Override

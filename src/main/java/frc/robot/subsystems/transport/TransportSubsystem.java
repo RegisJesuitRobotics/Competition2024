@@ -29,6 +29,11 @@ public class TransportSubsystem extends SubsystemBase {
           public void TransportStop() {
             topTransport.setVoltage(0);
           }
+
+      private final DoubleTelemetryEntry topTransportVoltageReq =
+          new DoubleTelemetryEntry("/shooterTransport/topVoltage", false);
+      private final DoubleTelemetryEntry bottomTransportVoltageReq =
+          new DoubleTelemetryEntry("/shooterTransport/bottomVoltage", false);
           
 public TransportSubsystem(){
   instanceID = istance++;

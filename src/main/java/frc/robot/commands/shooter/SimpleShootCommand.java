@@ -17,7 +17,7 @@ public class SimpleShootCommand extends Command {
   @Override
   public void initialize() {
     if (shooterSubsystem.isAtSensor()) {
-      shooterSubsystem.runShooterTransportOut();
+      shooterSubsystem.runShooterTransportVoltage();
       shooterSubsystem.setRPM(2000);
     } else {
       notAtSensorAlert.set(!shooterSubsystem.isAtSensor());
