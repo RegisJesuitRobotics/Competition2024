@@ -31,8 +31,65 @@ public class WristSubsystem extends SubsystemBase {
   private final RelativeEncoder relativeEncoder = wristMotor.getEncoder();
 
   public WristSubsystem() {
-    // TODO: FIGURE MAX AND MIN ROT
+  
     absoluteEncoder.setDutyCycleRange(0, 0);
+    int instanceID = instance++;
+
+    wristAlert = new Alert("Module " + instanceID + ": ", Alert.AlertType.ERROR);
+   configMotor();
+
+  public void configMotorWrist(){
+    int instanceID = instances++;
+    absoluteEncoder = wristMotor.getEncoder();
+
+ boolean faultInitializing = false;
+  faultInitializing |= RaiderUtils.applyAndCheckRev(
+          () -> wristMotor.setCANTimeout(250), () -> true, Constants.MiscConstants.CONFIGURATION_ATTEMPTS
+  );
+ 
+  faultInitializing |=
+          RaiderUtils.applyAndCheckRev(
+                  wristMotor::restoreFactoryDefaults, () -> true, Constants.MiscConstants.CONFIGURATION_ATTEMPTS
+          );
+  faultInitializing |=
+          RaiderUtils.applyAndCheckRev(
+                  () ->
+                          wristMotor.setSmartCurrentLimit(
+                                  STALL_MOTOR_CURRENT,
+                                  FREE_MOTOR_CURRENT),
+                                  () -> true,
+
+
+                  Constants.MiscConstants.CONFIGURATION_ATTEMPTS
+          );
+  faultInitializing |=
+          RaiderUtils.applyAndCheckRev(
+                  () -> absoluteEncoder.setVelocityConversionFactor(WRIST_VELOCITY_CONVERSION),
+                  () -> absoluteEncoder.getVelocityConversionFactor() == WRIST_VELOCITY_CONVERSION,
+                  Constants.MiscConstants.CONFIGURATION_ATTEMPTS
+          );
+  faultInitializing |= RaiderUtils.applyAndCheckRev(
+          () -> absoluteEncoder.setPositionConversionFactor(WRIST_POSITION_CONVERSION),
+          () -> absoluteEncoder.getVelocityConversionFactor() == WRIST_POSITION_CONVERSION,
+          Constants.MiscConstants.CONFIGURATION_ATTEMPTS
+  );
+  faultInitializing |=
+          RaiderUtils.applyAndCheckRev(
+                  () -> wristMotor.setIdleMode(CANSparkMax.IdleMode.kCoast),
+                  () -> wristMotor.getIdleMode() == CANSparkMax.IdleMode.kCoast,
+                  Constants.MiscConstants.CONFIGURATION_ATTEMPTS
+          );
+
+  faultInitializing |= RaiderUtils.applyAndCheckRev(
+          () -> wristMotor.setPeriodicFramePeriod(
+                  CANSparkMaxLowLevel.PeriodicFrame.kStatus2, (int)(1000 / ODOMETRY_FREQUENCY)),
+          () -> true,
+          Constants.MiscConstants.CONFIGURATION_ATTEMPTS
+          );
+  faultInitializing |= RaiderUtils.applyAndCheckRev(
+          wristMotor::burnFlashWithDelay, () -> true, Constants.MiscConstants.CONFIGURATION_ATTEMPTS
+  );
+
   }
 
   public boolean atTransportAngle() {

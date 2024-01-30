@@ -169,6 +169,11 @@ public final class Constants {
     public static final int WRIST_ENCODER_ID_A = 10;
     public static final int WRIST_SWITCH_ID = 12;
     public static final int WRIST_MOTOR_ID = 11;
+    public static final int WRIST_VELOCITY_CONVERSION = 1;
+    public static final int WRIST_POSITION_CONVERSION = 1;
+    public static final int STALL_MOTOR_CURRENT = 1;
+    public static final int FREE_MOTOR_CURRENT = 1;
+    public static final int ODOMETRY_FREQUENCY = 1;
 
     // TODO: TUNE PID & TRAP & FF
 
@@ -184,6 +189,9 @@ public final class Constants {
   public static class TransportConstants {
     public static final boolean TUNING_MODE = false;
     public static final int TRANSPORT_MOTOR_ID = 16;
+    public static final int STALL_MOTOR_CURRENT = 1;
+    public static final int FREE_MOTOR_CURRENT = 1;
+    public static final int ODOMETRY_FREQUENCY = 1;
   }
 
   public static class ShooterConstants {
@@ -231,4 +239,5 @@ public final class Constants {
     public static final int POWER_MODULE_ID = 0;
     public static final int CONFIGURATION_ATTEMPTS = 5;
   }
+
 }

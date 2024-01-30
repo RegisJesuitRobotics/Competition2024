@@ -24,12 +24,12 @@ public class ShooterSubsystem extends SubsystemBase {
       new TelemetryCANSparkMax(
           SHOOTER_ID, CANSparkMaxLowLevel.MotorType.kBrushless, "/shooter/top", true);
 
-  private final TelemetryCANSparkMax topTransport =
+  /**private final TelemetryCANSparkMax topTransport =
       new TelemetryCANSparkMax(
           TOP_TRANSPORT_ID,
           CANSparkMaxLowLevel.MotorType.kBrushless,
           "/shooterTransport/top",
-          true);
+          true);*/
   private RelativeEncoder topFlyEncoder;
   private final SimpleMotorFeedforward FF =
       new SimpleMotorFeedforward(
@@ -56,11 +56,11 @@ public ShooterSubsystem(){
 
 public void configMotor(){
   topFlyEncoder = topFly.getEncoder();
-  boolean faultInitializing = false;
+ boolean faultInitializing = false;
   faultInitializing |= RaiderUtils.applyAndCheckRev(
           () -> topFly.setCANTimeout(250), () -> true, Constants.MiscConstants.CONFIGURATION_ATTEMPTS
   );
-
+ 
   faultInitializing |=
           RaiderUtils.applyAndCheckRev(
                   topFly::restoreFactoryDefaults, () -> true, Constants.MiscConstants.CONFIGURATION_ATTEMPTS
@@ -118,7 +118,7 @@ public void configMotor(){
     setFlyVoltage(forwardVol);
   }
 
-  public void runShooterTransportIn() {
+  /**public void runShooterTransportIn() {
     topTransport.setVoltage(INTAKE_VOLTAGE);
   }
 
@@ -132,7 +132,7 @@ public void configMotor(){
 
   public void TransportStop() {
     topTransport.setVoltage(0);
-  }
+  }*/
 
   public boolean isAtSensor() {
     return shooterFrisbeeSensor.get();
