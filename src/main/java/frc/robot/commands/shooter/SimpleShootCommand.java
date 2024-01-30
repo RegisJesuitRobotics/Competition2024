@@ -8,6 +8,7 @@ public class SimpleShootCommand extends Command {
   private final Alert notAtSensorAlert =
       new Alert("Frisbee not at Shooter", Alert.AlertType.WARNING);
   ShooterSubsystem shooterSubsystem;
+  private final TransportSubsystem transportSubsystem; 
 
   public SimpleShootCommand(ShooterSubsystem shooterSubsystem) {
     this.shooterSubsystem = shooterSubsystem;
