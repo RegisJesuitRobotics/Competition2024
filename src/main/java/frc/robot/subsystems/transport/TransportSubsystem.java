@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 
+
 public class TransportSubsystem extends SubsystemBase {
   private static int instance = 0;
   public final TelemetryCANSparkMax transportMotor =
@@ -26,9 +27,7 @@ public class TransportSubsystem extends SubsystemBase {
             topTransport.setVoltage(voltage);
           }
         
-          public void TransportStop() {
-            topTransport.setVoltage(0);
-          }
+          
 
       private final DoubleTelemetryEntry topTransportVoltageReq =
           new DoubleTelemetryEntry("/shooterTransport/topVoltage", false);
@@ -84,4 +83,12 @@ public void configMotor(){
 
 
   transportAlert.set(faultInitializing);
+
+
+}
+
+public Command runTransportCommand(){
+        return this.startEnd(() -> this.runShooterTransportVoltage(TRANSPORT_VOLTAGE), () -> this.runShooterTransportVoltage(0));
+}
+
 }

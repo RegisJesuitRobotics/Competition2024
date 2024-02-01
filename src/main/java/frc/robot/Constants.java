@@ -192,6 +192,7 @@ public final class Constants {
     public static final int STALL_MOTOR_CURRENT = 1;
     public static final int FREE_MOTOR_CURRENT = 1;
     public static final int ODOMETRY_FREQUENCY = 1;
+    public static final double TRANSPORT_VOLTAGE = 2.0;
   }
 
   public static class ShooterConstants {
@@ -212,6 +213,8 @@ public final class Constants {
     public static final int SHOOTER_SENSOR = 9;
 
     public static final double SHOOTING_RPM = 2;
+
+    public static final Rotation2d SHOOTING_ANGLE = new Rotation2d(0); //to be determined
 
     // TODO TUNE FF GAINS
     public static TunableFFGains SHOOTER_FF_GAINS =

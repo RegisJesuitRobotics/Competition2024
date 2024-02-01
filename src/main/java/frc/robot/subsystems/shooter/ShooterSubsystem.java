@@ -113,4 +113,7 @@ public void configMotor(){
   public double getTopEncoderVelocity() {
     return topFlyEncoder.getVelocity();
   }
+  public Command RunFlyRPM(double RPM){
+       return this.run(() -> this.setRPM(RPM));
+  }
 }
