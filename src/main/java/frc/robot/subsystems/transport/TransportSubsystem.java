@@ -13,7 +13,6 @@ import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.utils.Alert;
 import frc.robot.utils.RaiderUtils;
 
-
 public class TransportSubsystem extends SubsystemBase {
   private static int instance = 0;
 
@@ -25,79 +24,74 @@ public class TransportSubsystem extends SubsystemBase {
           "/motors/intake",
           TUNING_MODE);
 
-          private final TelemetryCANSparkMax topTransport =
+  private final TelemetryCANSparkMax topTransport =
       new TelemetryCANSparkMax(
           TOP_TRANSPORT_ID,
           CANSparkMaxLowLevel.MotorType.kBrushless,
           "/shooterTransport/top",
           true);
 
-          public void runShooterTransportVoltage(double voltage){
-            topTransport.setVoltage(voltage);
-          }
-        
-          
+  public void runShooterTransportVoltage(double voltage) {
+    topTransport.setVoltage(voltage);
+  }
 
-      private final DoubleTelemetryEntry topTransportVoltageReq =
-          new DoubleTelemetryEntry("/shooterTransport/topVoltage", false);
-      private final DoubleTelemetryEntry bottomTransportVoltageReq =
-          new DoubleTelemetryEntry("/shooterTransport/bottomVoltage", false);
-          
-public TransportSubsystem(){
-  int instanceID = instance++;
-  transportAlert = new Alert("Module " + instanceID + ": ", Alert.AlertType.ERROR);
-  configMotor();
-}
+  private final DoubleTelemetryEntry topTransportVoltageReq =
+      new DoubleTelemetryEntry("/shooterTransport/topVoltage", false);
+  private final DoubleTelemetryEntry bottomTransportVoltageReq =
+      new DoubleTelemetryEntry("/shooterTransport/bottomVoltage", false);
 
-public void configMotor(){
- boolean faultInitializing = false;
-  faultInitializing |= RaiderUtils.applyAndCheckRev(
-          () -> transportMotor.setCANTimeout(250), () -> true, Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-  );
+  public TransportSubsystem() {
+    int instanceID = instance++;
+    transportAlert = new Alert("Module " + instanceID + ": ", Alert.AlertType.ERROR);
+    configMotor();
+  }
 
-  faultInitializing |=
-       RaiderUtils.applyAndCheckRev(
-             transportMotor::restoreFactoryDefaults, () -> true, Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-          );
+  public void configMotor() {
+    boolean faultInitializing = false;
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> transportMotor.setCANTimeout(250),
+            () -> true,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-  faultInitializing |=
-       RaiderUtils.applyAndCheckRev(
-           () ->
-               transportMotor.setSmartCurrentLimit(
-                   STALL_MOTOR_CURRENT,
-                   FREE_MOTOR_CURRENT),
-                        () -> true,
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            transportMotor::restoreFactoryDefaults,
+            () -> true,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> transportMotor.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
+            () -> true,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-                  Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-          );
-        
-  faultInitializing |=
-          RaiderUtils.applyAndCheckRev(
-               () -> transportMotor.setIdleMode(CANSparkMax.IdleMode.kCoast),
-               () -> transportMotor.getIdleMode() == CANSparkMax.IdleMode.kCoast,
-                 Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-          );
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> transportMotor.setIdleMode(CANSparkMax.IdleMode.kCoast),
+            () -> transportMotor.getIdleMode() == CANSparkMax.IdleMode.kCoast,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-  faultInitializing |= RaiderUtils.applyAndCheckRev(
-          () -> transportMotor.setPeriodicFramePeriod(
-                  CANSparkMaxLowLevel.PeriodicFrame.kStatus2, (int)(1000 / ODOMETRY_FREQUENCY)),
-          () -> true,
-          Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-          );
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () ->
+                transportMotor.setPeriodicFramePeriod(
+                    CANSparkMaxLowLevel.PeriodicFrame.kStatus2, (int) (1000 / ODOMETRY_FREQUENCY)),
+            () -> true,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-  faultInitializing |= RaiderUtils.applyAndCheckRev(
-          transportMotor::burnFlashWithDelay, () -> true, Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-  );
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            transportMotor::burnFlashWithDelay,
+            () -> true,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
+    transportAlert.set(faultInitializing);
+  }
 
-  transportAlert.set(faultInitializing);
-
-
-}
-
-public Command runTransportCommand(){
-        return this.startEnd(() -> this.runShooterTransportVoltage(TRANSPORT_VOLTAGE), () -> this.runShooterTransportVoltage(0));
-}
-
+  public Command runTransportCommand() {
+    return this.startEnd(
+        () -> this.runShooterTransportVoltage(TRANSPORT_VOLTAGE),
+        () -> this.runShooterTransportVoltage(0));
+  }
 }

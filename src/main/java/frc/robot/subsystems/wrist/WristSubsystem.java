@@ -18,9 +18,9 @@ import frc.robot.utils.Alert;
 import frc.robot.utils.RaiderUtils;
 
 public class WristSubsystem extends SubsystemBase {
-private static int instance = 0;
+  private static int instance = 0;
 
-private final Alert wristAlert;
+  private final Alert wristAlert;
   private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(WRIST_ENCODER_ID_A);
 
   private final DigitalInput wristSwitch = new DigitalInput(WRIST_SWITCH_ID);
@@ -38,53 +38,51 @@ private final Alert wristAlert;
 
   public WristSubsystem() {
 
-      absoluteEncoder.setDutyCycleRange(0, 0);
-      int instanceID = instance++;
+    absoluteEncoder.setDutyCycleRange(0, 0);
+    int instanceID = instance++;
 
-      wristAlert = new Alert("Module " + instanceID + ": ", Alert.AlertType.ERROR);
-      configMotor();
+    wristAlert = new Alert("Module " + instanceID + ": ", Alert.AlertType.ERROR);
+    configMotor();
   }
-   private void configMotor(){
 
- boolean faultInitializing = false;
-  faultInitializing |= RaiderUtils.applyAndCheckRev(
-          () -> wristMotor.setCANTimeout(250), () -> true, Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-  );
+  private void configMotor() {
 
-  faultInitializing |=
-          RaiderUtils.applyAndCheckRev(
-                  wristMotor::restoreFactoryDefaults, () -> true, Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-          );
-  faultInitializing |=
-          RaiderUtils.applyAndCheckRev(
-                  () ->
-                          wristMotor.setSmartCurrentLimit(
-                                  STALL_MOTOR_CURRENT,
-                                  FREE_MOTOR_CURRENT),
-                                  () -> true,
+    boolean faultInitializing = false;
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> wristMotor.setCANTimeout(250),
+            () -> true,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            wristMotor::restoreFactoryDefaults,
+            () -> true,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> wristMotor.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
+            () -> true,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-                  Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-          );
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> wristMotor.setIdleMode(CANSparkMax.IdleMode.kCoast),
+            () -> wristMotor.getIdleMode() == CANSparkMax.IdleMode.kCoast,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-
-  faultInitializing |=
-          RaiderUtils.applyAndCheckRev(
-                  () -> wristMotor.setIdleMode(CANSparkMax.IdleMode.kCoast),
-                  () -> wristMotor.getIdleMode() == CANSparkMax.IdleMode.kCoast,
-                  Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-          );
-
-  faultInitializing |= RaiderUtils.applyAndCheckRev(
-          () -> wristMotor.setPeriodicFramePeriod(
-                  CANSparkMaxLowLevel.PeriodicFrame.kStatus2, (int)(1000 / ODOMETRY_FREQUENCY)),
-          () -> true,
-          Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-          );
-  faultInitializing |= RaiderUtils.applyAndCheckRev(
-          wristMotor::burnFlashWithDelay, () -> true, Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-  );
-
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () ->
+                wristMotor.setPeriodicFramePeriod(
+                    CANSparkMaxLowLevel.PeriodicFrame.kStatus2, (int) (1000 / ODOMETRY_FREQUENCY)),
+            () -> true,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            wristMotor::burnFlashWithDelay,
+            () -> true,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
   }
 
   public boolean atTransportAngle() {

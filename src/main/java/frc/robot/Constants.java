@@ -214,7 +214,7 @@ public final class Constants {
 
     public static final double SHOOTING_RPM = 2;
 
-    public static final Rotation2d SHOOTING_ANGLE = new Rotation2d(0); //to be determined
+    public static final Rotation2d SHOOTING_ANGLE = new Rotation2d(0); // to be determined
 
     // TODO TUNE FF GAINS
     public static TunableFFGains SHOOTER_FF_GAINS =
@@ -242,5 +242,4 @@ public final class Constants {
     public static final int POWER_MODULE_ID = 0;
     public static final int CONFIGURATION_ATTEMPTS = 5;
   }
-
 }

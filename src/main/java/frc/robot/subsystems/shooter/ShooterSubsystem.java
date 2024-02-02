@@ -2,7 +2,6 @@ package frc.robot.subsystems.shooter;
 
 import static frc.robot.Constants.ShooterConstants.*;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.RelativeEncoder;
@@ -37,66 +36,61 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private final DigitalInput shooterFrisbeeSensor = new DigitalInput(SHOOTER_SENSOR);
 
-public ShooterSubsystem(){
-  int instanceID = instance++;
+  public ShooterSubsystem() {
+    int instanceID = instance++;
 
-  topFlyAlert = new Alert("Module " + instanceID + ": ", Alert.AlertType.ERROR);
-  configMotor();
-}
+    topFlyAlert = new Alert("Module " + instanceID + ": ", Alert.AlertType.ERROR);
+    configMotor();
+  }
 
-public void configMotor(){
-  topFlyEncoder = topFly.getEncoder();
- boolean faultInitializing = false;
-  faultInitializing |= RaiderUtils.applyAndCheckRev(
-          () -> topFly.setCANTimeout(250), () -> true, Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-  );
- 
-  faultInitializing |=
-          RaiderUtils.applyAndCheckRev(
-                  topFly::restoreFactoryDefaults, () -> true, Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-          );
-  faultInitializing |=
-          RaiderUtils.applyAndCheckRev(
-                  () ->
-                          topFly.setSmartCurrentLimit(
-                                  STALL_MOTOR_CURRENT,
-                                  FREE_MOTOR_CURRENT),
-                                  () -> true,
+  public void configMotor() {
+    topFlyEncoder = topFly.getEncoder();
+    boolean faultInitializing = false;
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> topFly.setCANTimeout(250),
+            () -> true,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            topFly::restoreFactoryDefaults,
+            () -> true,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> topFly.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
+            () -> true,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> topFlyEncoder.setVelocityConversionFactor(SHOOTER_VELOCITY_CONVERSION),
+            () -> topFlyEncoder.getVelocityConversionFactor() == SHOOTER_VELOCITY_CONVERSION,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> topFlyEncoder.setPositionConversionFactor(SHOOTER_POSITION_CONVERSION),
+            () -> topFlyEncoder.getVelocityConversionFactor() == SHOOTER_POSITION_CONVERSION,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> topFly.setIdleMode(CANSparkMax.IdleMode.kCoast),
+            () -> topFly.getIdleMode() == CANSparkMax.IdleMode.kCoast,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-                  Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-          );
-  faultInitializing |=
-          RaiderUtils.applyAndCheckRev(
-                  () -> topFlyEncoder.setVelocityConversionFactor(SHOOTER_VELOCITY_CONVERSION),
-                  () -> topFlyEncoder.getVelocityConversionFactor() == SHOOTER_VELOCITY_CONVERSION,
-                  Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-          );
-  faultInitializing |= RaiderUtils.applyAndCheckRev(
-          () -> topFlyEncoder.setPositionConversionFactor(SHOOTER_POSITION_CONVERSION),
-          () -> topFlyEncoder.getVelocityConversionFactor() == SHOOTER_POSITION_CONVERSION,
-          Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-  );
-  faultInitializing |=
-          RaiderUtils.applyAndCheckRev(
-                  () -> topFly.setIdleMode(CANSparkMax.IdleMode.kCoast),
-                  () -> topFly.getIdleMode() == CANSparkMax.IdleMode.kCoast,
-                  Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-          );
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () ->
+                topFly.setPeriodicFramePeriod(
+                    CANSparkMaxLowLevel.PeriodicFrame.kStatus2, (int) (1000 / ODOMETRY_FREQUENCY)),
+            () -> true,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            topFly::burnFlashWithDelay, () -> true, Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-  faultInitializing |= RaiderUtils.applyAndCheckRev(
-          () -> topFly.setPeriodicFramePeriod(
-                  CANSparkMaxLowLevel.PeriodicFrame.kStatus2, (int)(1000 / ODOMETRY_FREQUENCY)),
-          () -> true,
-          Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-          );
-  faultInitializing |= RaiderUtils.applyAndCheckRev(
-          topFly::burnFlashWithDelay, () -> true, Constants.MiscConstants.CONFIGURATION_ATTEMPTS
-  );
-
-  topFlyAlert.set(faultInitializing);
-
-}
+    topFlyAlert.set(faultInitializing);
+  }
 
   public void setFlyVoltage(double voltage) {
     topFly.setVoltage(voltage);
@@ -107,6 +101,7 @@ public void configMotor(){
 
     setFlyVoltage(forwardVol);
   }
+
   public boolean isAtSensor() {
     return shooterFrisbeeSensor.get();
   }
@@ -114,7 +109,8 @@ public void configMotor(){
   public double getTopEncoderVelocity() {
     return topFlyEncoder.getVelocity();
   }
-  public Command RunFlyRPM(double RPM){
-       return this.run(() -> this.setRPM(RPM));
+
+  public Command RunFlyRPM(double RPM) {
+    return this.run(() -> this.setRPM(RPM));
   }
 }
