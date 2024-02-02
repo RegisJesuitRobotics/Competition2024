@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
@@ -101,7 +102,7 @@ public void configMotor(){
     topFly.setVoltage(voltage);
   }
 
-  public void setRPM(int rpm) {
+  public void setRPM(double rpm) {
     double forwardVol = FF.calculate(rpm);
 
     setFlyVoltage(forwardVol);

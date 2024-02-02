@@ -3,12 +3,15 @@
 package frc.robot.commands.shooter;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import frc.robot.commands.wrist.WristToPositionCommand;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.wrist.WristSubsystem;
+
 import static frc.robot.Constants.ShooterConstants.*;
 
 public class RunWristAndFlywheels extends ParallelCommandGroup {
-  private final WristToPositionCommand wristtoposition;
   private final WristSubsystem wristSubsystem;
-  private final double desiredPosition;
   private final ShooterSubsystem shooterSubsystem;
   public RunWristAndFlywheels(WristSubsystem wristSubsystem, ShooterSubsystem shooterSubsystem) {
    
@@ -16,7 +19,7 @@ public class RunWristAndFlywheels extends ParallelCommandGroup {
     this.shooterSubsystem = shooterSubsystem;
 
     addCommands(new WristToPositionCommand(wristSubsystem, SHOOTING_ANGLE));
-    addCommands(new shooterSubsystem.RunFlyRPM(SHOOTING_RPM));
+    addCommands(shooterSubsystem.RunFlyRPM(SHOOTING_RPM));
 
 
 
