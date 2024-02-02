@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -131,6 +133,16 @@ public final class Constants {
     public static final double ANGULAR_RATE_LIMIT_RADIANS_SECOND_SQUARED = 5.0 * Math.PI;
     public static final double MINIMUM_VELOCITY_METERS_SECOND = 0.10;
     public static final double MINIMUM_ANGULAR_VELOCITY_RADIANS_SECOND = 0.10;
+  }
+
+  public static class VisionConstants {
+    private VisionConstants() {}
+
+    public static final Transform3d ROBOT_TO_CAM =
+        new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0));
+
+    public static final double POSE_AMBIGUITY_CUTOFF = 0.05;
+    public static final double DISTANCE_CUTOFF = 4.0;
   }
 
   public static class MiscConstants {
