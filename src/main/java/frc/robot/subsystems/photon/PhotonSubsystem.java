@@ -4,7 +4,6 @@ import static frc.robot.Constants.VisionConstants.ROBOT_TO_CAM;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -13,7 +12,6 @@ import frc.robot.FieldConstants;
 import frc.robot.telemetry.types.StructArrayTelemetryEntry;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,10 +40,8 @@ public class PhotonSubsystem extends SubsystemBase {
 
   public PhotonSubsystem() {
 
-      fieldLayout =
-              FieldConstants.aprilTags;
-      fieldLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
-
+    fieldLayout = FieldConstants.aprilTags;
+    fieldLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
 
     poseEstimator =
         new PhotonPoseEstimator(
