@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.MiscConstants;
+import frc.robot.FieldConstants;
 import frc.robot.telemetry.types.StructArrayTelemetryEntry;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
@@ -40,13 +41,11 @@ public class PhotonSubsystem extends SubsystemBase {
       new StructArrayTelemetryEntry<>("/vision/estimatedPose", Pose3d.struct, false);
 
   public PhotonSubsystem() {
-    try {
+
       fieldLayout =
-          AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
+              FieldConstants.aprilTags;
       fieldLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+
 
     poseEstimator =
         new PhotonPoseEstimator(
