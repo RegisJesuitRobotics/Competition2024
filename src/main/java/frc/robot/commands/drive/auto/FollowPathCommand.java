@@ -58,12 +58,6 @@ public class FollowPathCommand extends Command {
         driveSubsystem);
   }
 
-  /**
-   * A follow path command made with the trajectory
-   *
-   * @param pathSupplier the trajectory
-   * @param driveSubsystem the swerve drive subsystem
-   */
   public FollowPathCommand(
       Supplier<ChoreoTrajectory> pathSupplier, SwerveDriveSubsystem driveSubsystem) {
     this.pathSupplier = pathSupplier;

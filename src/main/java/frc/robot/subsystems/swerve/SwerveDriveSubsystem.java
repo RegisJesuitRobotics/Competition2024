@@ -41,24 +41,31 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
   private final TelemetryPigeon2 pigeon =
       new TelemetryPigeon2(PIGEON_ID, "/drive/gyro", MiscConstants.TUNING_MODE);
+
   private final StatusSignal<Double> yawSignal = pigeon.getYaw();
 
   private final SwerveDrivePoseEstimator poseEstimator;
 
   private final BooleanTelemetryEntry allModulesAtAbsoluteZeroEntry =
       new BooleanTelemetryEntry("/drive/allModulesAtAbsoluteZero", true);
+
   private final DoubleTelemetryEntry gyroEntry =
       new DoubleTelemetryEntry("/drive/gyroDegrees", true);
+
   private final StructTelemetryEntry<ChassisSpeeds> chassisSpeedsEntry =
       new StructTelemetryEntry<>("/drive/speeds", ChassisSpeeds.struct, MiscConstants.TUNING_MODE);
+
   private final StructTelemetryEntry<ChassisSpeeds> desiredSpeedsEntry =
       new StructTelemetryEntry<>(
           "/drive/desiredSpeeds", ChassisSpeeds.struct, MiscConstants.TUNING_MODE);
+
   private final StructTelemetryEntry<Pose2d> odometryEntry =
       new StructTelemetryEntry<>("/drive/estimatedPose", Pose2d.struct, MiscConstants.TUNING_MODE);
+
   private final StructArrayTelemetryEntry<SwerveModuleState> desiredSwerveStatesEntry =
       new StructArrayTelemetryEntry<>(
           "/drive/desiredStates", SwerveModuleState.struct, MiscConstants.TUNING_MODE);
+
   private final StructArrayTelemetryEntry<SwerveModuleState> actualSwerveStatesEntry =
       new StructArrayTelemetryEntry<>(
           "/drive/actualStates", SwerveModuleState.struct, MiscConstants.TUNING_MODE);
@@ -93,6 +100,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         () -> yawSignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
         () -> yawSignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
         MiscConstants.CONFIGURATION_ATTEMPTS);
+
     RaiderUtils.applyAndCheckCTRE(
         pigeon::optimizeBusUtilization, () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
 
