@@ -10,12 +10,8 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.FaultID;
-import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
-import com.revrobotics.REVLibError;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.*;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -80,7 +76,7 @@ public class SwerveModule {
   private final TunableFFGains driveVelocityFFGains;
   private final TunablePIDGains steerPositionPIDGains;
   private SimpleMotorFeedforward driveMotorFF;
-  private SparkMaxPIDController steerController;
+  private SparkPIDController steerController;
 
   private boolean setToAbsolute = false;
   private double lastMoveTime = 0.0;
@@ -343,7 +339,7 @@ public class SwerveModule {
 
   private void checkForSteerMotorReset() {
     // Steer motor lost power
-    if (RobotBase.isReal() && steerMotor.getFault(FaultID.kHasReset)) {
+    if (RobotBase.isReal() && steerMotor.getFault(CANSparkBase.FaultID.kHasReset)) {
       reportError("Steer motor reset occurred");
       setToAbsolute = false;
       resetSteerToAbsolute();

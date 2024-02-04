@@ -32,6 +32,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final TunableTelemetryProfiledPIDController controller =
       new TunableTelemetryProfiledPIDController(
           "elevator/controller", PID_GAINS, TRAPEZOIDAL_PROFILE_GAINS);
+
+
   private SimpleMotorFeedforward feedforward = FF_GAINS.createFeedforward();
 
   private final DigitalInput bottomLimit = new DigitalInput(ELEVATOR_LIMIT_SWITCH);
