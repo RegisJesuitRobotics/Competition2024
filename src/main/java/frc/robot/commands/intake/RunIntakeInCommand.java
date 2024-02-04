@@ -22,7 +22,7 @@ public class RunIntakeInCommand extends Command {
 
   @Override
   public void execute() {
-    intakesubsystem.motorVoltage();
+    intakesubsystem.runIntakeIn();
   }
 
   @Override

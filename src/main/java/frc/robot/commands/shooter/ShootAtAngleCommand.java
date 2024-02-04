@@ -1,6 +1,7 @@
 package frc.robot.commands.shooter;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.transport.RunTransportInCommand;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
@@ -21,7 +22,7 @@ public class ShootAtAngleCommand extends SequentialCommandGroup {
 
     addCommands(
         new RunWristAndFlywheels(wristSubsystem, shooterSubsystem),
-        transportSubsystem.runTransportCommand(),
+            transportSubsystem.runTransportOutCommand(),
         shooterSubsystem.runFlyRPM(0));
   }
 }

@@ -22,7 +22,7 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeMotor.setInverted(true);
   }
 
-  public void motorVoltage() {
+  public void runIntakeIn() {
 
     intakeMotor.setVoltage(INTAKE_VOLTAGE);
   }

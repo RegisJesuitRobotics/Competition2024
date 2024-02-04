@@ -68,7 +68,7 @@ public class TransportSubsystem extends SubsystemBase {
     transportAlert.set(faultInitializing);
   }
 
-  public Command runTransportCommand() {
+  public Command runTransportOutCommand() {
     return this.startEnd(
         () -> this.runShooterTransportVoltage(TRANSPORT_VOLTAGE),
         () -> this.runShooterTransportVoltage(0));

@@ -93,13 +93,10 @@ public class ShooterSubsystem extends SubsystemBase {
     setFlyVoltage(forwardVol);
   }
 
-  public boolean isAtSensor() {
+  public boolean AtSensor() {
     return shooterFrisbeeSensor.get();
   }
 
-  public double getTopEncoderVelocity() {
-    return topFlyEncoder.getVelocity();
-  }
 
   public Command runFlyRPM(double RPM) {
     return this.run(() -> this.setRPM(RPM));
