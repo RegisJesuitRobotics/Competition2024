@@ -12,6 +12,8 @@ public class StructArrayTelemetryEntry<T> extends PrimitiveTelemetryEntry {
   private final StructArrayPublisher<T> networkPublisher;
   private T[] lastValue;
 
+  Struct<T> struct;
+
   public StructArrayTelemetryEntry(String path, Struct<T> struct, boolean shouldNT) {
     this(path, struct, shouldNT, true);
   }
@@ -19,6 +21,7 @@ public class StructArrayTelemetryEntry<T> extends PrimitiveTelemetryEntry {
   public StructArrayTelemetryEntry(
       String path, Struct<T> struct, boolean shouldNT, boolean shouldLazyLog) {
     super(shouldLazyLog);
+    this.struct = struct;
 
     logEntry = StructArrayLogEntry.create(DataLogManager.getLog(), path, struct);
     if (shouldNT) {
