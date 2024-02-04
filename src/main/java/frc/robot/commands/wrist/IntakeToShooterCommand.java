@@ -19,11 +19,11 @@ public class IntakeToShooterCommand extends SequentialCommandGroup {
   private final ShooterSubsystem shooterSubsystem;
 
   public IntakeToShooterCommand(
-          ElevatorSubsystem elevatorSubsystem,
-          IntakeSubsystem intakeSubsystem,
-          WristSubsystem wristSubsystem,
-          TransportSubsystem transportSubsystem,
-          ShooterSubsystem shooterSubsystem) {
+      ElevatorSubsystem elevatorSubsystem,
+      IntakeSubsystem intakeSubsystem,
+      WristSubsystem wristSubsystem,
+      TransportSubsystem transportSubsystem,
+      ShooterSubsystem shooterSubsystem) {
 
     this.intakeSubsystem = intakeSubsystem;
     this.elevatorSubsystem = elevatorSubsystem;
@@ -33,6 +33,7 @@ public class IntakeToShooterCommand extends SequentialCommandGroup {
 
     addCommands(
         new ElevatorWristParallelCommand(wristSubsystem, elevatorSubsystem),
-        new RunIntakeInElevatorDownCommand(elevatorSubsystem, intakeSubsystem, transportSubsystem, shooterSubsystem));
+        new RunIntakeInElevatorDownCommand(
+            elevatorSubsystem, intakeSubsystem, transportSubsystem, shooterSubsystem));
   }
 }

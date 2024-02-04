@@ -97,7 +97,6 @@ public class ShooterSubsystem extends SubsystemBase {
     return shooterFrisbeeSensor.get();
   }
 
-
   public Command runFlyRPM(double RPM) {
     return this.run(() -> this.setRPM(RPM));
   }

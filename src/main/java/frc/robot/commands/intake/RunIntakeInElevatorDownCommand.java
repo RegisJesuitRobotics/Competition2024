@@ -3,7 +3,6 @@ package frc.robot.commands.intake;
 import static frc.robot.Constants.TransportConstants.*;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import frc.robot.commands.elevator.ElevatorToPositionCommand;
 import frc.robot.commands.transport.RunTransportInCommand;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -17,17 +16,16 @@ public class RunIntakeInElevatorDownCommand extends ParallelCommandGroup {
   private final ShooterSubsystem shooterSubsystem;
 
   public RunIntakeInElevatorDownCommand(
-          ElevatorSubsystem elevatorSubsystem,
-          IntakeSubsystem intakeSubsystem,
-          TransportSubsystem transportSubsystem,
-          ShooterSubsystem shooterSubsystem) {
+      ElevatorSubsystem elevatorSubsystem,
+      IntakeSubsystem intakeSubsystem,
+      TransportSubsystem transportSubsystem,
+      ShooterSubsystem shooterSubsystem) {
     this.elevatorSubsystem = elevatorSubsystem;
     this.intakeSubsystem = intakeSubsystem;
     this.transportSubsystem = transportSubsystem;
     this.shooterSubsystem = shooterSubsystem;
 
-    addCommands(
-        new RunIntakeInCommand(intakeSubsystem));
+    addCommands(new RunIntakeInCommand(intakeSubsystem));
     addCommands(new RunTransportInCommand(transportSubsystem, shooterSubsystem));
   }
 }
