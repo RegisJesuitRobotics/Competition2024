@@ -11,10 +11,16 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.commands.drive.LockModulesCommand;
 import frc.robot.commands.drive.teleop.SwerveDriveCommand;
+import frc.robot.commands.wrist.IntakeToShooterCommand;
 import frc.robot.hid.CommandNintendoSwitchController;
 import frc.robot.hid.CommandXboxPlaystationController;
+import frc.robot.subsystems.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.photon.PhotonSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
+import frc.robot.subsystems.transport.TransportSubsystem;
+import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.telemetry.tunable.gains.TunableDouble;
 import frc.robot.utils.*;
 import java.util.function.DoubleSupplier;
@@ -27,6 +33,11 @@ import java.util.function.DoubleSupplier;
  */
 public class RobotContainer {
   private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
+  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+  private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+  private final WristSubsystem wristSubsystem = new WristSubsystem();
+  private final TransportSubsystem transportSubsystem = new TransportSubsystem();
+  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final SwerveDriveSubsystem driveSubsystem =
       new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
 
@@ -61,7 +72,25 @@ public class RobotContainer {
     driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
   }
 
-  private void configureOperatorBindings() {}
+  private void configureOperatorBindings() {
+    operatorController
+        .leftTrigger()
+        .onTrue(
+            new IntakeToShooterCommand(
+                elevatorSubsystem,
+                intakeSubsystem,
+                wristSubsystem,
+                transportSubsystem,
+                shooterSubsystem));
+
+    operatorController
+        .leftStick()
+        .whileTrue(wristSubsystem.runVoltageCommand(operatorController.getLeftY()));
+
+    operatorController
+        .rightStick()
+        .whileTrue(elevatorSubsystem.runElevatorCommand(operatorController.getRightY()));
+  }
 
   private void configureDriving() {
     TunableDouble maxTranslationSpeedPercent =

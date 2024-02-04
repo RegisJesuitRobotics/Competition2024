@@ -5,9 +5,11 @@ import static frc.robot.Constants.ElevatorConstants.*;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
@@ -141,6 +143,18 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void stopMove() {
     rightMotor.setVoltage(0);
     leftMotor.setVoltage(0);
+  }
+
+  public Command runElevatorCommand(double voltage) {
+    voltage = MathUtil.clamp(voltage, -0.5, 0.5);
+
+    if (getPosition() > ELEVATOR_MIN && getPosition() < ELEVATOR_MAX) {
+      double finalVoltage = voltage;
+      return this.runEnd(() -> this.setVoltage(finalVoltage), () -> this.setVoltage(0));
+
+    } else {
+      return this.run(() -> this.setVoltage(0));
+    }
   }
 
   @Override

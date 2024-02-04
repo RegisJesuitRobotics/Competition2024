@@ -26,6 +26,9 @@ public final class Constants {
 
   public static class ElevatorConstants {
 
+    public static final double ELEVATOR_MAX = 0;
+    public static final double ELEVATOR_MIN = 0;
+
     // TODO: Figure these out
     public static final double PEAK_CURRENT_LMIT = 0;
     public static final double GEAR_REDUCTION = 0;
@@ -167,6 +170,9 @@ public final class Constants {
     // TODO FIND WRIST CLAMPS
     public static Rotation2d WRIST_HIGH = new Rotation2d(0, 0);
     public static Rotation2d WRIST_LOW = new Rotation2d(0, 0);
+
+    public static final Rotation2d WRIST_MAX = new Rotation2d(0, 0);
+    public static final Rotation2d WRIST_MIN = new Rotation2d(0, 0);
 
     public static final int WRIST_ENCODER_ID_A = 10;
     public static final int WRIST_SWITCH_ID = 12;

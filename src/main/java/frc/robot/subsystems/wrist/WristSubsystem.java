@@ -5,11 +5,13 @@ import static frc.robot.Constants.WristConstants.*;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
@@ -99,6 +101,17 @@ public class WristSubsystem extends SubsystemBase {
 
   public void setVoltage(double voltage) {
     wristMotor.setVoltage(voltage);
+  }
+
+  public Command runVoltageCommand(double voltage) {
+    voltage = MathUtil.clamp(voltage, -.5, .5);
+    double finalVoltage = voltage;
+    if (this.getPosition().getRadians() > WRIST_MIN.getRadians()
+        && this.getPosition().getRadians() < WRIST_MAX.getRadians()) {
+      return this.runEnd(() -> this.setVoltage(finalVoltage), () -> this.setVoltage(0));
+    } else {
+      return this.run(() -> this.setVoltage(0));
+    }
   }
 
   @Override
