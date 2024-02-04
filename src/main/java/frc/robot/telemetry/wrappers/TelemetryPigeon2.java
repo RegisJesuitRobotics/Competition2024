@@ -38,13 +38,13 @@ public class TelemetryPigeon2 extends Pigeon2 {
 
   public TelemetryPigeon2(int deviceId, String telemetryPath, String canbus, boolean tuningMode) {
     super(deviceId, canbus);
-
+    // TODO: Check if Device or world
     yawSignal = super.getYaw();
     pitchSignal = super.getPitch();
     rollSignal = super.getRoll();
-    angularVelocityXSignal = super.getAngularVelocityX();
-    angularVelocityYSignal = super.getAngularVelocityY();
-    angularVelocityZSignal = super.getAngularVelocityZ();
+    angularVelocityXSignal = super.getAngularVelocityXDevice();
+    angularVelocityYSignal = super.getAngularVelocityYDevice();
+    angularVelocityZSignal = super.getAngularVelocityZDevice();
     accelXSignal = super.getAccelerationX();
     accelYSignal = super.getAccelerationY();
     accelZSignal = super.getAccelerationZ();
