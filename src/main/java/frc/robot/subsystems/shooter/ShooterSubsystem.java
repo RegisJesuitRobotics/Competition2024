@@ -2,8 +2,8 @@ package frc.robot.subsystems.shooter;
 
 import static frc.robot.Constants.ShooterConstants.*;
 
+import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -11,18 +11,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
-import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
+import frc.robot.telemetry.wrappers.TelemetryCANSparkFlex;
 import frc.robot.utils.Alert;
 import frc.robot.utils.RaiderUtils;
 
 public class ShooterSubsystem extends SubsystemBase {
   // TODO I have no clue what the final cad looks like so these are all arbitrary
 
-  private static int instance = 0;
   private Alert topFlyAlert;
-  private final TelemetryCANSparkMax topFly =
-      new TelemetryCANSparkMax(
-          SHOOTER_ID, CANSparkMaxLowLevel.MotorType.kBrushless, "/shooter/top", true);
+
+  private final TelemetryCANSparkFlex topFly =
+      new TelemetryCANSparkFlex(
+          SHOOTER_ID, CANSparkLowLevel.MotorType.kBrushless, "/shooter/top", true);
 
   private RelativeEncoder topFlyEncoder;
   private final SimpleMotorFeedforward FF =
@@ -37,9 +37,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private final DigitalInput shooterFrisbeeSensor = new DigitalInput(SHOOTER_SENSOR);
 
   public ShooterSubsystem() {
-    int instanceID = instance++;
-
-    topFlyAlert = new Alert("Module " + instanceID + ": ", Alert.AlertType.ERROR);
+    topFlyAlert = new Alert("Shooter: ", Alert.AlertType.ERROR);
     configMotor();
   }
 
@@ -80,13 +78,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     faultInitializing |=
         RaiderUtils.applyAndCheckRev(
-            () ->
-                topFly.setPeriodicFramePeriod(
-                    CANSparkMaxLowLevel.PeriodicFrame.kStatus2, (int) (1000 / ODOMETRY_FREQUENCY)),
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
             topFly::burnFlashWithDelay, () -> true, Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
     topFlyAlert.set(faultInitializing);
@@ -110,7 +101,7 @@ public class ShooterSubsystem extends SubsystemBase {
     return topFlyEncoder.getVelocity();
   }
 
-  public Command RunFlyRPM(double RPM) {
+  public Command runFlyRPM(double RPM) {
     return this.run(() -> this.setRPM(RPM));
   }
 }

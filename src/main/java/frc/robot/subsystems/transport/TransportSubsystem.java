@@ -1,10 +1,9 @@
 package frc.robot.subsystems.transport;
 
-import static frc.robot.Constants.ShooterConstants.TOP_TRANSPORT_ID;
 import static frc.robot.Constants.TransportConstants.*;
 
+import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -14,25 +13,14 @@ import frc.robot.utils.Alert;
 import frc.robot.utils.RaiderUtils;
 
 public class TransportSubsystem extends SubsystemBase {
-  private static int instance = 0;
 
   private static Alert transportAlert;
   public final TelemetryCANSparkMax transportMotor =
       new TelemetryCANSparkMax(
-          TRANSPORT_MOTOR_ID,
-          CANSparkMaxLowLevel.MotorType.kBrushless,
-          "/motors/intake",
-          TUNING_MODE);
-
-  private final TelemetryCANSparkMax topTransport =
-      new TelemetryCANSparkMax(
-          TOP_TRANSPORT_ID,
-          CANSparkMaxLowLevel.MotorType.kBrushless,
-          "/shooterTransport/top",
-          true);
+          TRANSPORT_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless, "/motors/intake", TUNING_MODE);
 
   public void runShooterTransportVoltage(double voltage) {
-    topTransport.setVoltage(voltage);
+    transportMotor.setVoltage(voltage);
   }
 
   private final DoubleTelemetryEntry topTransportVoltageReq =
@@ -41,8 +29,7 @@ public class TransportSubsystem extends SubsystemBase {
       new DoubleTelemetryEntry("/shooterTransport/bottomVoltage", false);
 
   public TransportSubsystem() {
-    int instanceID = instance++;
-    transportAlert = new Alert("Module " + instanceID + ": ", Alert.AlertType.ERROR);
+    transportAlert = new Alert("Transport: ", Alert.AlertType.ERROR);
     configMotor();
   }
 
@@ -68,16 +55,8 @@ public class TransportSubsystem extends SubsystemBase {
 
     faultInitializing |=
         RaiderUtils.applyAndCheckRev(
-            () -> transportMotor.setIdleMode(CANSparkMax.IdleMode.kCoast),
-            () -> transportMotor.getIdleMode() == CANSparkMax.IdleMode.kCoast,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () ->
-                transportMotor.setPeriodicFramePeriod(
-                    CANSparkMaxLowLevel.PeriodicFrame.kStatus2, (int) (1000 / ODOMETRY_FREQUENCY)),
-            () -> true,
+            () -> transportMotor.setIdleMode(CANSparkMax.IdleMode.kBrake),
+            () -> transportMotor.getIdleMode() == CANSparkMax.IdleMode.kBrake,
             Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
     faultInitializing |=

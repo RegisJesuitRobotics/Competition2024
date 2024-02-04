@@ -2,8 +2,8 @@ package frc.robot.subsystems.wrist;
 
 import static frc.robot.Constants.WristConstants.*;
 
+import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -18,7 +18,6 @@ import frc.robot.utils.Alert;
 import frc.robot.utils.RaiderUtils;
 
 public class WristSubsystem extends SubsystemBase {
-  private static int instance = 0;
 
   private final Alert wristAlert;
   private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(WRIST_ENCODER_ID_A);
@@ -26,7 +25,7 @@ public class WristSubsystem extends SubsystemBase {
   private final DigitalInput wristSwitch = new DigitalInput(WRIST_SWITCH_ID);
   private final TelemetryCANSparkMax wristMotor =
       new TelemetryCANSparkMax(
-          WRIST_MOTOR_ID, CANSparkMaxLowLevel.MotorType.kBrushless, "/wrist/motors", true);
+          WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless, "/wrist/motors", true);
 
   private final ArmFeedforward feedforward =
       new ArmFeedforward(
@@ -39,9 +38,8 @@ public class WristSubsystem extends SubsystemBase {
   public WristSubsystem() {
 
     absoluteEncoder.setDutyCycleRange(0, 0);
-    int instanceID = instance++;
 
-    wristAlert = new Alert("Module " + instanceID + ": ", Alert.AlertType.ERROR);
+    wristAlert = new Alert("Wrist: ", Alert.AlertType.ERROR);
     configMotor();
   }
 
@@ -71,13 +69,6 @@ public class WristSubsystem extends SubsystemBase {
             () -> wristMotor.getIdleMode() == CANSparkMax.IdleMode.kCoast,
             Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () ->
-                wristMotor.setPeriodicFramePeriod(
-                    CANSparkMaxLowLevel.PeriodicFrame.kStatus2, (int) (1000 / ODOMETRY_FREQUENCY)),
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     faultInitializing |=
         RaiderUtils.applyAndCheckRev(
             wristMotor::burnFlashWithDelay,

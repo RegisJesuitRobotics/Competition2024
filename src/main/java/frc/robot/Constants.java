@@ -163,8 +163,8 @@ public final class Constants {
     public static final boolean TUNING_MODE = true;
 
     // TODO FIND WRIST CLAMPS
-    public static final Rotation2d WRIST_HIGH = new Rotation2d(0, 0);
-    public static final Rotation2d WRIST_LOW = new Rotation2d(0, 0);
+    public static Rotation2d WRIST_HIGH = new Rotation2d(0, 0);
+    public static Rotation2d WRIST_LOW = new Rotation2d(0, 0);
 
     public static final int WRIST_ENCODER_ID_A = 10;
     public static final int WRIST_SWITCH_ID = 12;
@@ -173,7 +173,6 @@ public final class Constants {
     public static final int WRIST_POSITION_CONVERSION = 1;
     public static final int STALL_MOTOR_CURRENT = 1;
     public static final int FREE_MOTOR_CURRENT = 1;
-    public static final int ODOMETRY_FREQUENCY = 1;
 
     // TODO: TUNE PID & TRAP & FF
 

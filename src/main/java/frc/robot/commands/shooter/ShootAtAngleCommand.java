@@ -19,8 +19,9 @@ public class ShootAtAngleCommand extends SequentialCommandGroup {
     this.transportSubsystem = transportSubsystem;
     this.wristSubsystem = wristSubsystem;
 
-    addCommands(new RunWristAndFlywheels(wristSubsystem, shooterSubsystem));
-    addCommands(transportSubsystem.runTransportCommand());
-    addCommands(shooterSubsystem.RunFlyRPM(0));
+    addCommands(
+        new RunWristAndFlywheels(wristSubsystem, shooterSubsystem),
+        transportSubsystem.runTransportCommand(),
+        shooterSubsystem.runFlyRPM(0));
   }
 }

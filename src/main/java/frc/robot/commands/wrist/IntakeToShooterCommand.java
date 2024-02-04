@@ -26,8 +26,8 @@ public class IntakeToShooterCommand extends SequentialCommandGroup {
     this.wristSubsystem = wristSubsystem;
     this.transportSubsystem = transportSubsystem;
 
-    addCommands(new WristToPositionCommand(wristSubsystem, WRIST_LOW));
     addCommands(
+        new WristToPositionCommand(wristSubsystem, WRIST_LOW),
         new RunIntakeInElevatorDownCommand(elevatorSubsystem, intakeSubsystem, transportSubsystem));
   }
 }

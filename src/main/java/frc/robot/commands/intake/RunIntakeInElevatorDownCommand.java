@@ -21,8 +21,9 @@ public class RunIntakeInElevatorDownCommand extends ParallelCommandGroup {
     this.intakeSubsystem = intakeSubsystem;
     this.transportSubsystem = transportSubsystem;
 
-    addCommands(new ElevatorToPositionCommand(elevatorSubsystem, 0));
-    addCommands(new RunIntakeInCommand(intakeSubsystem));
+    addCommands(
+        new ElevatorToPositionCommand(elevatorSubsystem, 0),
+        new RunIntakeInCommand(intakeSubsystem));
     addCommands(transportSubsystem.runTransportCommand());
   }
 }
