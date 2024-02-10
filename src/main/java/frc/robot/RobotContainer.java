@@ -2,6 +2,7 @@ package frc.robot;
 
 import static frc.robot.Autos.nearestAmpCommand;
 import static frc.robot.Autos.nearestClimberCommand;
+import static frc.robot.Constants.ShooterConstants.*;
 import static frc.robot.subsystems.swerve.SwerveDriveSubsystem.getDistanceToStaging;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -16,6 +17,7 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.commands.drive.LockModulesCommand;
 import frc.robot.commands.drive.teleop.SwerveDriveCommand;
+import frc.robot.commands.elevator.AmpPlaceCommand;
 import frc.robot.commands.shooter.ShootAtAngleCommand;
 import frc.robot.commands.wrist.IntakeToShooterCommand;
 import frc.robot.hid.CommandNintendoSwitchController;
@@ -107,7 +109,9 @@ public class RobotContainer {
         .whileTrue(elevatorSubsystem.runElevatorCommand(operatorController.getRightY()));
     operatorController
         .rightTrigger()
-        .onTrue(new ShootAtAngleCommand(shooterSubsystem, transportSubsystem, wristSubsystem));
+        .onTrue(
+            new ShootAtAngleCommand(
+                shooterSubsystem, transportSubsystem, wristSubsystem, SHOOTING_ANGLE));
     operatorController
         .leftTrigger()
         .onTrue(
@@ -117,6 +121,11 @@ public class RobotContainer {
                 wristSubsystem,
                 transportSubsystem,
                 shooterSubsystem));
+    operatorController
+        .triangle()
+        .onTrue(
+            new AmpPlaceCommand(
+                elevatorSubsystem, wristSubsystem, shooterSubsystem, transportSubsystem));
   }
 
   private void configureDriving() {

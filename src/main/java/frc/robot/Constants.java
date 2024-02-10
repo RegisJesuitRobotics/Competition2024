@@ -29,6 +29,8 @@ public final class Constants {
     public static final double ELEVATOR_MAX = 0;
     public static final double ELEVATOR_MIN = 0;
 
+    public static final double ELEVATOR_AMP_POS = 0;
+
     // TODO: Figure these out
     public static final double PEAK_CURRENT_LMIT = 0;
     public static final double GEAR_REDUCTION = 0;
@@ -166,6 +168,7 @@ public final class Constants {
   public static class WristConstants {
 
     public static final boolean TUNING_MODE = true;
+    public static final Rotation2d WRIST_AMP_POSITION = new Rotation2d(0);
 
     // TODO FIND WRIST CLAMPS
     public static Rotation2d WRIST_HIGH = new Rotation2d(0, 0);

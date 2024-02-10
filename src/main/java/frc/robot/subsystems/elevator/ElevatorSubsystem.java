@@ -157,6 +157,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
   }
 
+  public Command setElevatorPositionCommand(double position) {
+    return this.run(() -> this.setDesiredPosition(position));
+  }
+
   @Override
   public void periodic() {
     double feedbackOutput = controller.calculate(getPosition());
