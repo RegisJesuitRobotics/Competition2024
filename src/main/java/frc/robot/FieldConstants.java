@@ -6,6 +6,8 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Contains various field dimensions and useful reference points. Dimensions are in meters, and sets
@@ -31,6 +33,8 @@ public class FieldConstants {
   /** Staging locations for each note */
   public static final class StagingLocations {
     public static double centerlineX = fieldLength / 2.0;
+    // TODO: FIX THIS
+    public static final double stagingThreshold = 0;
 
     // need to update
     public static double centerlineFirstY = Units.inchesToMeters(29.638);
@@ -55,6 +59,12 @@ public class FieldConstants {
         spikeTranslations[i] = new Translation2d(spikeX, spikeFirstY + (i * spikeSeparationY));
       }
     }
+  }
+
+  public static final class Stage {
+    // TODO:
+    public static List<Pose2d> redStagingLocations = new ArrayList<>();
+    public static List<Pose2d> blueStagingLocations = new ArrayList<>();
   }
 
   /** Each corner of the speaker * */

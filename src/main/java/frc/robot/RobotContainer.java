@@ -1,7 +1,11 @@
 package frc.robot;
 
+import static frc.robot.Autos.getDistanceToStaging;
+import static frc.robot.Autos.nearestClimberCommand;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -70,6 +74,11 @@ public class RobotContainer {
             RaiderCommands.runOnceAllowDisable(driveSubsystem::zeroHeading)
                 .withName("ZeroHeading"));
     driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
+
+    driverController
+        .povLeft()
+        .and(getDistanceToStaging(DriverStation.getAlliance().get(), driveSubsystem))
+        .onTrue(nearestClimberCommand(DriverStation.getAlliance().get(), driveSubsystem));
   }
 
   private void configureOperatorBindings() {

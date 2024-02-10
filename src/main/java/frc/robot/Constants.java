@@ -183,7 +183,6 @@ public final class Constants {
     public static final int FREE_MOTOR_CURRENT = 1;
 
     // TODO: TUNE PID & TRAP & FF
-
     public static final TunableFFGains WRIST_FF_GAINS =
         new TunableFFGains("/wrist/FFGAINS", 0, 0, 0, TUNING_MODE);
     public static final TunablePIDGains WRIST_PID_GAINS =
