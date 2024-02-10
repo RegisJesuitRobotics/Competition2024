@@ -1,14 +1,14 @@
 package frc.robot;
 
+import static frc.robot.FieldConstants.*;
 import static frc.robot.FieldConstants.Stage.*;
-import static frc.robot.FieldConstants.StagingLocations.stagingThreshold;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.drive.auto.SimpleToPointCommand;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
-import java.util.function.BooleanSupplier;
 
 public class Autos {
 
@@ -22,29 +22,14 @@ public class Autos {
     return new SimpleToPointCommand(stagingLoc, swerve);
   }
 
-  public static BooleanSupplier getDistanceToStaging(
-      Alliance alliance, SwerveDriveSubsystem swerve) {
-    BooleanSupplier inThreshold;
-    if (alliance == Alliance.Red)
-      return inThreshold =
-          () -> {
-            return swerve
-                    .getPose()
-                    .nearest(redStagingLocations)
-                    .getTranslation()
-                    .getDistance(swerve.getPose().getTranslation())
-                < stagingThreshold;
-          };
-    else {
-      return inThreshold =
-          () -> {
-            return swerve
-                    .getPose()
-                    .nearest(blueStagingLocations)
-                    .getTranslation()
-                    .getDistance(swerve.getPose().getTranslation())
-                < stagingThreshold;
-          };
+  public static Command nearestAmpCommand(Alliance alliance, SwerveDriveSubsystem swerve) {
+    Pose2d ampLoc;
+    // TODO; THIS
+    if (alliance == Alliance.Red) {
+      ampLoc = new Pose2d(ampCenterRed, new Rotation2d(0, 0));
+    } else {
+      ampLoc = new Pose2d(ampCenterBlue, new Rotation2d(0, 0));
     }
+    return new SimpleToPointCommand(ampLoc, swerve);
   }
 }

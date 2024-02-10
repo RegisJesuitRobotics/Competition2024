@@ -27,14 +27,16 @@ public class FieldConstants {
   public static double podiumX = Units.inchesToMeters(126.75);
   public static double startingLineX = Units.inchesToMeters(74.111);
 
-  public static Translation2d ampCenter =
+  public static Translation2d ampCenterRed =
       new Translation2d(Units.inchesToMeters(72.455), Units.inchesToMeters(322.996));
+  public static Translation2d ampCenterBlue = new Translation2d(0, 0);
 
   /** Staging locations for each note */
   public static final class StagingLocations {
     public static double centerlineX = fieldLength / 2.0;
     // TODO: FIX THIS
     public static final double stagingThreshold = 0;
+    public static final double ampThreshold = 0;
 
     // need to update
     public static double centerlineFirstY = Units.inchesToMeters(29.638);

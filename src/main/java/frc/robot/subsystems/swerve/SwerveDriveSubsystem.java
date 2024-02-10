@@ -1,6 +1,10 @@
 package frc.robot.subsystems.swerve;
 
 import static frc.robot.Constants.SwerveConstants.*;
+import static frc.robot.FieldConstants.Stage.blueStagingLocations;
+import static frc.robot.FieldConstants.Stage.redStagingLocations;
+import static frc.robot.FieldConstants.StagingLocations.ampThreshold;
+import static frc.robot.FieldConstants.StagingLocations.stagingThreshold;
 
 import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -16,17 +20,63 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.MiscConstants;
+import frc.robot.FieldConstants;
 import frc.robot.Robot;
 import frc.robot.telemetry.types.*;
 import frc.robot.telemetry.wrappers.TelemetryPigeon2;
 import frc.robot.utils.RaiderMathUtils;
 import frc.robot.utils.RaiderUtils;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import org.photonvision.EstimatedRobotPose;
 
 /** The subsystem containing all the swerve modules */
 public class SwerveDriveSubsystem extends SubsystemBase {
+
+  public static BooleanSupplier getDistanceToStaging(
+      DriverStation.Alliance alliance, SwerveDriveSubsystem swerve) {
+    BooleanSupplier inThreshold;
+    if (alliance == DriverStation.Alliance.Red)
+      return inThreshold =
+          () -> {
+            return swerve
+                    .getPose()
+                    .nearest(redStagingLocations)
+                    .getTranslation()
+                    .getDistance(swerve.getPose().getTranslation())
+                < stagingThreshold;
+          };
+    else {
+      return inThreshold =
+          () -> {
+            return swerve
+                    .getPose()
+                    .nearest(blueStagingLocations)
+                    .getTranslation()
+                    .getDistance(swerve.getPose().getTranslation())
+                < stagingThreshold;
+          };
+    }
+  }
+
+  public BooleanSupplier getDistanceToAmp(
+      DriverStation.Alliance alliance, SwerveDriveSubsystem swerve) {
+    BooleanSupplier inThreshold;
+    if (alliance == DriverStation.Alliance.Red)
+      return inThreshold =
+          () -> {
+            return swerve.getPose().getTranslation().getDistance(FieldConstants.ampCenterRed)
+                < ampThreshold;
+          };
+    else {
+      return inThreshold =
+          () -> {
+            return swerve.getPose().getTranslation().getDistance(FieldConstants.ampCenterBlue)
+                < ampThreshold;
+          };
+    }
+  }
 
   enum DriveMode {
     OPEN_LOOP,

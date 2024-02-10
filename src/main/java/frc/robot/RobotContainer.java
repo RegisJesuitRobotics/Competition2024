@@ -1,7 +1,8 @@
 package frc.robot;
 
-import static frc.robot.Autos.getDistanceToStaging;
+import static frc.robot.Autos.nearestAmpCommand;
 import static frc.robot.Autos.nearestClimberCommand;
+import static frc.robot.subsystems.swerve.SwerveDriveSubsystem.getDistanceToStaging;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -15,6 +16,7 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.commands.drive.LockModulesCommand;
 import frc.robot.commands.drive.teleop.SwerveDriveCommand;
+import frc.robot.commands.shooter.ShootAtAngleCommand;
 import frc.robot.commands.wrist.IntakeToShooterCommand;
 import frc.robot.hid.CommandNintendoSwitchController;
 import frc.robot.hid.CommandXboxPlaystationController;
@@ -79,6 +81,10 @@ public class RobotContainer {
         .povLeft()
         .and(getDistanceToStaging(DriverStation.getAlliance().get(), driveSubsystem))
         .onTrue(nearestClimberCommand(DriverStation.getAlliance().get(), driveSubsystem));
+    driverController
+        .povRight()
+        .and(driveSubsystem.getDistanceToAmp(DriverStation.getAlliance().get(), driveSubsystem))
+        .onTrue(nearestAmpCommand(DriverStation.getAlliance().get(), driveSubsystem));
   }
 
   private void configureOperatorBindings() {
@@ -99,6 +105,18 @@ public class RobotContainer {
     operatorController
         .rightStick()
         .whileTrue(elevatorSubsystem.runElevatorCommand(operatorController.getRightY()));
+    operatorController
+        .rightTrigger()
+        .onTrue(new ShootAtAngleCommand(shooterSubsystem, transportSubsystem, wristSubsystem));
+    operatorController
+        .leftTrigger()
+        .onTrue(
+            new IntakeToShooterCommand(
+                elevatorSubsystem,
+                intakeSubsystem,
+                wristSubsystem,
+                transportSubsystem,
+                shooterSubsystem));
   }
 
   private void configureDriving() {
