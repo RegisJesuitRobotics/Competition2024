@@ -1,7 +1,9 @@
 package frc.robot.subsystems.swerve;
 
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.SwerveConstants.*;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -11,9 +13,13 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.Robot;
@@ -45,6 +51,20 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   private final StatusSignal<Double> yawSignal = pigeon.getYaw();
 
   private final SwerveDrivePoseEstimator poseEstimator;
+
+  private final SysIdRoutine driveVelocitySysId = new SysIdRoutine(
+          new SysIdRoutine.Config(
+                  null,
+                  null,
+                  null,
+                  (state) -> SignalLogger.writeString("State", state.toString())
+          ),
+          new SysIdRoutine.Mechanism(
+                  (Measure<Voltage> voltage) -> setCharacterizationVoltage(voltage.in(Volts)),
+                  null,
+                  this
+          )
+  );
 
   private final BooleanTelemetryEntry allModulesAtAbsoluteZeroEntry =
       new BooleanTelemetryEntry("/drive/allModulesAtAbsoluteZero", true);
@@ -290,6 +310,14 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     }
 
     return actualPositions;
+  }
+
+  public Command quasistaticSysIDCommand(SysIdRoutine.Direction direction) {
+    return driveVelocitySysId.quasistatic(direction).beforeStarting(SignalLogger::start);
+  }
+
+  public Command dyanamicSysIDCommand(SysIdRoutine.Direction direction) {
+    return driveVelocitySysId.dynamic(direction).beforeStarting(SignalLogger::start);
   }
 
   @Override
