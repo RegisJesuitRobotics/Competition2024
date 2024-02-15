@@ -52,19 +52,14 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
   private final SwerveDrivePoseEstimator poseEstimator;
 
-  private final SysIdRoutine driveVelocitySysId = new SysIdRoutine(
+  private final SysIdRoutine driveVelocitySysId =
+      new SysIdRoutine(
           new SysIdRoutine.Config(
-                  null,
-                  null,
-                  null,
-                  (state) -> SignalLogger.writeString("State", state.toString())
-          ),
+              null, null, null, (state) -> SignalLogger.writeString("State", state.toString())),
           new SysIdRoutine.Mechanism(
-                  (Measure<Voltage> voltage) -> setCharacterizationVoltage(voltage.in(Volts)),
-                  null,
-                  this
-          )
-  );
+              (Measure<Voltage> voltage) -> setCharacterizationVoltage(voltage.in(Volts)),
+              null,
+              this));
 
   private final BooleanTelemetryEntry allModulesAtAbsoluteZeroEntry =
       new BooleanTelemetryEntry("/drive/allModulesAtAbsoluteZero", true);
