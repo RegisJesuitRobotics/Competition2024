@@ -31,9 +31,12 @@ public final class Constants {
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
 
-    public static final TunablePIDGains ROTATION_GAINS = new TunablePIDGains("/Slapdown/rotation/gains", 0, 0, 0, true);
-    public static final TunableTrapezoidalProfileGains ROTATION_TRAP_GAINS = new TunableTrapezoidalProfileGains("/Slapdown/rotation/trapGains", 0, 0, true);
-    public static final TunableFFGains ROTATION_FF_GAINS = new TunableFFGains("/Slapdown/rotation/FFGains", 0, 0, 0, true);
+    public static final TunablePIDGains ROTATION_GAINS =
+        new TunablePIDGains("/Slapdown/rotation/gains", 0, 0, 0, true);
+    public static final TunableTrapezoidalProfileGains ROTATION_TRAP_GAINS =
+        new TunableTrapezoidalProfileGains("/Slapdown/rotation/trapGains", 0, 0, true);
+    public static final TunableFFGains ROTATION_FF_GAINS =
+        new TunableFFGains("/Slapdown/rotation/FFGains", 0, 0, 0, true);
   }
 
   public static final double DT = 0.02;

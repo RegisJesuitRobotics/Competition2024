@@ -91,9 +91,16 @@ public class RobotContainer {
         .povRight()
         .and(driveSubsystem.getDistanceToAmp(DriverStation.getAlliance().get(), driveSubsystem))
         .onTrue(nearestAmpCommand(DriverStation.getAlliance().get(), driveSubsystem));
-    driverController.povDown().toggleOnTrue(slapdownSubsystem.setRotationGoalCommand(new Rotation2d(0)));
-    driverController.povDown().toggleOnTrue(slapdownSubsystem.setFeederVoltageCommand(4)); //TODO: THIS
-    driverController.povDown().toggleOnFalse(slapdownSubsystem.setRotationGoalCommand(new Rotation2d(Units.degreesToRadians(90))));
+    driverController
+        .povDown()
+        .toggleOnTrue(slapdownSubsystem.setRotationGoalCommand(new Rotation2d(0)));
+    driverController
+        .povDown()
+        .toggleOnTrue(slapdownSubsystem.setFeederVoltageCommand(4)); // TODO: THIS
+    driverController
+        .povDown()
+        .toggleOnFalse(
+            slapdownSubsystem.setRotationGoalCommand(new Rotation2d(Units.degreesToRadians(90))));
     driverController.povDown().toggleOnFalse(slapdownSubsystem.setFeederVoltageCommand(0));
   }
 
