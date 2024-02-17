@@ -2,16 +2,13 @@ package frc.robot.subsystems.wrist;
 
 import static frc.robot.Constants.WristConstants.*;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import edu.wpi.first.math.MathUtil;
+import com.revrobotics.SparkAbsoluteEncoder.Type;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
@@ -20,11 +17,8 @@ import frc.robot.utils.Alert;
 import frc.robot.utils.RaiderUtils;
 
 public class WristSubsystem extends SubsystemBase {
-
   private final Alert wristAlert;
-  private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(WRIST_ENCODER_ID_A);
 
-  private final DigitalInput wristSwitch = new DigitalInput(WRIST_SWITCH_ID);
   private final TelemetryCANSparkMax wristMotor =
       new TelemetryCANSparkMax(
           WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless, "/wrist/motors", true);
@@ -35,22 +29,16 @@ public class WristSubsystem extends SubsystemBase {
   private final TunableTelemetryProfiledPIDController controller =
       new TunableTelemetryProfiledPIDController(
           "wrist/pid", WRIST_PID_GAINS, TRAPEZOIDAL_PROFILE_GAINS);
-  private final RelativeEncoder relativeEncoder = wristMotor.getEncoder();
+  private final AbsoluteEncoder wristEncoder = wristMotor.getAbsoluteEncoder(Type.kDutyCycle);
 
   public WristSubsystem() {
-
-    absoluteEncoder.setDutyCycleRange(0, 0);
-
-    wristAlert = new Alert("Wrist: ", Alert.AlertType.ERROR);
+    wristAlert = new Alert("Wrist Motor Had Fault Initializing", Alert.AlertType.ERROR);
     configMotor();
   }
 
   private void configMotor() {
 
-    boolean faultInitializing = false;
-    double conversionFactor = (Math.PI * 2) / WRIST_GEAR_RATIO;
-
-    faultInitializing |=
+    boolean faultInitializing =
         RaiderUtils.applyAndCheckRev(
             () -> wristMotor.setCANTimeout(250),
             () -> true,
@@ -79,16 +67,14 @@ public class WristSubsystem extends SubsystemBase {
             () -> true,
             Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    relativeEncoder.setPositionConversionFactor(conversionFactor);
-    relativeEncoder.setVelocityConversionFactor(conversionFactor / 60);
-  }
+    wristAlert.set(faultInitializing);
 
-  public boolean atTransportAngle() {
-    return absoluteEncoder.get() == 0;
+    wristEncoder.setPositionConversionFactor(Math.PI * 2);
+    wristEncoder.setVelocityConversionFactor(Math.PI * 2 / 60);
   }
 
   public Rotation2d getPosition() {
-    return Rotation2d.fromRadians(relativeEncoder.getPosition());
+    return Rotation2d.fromRadians(wristEncoder.getPosition());
   }
 
   public boolean atGoal() {
@@ -100,23 +86,7 @@ public class WristSubsystem extends SubsystemBase {
   }
 
   public void setDesiredPosition(Rotation2d desiredPosition) {
-
     controller.setGoal(desiredPosition.getRadians());
-  }
-
-  public void setVoltage(double voltage) {
-    wristMotor.setVoltage(voltage);
-  }
-
-  public Command runVoltageCommand(double voltage) {
-    voltage = MathUtil.clamp(voltage, -.5, .5);
-    double finalVoltage = voltage;
-    if (this.getPosition().getRadians() > WRIST_MIN.getRadians()
-        && this.getPosition().getRadians() < WRIST_MAX.getRadians()) {
-      return this.runEnd(() -> this.setVoltage(finalVoltage), () -> this.setVoltage(0));
-    } else {
-      return this.run(() -> this.setVoltage(0));
-    }
   }
 
   @Override
@@ -128,9 +98,6 @@ public class WristSubsystem extends SubsystemBase {
         feedbackOutput
             + feedforward.calculate(getPosition().getRadians(), currentSetpoint.velocity);
 
-    setVoltage(combinedOutput);
-    if (wristSwitch.get()) {
-      absoluteEncoder.reset();
-    }
+    wristMotor.setVoltage(combinedOutput);
   }
 }
