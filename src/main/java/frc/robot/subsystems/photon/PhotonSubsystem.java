@@ -39,7 +39,6 @@ public class PhotonSubsystem extends SubsystemBase {
       new StructArrayTelemetryEntry<>("/vision/estimatedPose", Pose3d.struct, false);
 
   public PhotonSubsystem() {
-
     fieldLayout = FieldConstants.aprilTags;
     fieldLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
 
