@@ -5,8 +5,10 @@ import static frc.robot.Autos.nearestClimberCommand;
 import static frc.robot.Constants.ShooterConstants.*;
 import static frc.robot.subsystems.swerve.SwerveDriveSubsystem.getDistanceToStaging;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -26,6 +28,7 @@ import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.photon.PhotonSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.slapdown.SlapdownSubsystem;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
@@ -48,6 +51,7 @@ public class RobotContainer {
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final SwerveDriveSubsystem driveSubsystem =
       new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
+  private final SlapdownSubsystem slapdownSubsystem = new SlapdownSubsystem();
 
   private final CommandNintendoSwitchController driverController =
       new CommandNintendoSwitchController(0);
@@ -87,6 +91,10 @@ public class RobotContainer {
         .povRight()
         .and(driveSubsystem.getDistanceToAmp(DriverStation.getAlliance().get(), driveSubsystem))
         .onTrue(nearestAmpCommand(DriverStation.getAlliance().get(), driveSubsystem));
+    driverController.povDown().toggleOnTrue(slapdownSubsystem.setRotationGoalCommand(new Rotation2d(0)));
+    driverController.povDown().toggleOnTrue(slapdownSubsystem.setFeederVoltageCommand(4)); //TODO: THIS
+    driverController.povDown().toggleOnFalse(slapdownSubsystem.setRotationGoalCommand(new Rotation2d(Units.degreesToRadians(90))));
+    driverController.povDown().toggleOnFalse(slapdownSubsystem.setFeederVoltageCommand(0));
   }
 
   private void configureOperatorBindings() {
