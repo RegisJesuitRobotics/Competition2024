@@ -116,10 +116,6 @@ public class RobotContainer {
                 shooterSubsystem));
 
     operatorController
-        .leftStick()
-        .whileTrue(wristSubsystem.runVoltageCommand(operatorController.getLeftY()));
-
-    operatorController
         .rightStick()
         .whileTrue(elevatorSubsystem.runElevatorCommand(operatorController.getRightY()));
     operatorController
