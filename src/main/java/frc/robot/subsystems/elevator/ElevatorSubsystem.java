@@ -28,9 +28,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final TelemetryTalonFX leftMotor =
       new TelemetryTalonFX(ElevatorConstants.LEFT_ELEVATOR_MOTOR, "elevator/left", true);
 
-  private final TelemetryTalonFX rightMotor =
-      new TelemetryTalonFX(ElevatorConstants.RIGHT_ELEVATOR_MOTOR, "elevator/right", true);
-
   private final TunableTelemetryProfiledPIDController controller =
       new TunableTelemetryProfiledPIDController(
           "elevator/controller", PID_GAINS, TRAPEZOIDAL_PROFILE_GAINS);
@@ -57,15 +54,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     leftPositionSignal = leftMotor.getPosition();
     leftVelocitySignal = leftMotor.getVelocity();
 
-    rightPositionSignal = rightMotor.getPosition();
-    rightVelocitySignal = rightMotor.getVelocity();
-
-    boolean faultInitializingRight = false;
     boolean faultInitializingLeft = false;
 
     double conversionFactor = METERS_PER_REV / ELEVATOR_GEAR_RATIO;
-
-
 
     faultInitializingLeft |=
         RaiderUtils.applyAndCheckCTRE(
@@ -76,35 +67,19 @@ public class ElevatorSubsystem extends SubsystemBase {
               return appliedConfig.equals(motorConfiguration);
             },
             Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializingRight |=
-        RaiderUtils.applyAndCheckCTRE(
-            () -> rightMotor.getConfigurator().apply(motorConfiguration),
-            () -> {
-              TalonFXConfiguration appliedConfig = new TalonFXConfiguration();
-              rightMotor.getConfigurator().refresh(appliedConfig);
-              return appliedConfig.equals(motorConfiguration);
-            },
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-
 
     leftMotor.hasResetOccurred();
-    rightMotor.hasResetOccurred();
 
     leftMotor.setLoggingPositionConversionFactor(conversionFactor);
-    rightMotor.setLoggingPositionConversionFactor(conversionFactor);
 
     leftMotor.setLoggingVelocityConversionFactor(conversionFactor / 60);
-    rightMotor.setLoggingVelocityConversionFactor(conversionFactor / 60);
-
 
     leftMotorFaultAlert.set(faultInitializingLeft);
-    rightMotorFaultAlert.set(faultInitializingRight);
   }
 
   public void atBottomLimit() {
     if (bottomLimit.get()) {
       leftMotor.setPosition(0);
-      rightMotor.setPosition(0);
     }
   }
 
@@ -119,12 +94,10 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public void setEncoderPosition(double position) {
     leftMotor.setPosition(position);
-    rightMotor.setPosition(position);
   }
 
   public void setVoltage(double voltage) {
     leftMotor.setVoltage(voltage);
-    rightMotor.setVoltage(voltage);
   }
 
   public double getPosition() {
@@ -132,7 +105,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public void stopMove() {
-    rightMotor.setVoltage(0);
     leftMotor.setVoltage(0);
   }
 
@@ -159,14 +131,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
     double combinedOutput = feedbackOutput + feedforward.calculate(currentSetpoint.velocity);
     leftMotor.setVoltage(combinedOutput);
-    rightMotor.setVoltage(combinedOutput);
     atBottomLimit();
     logValues();
   }
 
   private void logValues() {
     leftMotor.logValues();
-    rightMotor.logValues();
     if (FF_GAINS.hasChanged()) {
       feedforward = FF_GAINS.createFeedforward();
     }

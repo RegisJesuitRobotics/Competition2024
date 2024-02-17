@@ -19,13 +19,18 @@ public final class Constants {
   public static class IntakeConstants {
     public static final int INTAKE_SENSOR_ID = 11;
     public static final int INTAKE_VOLTAGE = 3;
-    public static final int INTAKE_MOTOR_ID = 12;
+    public static final int INTAKE_MOTOR_ID = 15;
+  }
+
+  public static class SlapdownConstants {
+
+    public static final int FEEDER_MOTOR_ID = 16;
+    public static final int ROTATION_MOTOR_ID = 17;
   }
 
   public static final double DT = 0.02;
 
   public static class ElevatorConstants {
-
 
     public static final double ELEVATOR_MAX = 12;
     public static final double ELEVATOR_MIN = 0;
@@ -33,20 +38,19 @@ public final class Constants {
     public static final double ELEVATOR_AMP_POS = Units.inchesToMeters(20);
 
     // TODO: Figure these out
-    public static final double PEAK_CURRENT_LMIT = 0;
-    public static final double CONTINUOUS_CURRENT_LIMIT = 0;
+    public static final double PEAK_CURRENT_LMIT = 45;
+    public static final double CONTINUOUS_CURRENT_LIMIT = 25;
     public static final double PEAK_CURRENT_LIMIT_SECONDS = 0.2;
 
     public static final int ODOMETRY_FREQUENCY = 250;
     public static final boolean TUNING_MODE = true;
 
-    public static final int LEFT_ELEVATOR_MOTOR = 0;
-    public static final int RIGHT_ELEVATOR_MOTOR = 1;
+    public static final int LEFT_ELEVATOR_MOTOR = 14;
 
     public static final int ELEVATOR_LIMIT_SWITCH = 2;
     public static final double ELEVATOR_GEAR_RATIO = 5.0 * 3.0;
 
-    public static final double METERS_PER_REV = 0.0;
+    public static final double METERS_PER_REV = Units.inchesToMeters((Math.PI * 1.75) / 15);
 
     // TODO: Do These PID GAINS
     public static final TunablePIDGains PID_GAINS =
@@ -86,10 +90,10 @@ public final class Constants {
         new TunablePIDGains("/gains/steer", 1.0, 0.0, 0.1, MiscConstants.TUNING_MODE);
 
     // Left right distance between center of wheels
-    public static final double TRACKWIDTH_METERS = Units.inchesToMeters(21.79);
+    public static final double TRACKWIDTH_METERS = Units.inchesToMeters(22.75);
 
     // Front back distance between center of wheels
-    public static final double WHEELBASE_METERS = Units.inchesToMeters(21.79);
+    public static final double WHEELBASE_METERS = Units.inchesToMeters(21.75);
 
     public static final Translation2d[] MODULE_TRANSLATIONS =
         new Translation2d[] {
@@ -126,7 +130,7 @@ public final class Constants {
 
     public static final SwerveModuleConfiguration FRONT_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            1, 5, 9, false, true, -0.7455146908760071, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            1, 4, 9, false, true, -0.7455146908760071, false, SHARED_SWERVE_MODULE_CONFIGURATION);
     public static final SwerveModuleConfiguration FRONT_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
             2, 6, 10, false, true, 2.7857091108003242, false, SHARED_SWERVE_MODULE_CONFIGURATION);
@@ -169,7 +173,7 @@ public final class Constants {
 
   public static class WristConstants {
 
-    public static final double WRIST_GEAR_RATIO = 5.0 * 5.0;
+    public static final double WRIST_GEAR_RATIO = 18.0 / (25.0 * 42.0);
 
     public static final boolean TUNING_MODE = true;
     public static final Rotation2d WRIST_AMP_POSITION = new Rotation2d(Units.degreesToRadians(55));
@@ -197,7 +201,7 @@ public final class Constants {
 
   public static class TransportConstants {
     public static final boolean TUNING_MODE = false;
-    public static final int TRANSPORT_MOTOR_ID = 16;
+    public static final int TRANSPORT_MOTOR_ID = 0;
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
     public static final double TRANSPORT_VOLTAGE = 2.0;
@@ -208,13 +212,14 @@ public final class Constants {
     public static final int FREE_MOTOR_CURRENT = 25;
     public static final int STALL_MOTOR_CURRENT = 45;
 
-    public static final int SHOOTER_ID = 5;
+    public static final int SHOOTER_ID = 18;
 
     public static final int SHOOTER_SENSOR = 9;
 
-    public static final double SHOOTING_RPM = 2;
+    public static final double SHOOTING_RPM = 3000.0;
 
-    public static final Rotation2d SHOOTING_ANGLE = new Rotation2d(Units.degreesToRadians(10)); //TODO: Implement Ollies stuff
+    public static final Rotation2d SHOOTING_ANGLE =
+        new Rotation2d(Units.degreesToRadians(10)); // TODO: Implement Ollies stuff
 
     // TODO TUNE FF GAINS
     public static TunableFFGains SHOOTER_FF_GAINS =

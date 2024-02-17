@@ -5,8 +5,6 @@ import static edu.wpi.first.apriltag.AprilTagFields.k2024Crescendo;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Unit;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,10 +68,26 @@ public class FieldConstants {
     public static List<Pose2d> redStagingLocations = new ArrayList<>();
     public static List<Pose2d> blueStagingLocations = new ArrayList<>();
 
-    public Stage(){
-      redStagingLocations.add(new Pose2d((fieldWidth/2),  (fieldLength/4), new Rotation2d(Units.degreesToRadians(120))));
+    public Stage() {
+      redStagingLocations.add(
+          new Pose2d(
+              (Units.inchesToMeters(134)),
+              (fieldLength / 2 + Units.inchesToMeters(164)),
+              new Rotation2d(Units.degreesToRadians(210))));
+      redStagingLocations.add(
+          new Pose2d(
+              (Units.inchesToMeters(166)),
+              (fieldLength / 2 + Units.inchesToMeters(94)),
+              new Rotation2d(0)));
+      redStagingLocations.add(
+          new Pose2d(
+              (Units.inchesToMeters(196)),
+              (fieldLength / 2 + Units.inchesToMeters(94)),
+              new Rotation2d(Units.degreesToRadians(-210))));
 
-      blueStagingLocations.add(new Pose2d((fieldWidth/2),  (fieldLength*.75), new Rotation2d(Units.degreesToRadians(120))));
+      blueStagingLocations.add(
+          new Pose2d(
+              (fieldWidth / 2), (fieldLength * .75), new Rotation2d(Units.degreesToRadians(120))));
     }
   }
 

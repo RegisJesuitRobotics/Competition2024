@@ -103,6 +103,4 @@ public class TelemetryTalonFX extends TalonFX {
     faultsEntry.append(faultsSignal.getValue());
     stickyFaultsEntry.append(stickyFaultsSignal.getValue());
   }
-
-
 }

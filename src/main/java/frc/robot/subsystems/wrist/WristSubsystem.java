@@ -81,7 +81,6 @@ public class WristSubsystem extends SubsystemBase {
 
     relativeEncoder.setPositionConversionFactor(conversionFactor);
     relativeEncoder.setVelocityConversionFactor(conversionFactor / 60);
-
   }
 
   public boolean atTransportAngle() {
