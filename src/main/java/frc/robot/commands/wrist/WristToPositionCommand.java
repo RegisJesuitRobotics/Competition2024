@@ -18,7 +18,7 @@ public class WristToPositionCommand extends Command {
 
     this.desiredPosition =
         MathUtil.clamp(
-            desiredPosition.getRadians(), WRIST_LOW.getRadians(), WRIST_HIGH.getRadians());
+            desiredPosition.getRadians(), WRIST_MIN.getRadians(), WRIST_MAX.getRadians());
   }
 
   @Override

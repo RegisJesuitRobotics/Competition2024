@@ -18,7 +18,7 @@ public class ElevatorWristParallelCommand extends ParallelCommandGroup {
     this.wristSubsystem = wristSubsystem;
 
     addCommands(
-        new WristToPositionCommand(wristSubsystem, WRIST_LOW),
+        new WristToPositionCommand(wristSubsystem, WRIST_MIN),
         new ElevatorToPositionCommand(elevatorSubsystem, 0));
   }
 }

@@ -48,6 +48,8 @@ public class WristSubsystem extends SubsystemBase {
   private void configMotor() {
 
     boolean faultInitializing = false;
+    double conversionFactor = (Math.PI * 2) / WRIST_GEAR_RATIO;
+
     faultInitializing |=
         RaiderUtils.applyAndCheckRev(
             () -> wristMotor.setCANTimeout(250),
@@ -76,6 +78,10 @@ public class WristSubsystem extends SubsystemBase {
             wristMotor::burnFlashWithDelay,
             () -> true,
             Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+
+    relativeEncoder.setPositionConversionFactor(conversionFactor);
+    relativeEncoder.setVelocityConversionFactor(conversionFactor / 60);
+
   }
 
   public boolean atTransportAngle() {

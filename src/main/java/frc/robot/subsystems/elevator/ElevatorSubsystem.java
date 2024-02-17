@@ -62,6 +62,11 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     boolean faultInitializingRight = false;
     boolean faultInitializingLeft = false;
+
+    double conversionFactor = METERS_PER_REV / ELEVATOR_GEAR_RATIO;
+
+
+
     faultInitializingLeft |=
         RaiderUtils.applyAndCheckCTRE(
             () -> leftMotor.getConfigurator().apply(motorConfiguration),
@@ -81,30 +86,16 @@ public class ElevatorSubsystem extends SubsystemBase {
             },
             Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializingLeft |=
-        RaiderUtils.applyAndCheckCTRE(
-            () -> leftPositionSignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
-            () -> leftPositionSignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    faultInitializingRight |=
-        RaiderUtils.applyAndCheckCTRE(
-            () -> rightPositionSignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
-            () -> rightPositionSignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializingLeft |=
-        RaiderUtils.applyAndCheckCTRE(
-            () -> leftVelocitySignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
-            () -> leftVelocitySignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializingRight |=
-        RaiderUtils.applyAndCheckCTRE(
-            () -> rightVelocitySignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
-            () -> rightVelocitySignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
     leftMotor.hasResetOccurred();
     rightMotor.hasResetOccurred();
+
+    leftMotor.setLoggingPositionConversionFactor(conversionFactor);
+    rightMotor.setLoggingPositionConversionFactor(conversionFactor);
+
+    leftMotor.setLoggingVelocityConversionFactor(conversionFactor / 60);
+    rightMotor.setLoggingVelocityConversionFactor(conversionFactor / 60);
+
 
     leftMotorFaultAlert.set(faultInitializingLeft);
     rightMotorFaultAlert.set(faultInitializingRight);

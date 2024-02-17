@@ -62,16 +62,6 @@ public class ShooterSubsystem extends SubsystemBase {
             Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     faultInitializing |=
         RaiderUtils.applyAndCheckRev(
-            () -> topFlyEncoder.setVelocityConversionFactor(SHOOTER_VELOCITY_CONVERSION),
-            () -> topFlyEncoder.getVelocityConversionFactor() == SHOOTER_VELOCITY_CONVERSION,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> topFlyEncoder.setPositionConversionFactor(SHOOTER_POSITION_CONVERSION),
-            () -> topFlyEncoder.getVelocityConversionFactor() == SHOOTER_POSITION_CONVERSION,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
             () -> topFly.setIdleMode(CANSparkMax.IdleMode.kCoast),
             () -> topFly.getIdleMode() == CANSparkMax.IdleMode.kCoast,
             Constants.MiscConstants.CONFIGURATION_ATTEMPTS);

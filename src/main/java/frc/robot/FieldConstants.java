@@ -5,6 +5,8 @@ import static edu.wpi.first.apriltag.AprilTagFields.k2024Crescendo;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Unit;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,9 +66,15 @@ public class FieldConstants {
   }
 
   public static final class Stage {
-    // TODO:
+    // TODO: Measure these jons
     public static List<Pose2d> redStagingLocations = new ArrayList<>();
     public static List<Pose2d> blueStagingLocations = new ArrayList<>();
+
+    public Stage(){
+      redStagingLocations.add(new Pose2d((fieldWidth/2),  (fieldLength/4), new Rotation2d(Units.degreesToRadians(120))));
+
+      blueStagingLocations.add(new Pose2d((fieldWidth/2),  (fieldLength/.75), new Rotation2d(Units.degreesToRadians(120))));
+    }
   }
 
   /** Each corner of the speaker * */
