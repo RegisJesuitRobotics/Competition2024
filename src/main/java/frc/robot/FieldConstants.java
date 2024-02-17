@@ -73,7 +73,7 @@ public class FieldConstants {
     public Stage(){
       redStagingLocations.add(new Pose2d((fieldWidth/2),  (fieldLength/4), new Rotation2d(Units.degreesToRadians(120))));
 
-      blueStagingLocations.add(new Pose2d((fieldWidth/2),  (fieldLength/.75), new Rotation2d(Units.degreesToRadians(120))));
+      blueStagingLocations.add(new Pose2d((fieldWidth/2),  (fieldLength*.75), new Rotation2d(Units.degreesToRadians(120))));
     }
   }
 
