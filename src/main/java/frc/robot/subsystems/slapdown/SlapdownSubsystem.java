@@ -130,10 +130,6 @@ public class SlapdownSubsystem extends SubsystemBase {
     feederMotor.setVoltage(voltage);
   }
 
-  private void setRotationGoal(Rotation2d goal) {
-    rotationController.setGoal(goal.getRadians());
-  }
-
   public void setRotationVoltage(double voltage) {
     rotationMotor.setVoltage(voltage);
   }
@@ -145,7 +141,7 @@ public class SlapdownSubsystem extends SubsystemBase {
   public Command setRotationGoalCommand(Rotation2d goal) {
     return this.run(
         () -> {
-          this.setRotationGoal(goal);
+          rotationController.setGoal(goal.getRadians());
           double feedbackOutput = rotationController.calculate(getPosition());
           TrapezoidProfile.State currentSetpoint = rotationController.getSetpoint();
 
@@ -160,12 +156,6 @@ public class SlapdownSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    double feedbackOutput = rotationController.calculate(getPosition());
-
-    TrapezoidProfile.State currentSetpoint = rotationController.getSetpoint();
-    double combinedOutput = feedbackOutput + rotationFF.calculate(currentSetpoint.velocity);
-    setRotationVoltage(combinedOutput);
-
     rotationMotor.logValues();
     feederMotor.logValues();
   }
