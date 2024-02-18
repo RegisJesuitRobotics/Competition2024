@@ -7,12 +7,12 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
+import frc.robot.telemetry.types.BooleanTelemetryEntry;
 import frc.robot.telemetry.types.EventTelemetryEntry;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.utils.Alert;
@@ -34,6 +34,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final RelativeEncoder elevatorEncoder = elevatorMotor.getEncoder();
   private final DigitalInput bottomLimit = new DigitalInput(ELEVATOR_LIMIT_SWITCH);
 
+  private final BooleanTelemetryEntry bottomLimitEntry =
+      new BooleanTelemetryEntry("/elevator/bottomLimit", true);
   private final EventTelemetryEntry elevatorEventEntry =
       new EventTelemetryEntry("/elevator/events");
 
@@ -77,16 +79,13 @@ public class ElevatorSubsystem extends SubsystemBase {
             () -> elevatorEncoder.setVelocityConversionFactor(METERS_PER_REV / 60),
             () -> elevatorEncoder.getVelocityConversionFactor() == METERS_PER_REV / 60,
             MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |= RaiderUtils.applyAndCheckRev(elevatorMotor::burnFlashWithDelay, () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            elevatorMotor::burnFlashWithDelay, () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    elevatorEventEntry.append("Elevator motor initialized" + (faultInitializing ? " with faults" : ""));
+    elevatorEventEntry.append(
+        "Elevator motor initialized" + (faultInitializing ? " with faults" : ""));
     elevatorAlert.set(faultInitializing);
-  }
-
-  public void atBottomLimit() {
-    if (bottomLimit.get()) {
-      leftMotor.setPosition(0);
-    }
   }
 
   public void setDesiredPosition(double desiredPosition) {
@@ -98,22 +97,19 @@ public class ElevatorSubsystem extends SubsystemBase {
     return controller.atGoal();
   }
 
-  public void setEncoderPosition(double position) {
-    leftMotor.setPosition(position);
-  }
-
   public void setVoltage(double voltage) {
-    leftMotor.setVoltage(voltage);
+    elevatorMotor.setVoltage(voltage);
   }
 
   public double getPosition() {
-    return leftMotor.getPosition().getValue();
+    return elevatorEncoder.getPosition();
   }
 
   public void stopMove() {
-    leftMotor.setVoltage(0);
+    setVoltage(0.0);
   }
 
+  // TODO: Fix
   public Command runElevatorCommand(double voltage) {
     voltage = MathUtil.clamp(voltage, -0.5, 0.5);
 
@@ -126,25 +122,21 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
   }
 
+  // TODO: Fix
   public Command setElevatorPositionCommand(double position) {
     return this.run(() -> this.setDesiredPosition(position));
   }
 
   @Override
   public void periodic() {
-    double feedbackOutput = controller.calculate(getPosition());
-
-    TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
-    double combinedOutput = feedbackOutput + feedforward.calculate(currentSetpoint.velocity);
-    leftMotor.setVoltage(combinedOutput);
-    atBottomLimit();
-    logValues();
+    // TODO: Log that this is being reset, or maybe don't always reset?
+    if (bottomLimit.get()) {
+      elevatorEncoder.setPosition(0);
+    }
   }
 
   private void logValues() {
-    leftMotor.logValues();
-    if (FF_GAINS.hasChanged()) {
-      feedforward = FF_GAINS.createFeedforward();
-    }
+    bottomLimitEntry.append(bottomLimit.get());
+    elevatorMotor.logValues();
   }
 }

@@ -92,7 +92,12 @@ public class ShooterSubsystem extends SubsystemBase {
     setFlyVoltage(forwardVol);
   }
 
-  public Command runFlyRPM(double RPM) {
+  public Command runRPMCommand(double RPM) {
     return this.run(() -> this.setRPM(RPM));
+  }
+
+  @Override
+  public void periodic() {
+    flywheelMotor.logValues();
   }
 }
