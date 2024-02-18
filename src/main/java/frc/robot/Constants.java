@@ -24,7 +24,7 @@ public final class Constants {
 
   public static class IntakeConstants {
     public static final int INTAKE_VOLTAGE = 3;
-    public static final int INTAKE_MOTOR_ID = 15;
+    public static final int INTAKE_MOTOR_ID = 12;
 
     public static final int STALL_MOTOR_CURRENT = 40;
     public static final int FREE_MOTOR_CURRENT = 20;
@@ -32,8 +32,8 @@ public final class Constants {
 
   public static class SlapdownConstants {
 
-    public static final int FEEDER_MOTOR_ID = 16;
-    public static final int ROTATION_MOTOR_ID = 17;
+    public static final int FEEDER_MOTOR_ID = 14;
+    public static final int ROTATION_MOTOR_ID = 13;
     public static final double ROTATION_GEAR_RATIO = 5.0 * 3.0 * 30.0 / 15.0;
 
     public static final int FEED_STALL_MOTOR_CURRENT = 20;
@@ -60,7 +60,7 @@ public final class Constants {
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
 
-    public static final int ELEVATOR_MOTOR_ID = 14;
+    public static final int ELEVATOR_MOTOR_ID = 15;
 
     public static final int ELEVATOR_LIMIT_SWITCH = 2;
 
@@ -146,18 +146,18 @@ public final class Constants {
 
     public static final SwerveModuleConfiguration FRONT_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            1, 4, 9, false, true, -0.7455146908760071, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            1, 5, 17, false, true, -0.7455146908760071, false, SHARED_SWERVE_MODULE_CONFIGURATION);
     public static final SwerveModuleConfiguration FRONT_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            2, 6, 10, false, true, 2.7857091108003242, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            2, 6, 18, false, true, 2.7857091108003242, false, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            3, 7, 11, false, true, 2.676796474860444, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            3, 7, 19, false, true, 2.676796474860444, false, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            4, 8, 12, false, true, -2.4605051837685683, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            4, 8, 20, false, true, -2.4605051837685683, false, SHARED_SWERVE_MODULE_CONFIGURATION);
   }
 
   public static class AutoConstants {
@@ -197,7 +197,7 @@ public final class Constants {
     public static final Rotation2d WRIST_MAX = new Rotation2d(Units.degreesToRadians(60));
     public static final Rotation2d WRIST_MIN = new Rotation2d(0);
 
-    public static final int WRIST_MOTOR_ID = 11;
+    public static final int WRIST_MOTOR_ID = 9;
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
 
@@ -212,7 +212,7 @@ public final class Constants {
   }
 
   public static class TransportConstants {
-    public static final int TRANSPORT_MOTOR_ID = 0;
+    public static final int TRANSPORT_MOTOR_ID = 11;
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
     public static final double TRANSPORT_VOLTAGE = 2.0;
@@ -222,7 +222,7 @@ public final class Constants {
     public static final int FREE_MOTOR_CURRENT = 25;
     public static final int STALL_MOTOR_CURRENT = 45;
 
-    public static final int SHOOTER_ID = 18;
+    public static final int SHOOTER_ID = 10;
 
     public static final double SHOOTING_RPM = 3000.0;
 

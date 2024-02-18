@@ -1,10 +1,8 @@
 package frc.robot.commands.elevator;
 
-import static frc.robot.Constants.ElevatorConstants.*;
 import static frc.robot.Constants.WristConstants.*;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import frc.robot.commands.wrist.WristToPositionCommand;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
 
@@ -18,7 +16,7 @@ public class ElevatorWristParallelCommand extends ParallelCommandGroup {
     this.wristSubsystem = wristSubsystem;
 
     addCommands(
-        new WristToPositionCommand(wristSubsystem, WRIST_MIN),
-        new ElevatorToPositionCommand(elevatorSubsystem, 0));
+        wristSubsystem.setPosiitonCommand(WRIST_MIN),
+        elevatorSubsystem.setElevatorPositionCommand(0));
   }
 }

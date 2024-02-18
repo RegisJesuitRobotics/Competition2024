@@ -1,11 +1,10 @@
 package frc.robot.commands.elevator;
 
-import static frc.robot.Constants.ElevatorConstants.*;
+import static frc.robot.Constants.ScoringConstants.*;
 import static frc.robot.Constants.WristConstants.*;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.shooter.ShootAtAngleCommand;
-import frc.robot.commands.wrist.WristToPositionCommand;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.transport.TransportSubsystem;
@@ -27,8 +26,8 @@ public class AmpPlaceCommand extends SequentialCommandGroup {
     this.wristSubsystem = wristSubsystem;
     this.transportSubsystem = transportSubsystem;
     addCommands(
-        new ElevatorToPositionCommand(elevatorSubsystem, ELEVATOR_AMP_POS),
-        new WristToPositionCommand(wristSubsystem, WRIST_AMP_POSITION),
+        elevatorSubsystem.setElevatorPositionCommand(AMP_ELEVATOR_HEIGHT),
+        wristSubsystem.setPosiitonCommand(WRIST_AMP_POSITION),
         new ShootAtAngleCommand(
             shooterSubsystem, transportSubsystem, wristSubsystem, WRIST_AMP_POSITION));
   }

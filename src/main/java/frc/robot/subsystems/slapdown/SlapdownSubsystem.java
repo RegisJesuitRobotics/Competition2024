@@ -143,7 +143,15 @@ public class SlapdownSubsystem extends SubsystemBase {
   }
 
   public Command setRotationGoalCommand(Rotation2d goal) {
-    return this.run(() -> this.setRotationGoal(goal)).until(rotationController::atGoal);
+    return this.run(
+        () -> {
+          this.setRotationGoal(goal);
+          double feedbackOutput = rotationController.calculate(getPosition());
+          TrapezoidProfile.State currentSetpoint = rotationController.getSetpoint();
+
+          setRotationVoltage(
+              feedbackOutput + rotationFF.calculate(getPosition(), currentSetpoint.velocity));
+        });
   }
 
   public Command setFeederVoltageCommand(double voltage) {

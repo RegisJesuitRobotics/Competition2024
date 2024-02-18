@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -88,6 +89,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     elevatorAlert.set(faultInitializing);
   }
 
+  public void atBottomLimit() {
+    if (bottomLimit.get()) {
+      elevatorEncoder.setPosition(0);
+    }
+  }
+
   public void setDesiredPosition(double desiredPosition) {
     // TODO: CLAMP THIS
     controller.setGoal(desiredPosition);
@@ -95,6 +102,10 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public boolean atGoal() {
     return controller.atGoal();
+  }
+
+  public void setEncoderPosition(double position) {
+    elevatorEncoder.setPosition(position);
   }
 
   public void setVoltage(double voltage) {
@@ -106,7 +117,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public void stopMove() {
-    setVoltage(0.0);
+    elevatorMotor.setVoltage(0);
   }
 
   // TODO: Fix
@@ -124,19 +135,27 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   // TODO: Fix
   public Command setElevatorPositionCommand(double position) {
-    return this.run(() -> this.setDesiredPosition(position));
+    return this.run(
+        () -> {
+          controller.setGoal(position);
+          double feedbackOutput = controller.calculate(getPosition());
+          TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
+
+          setVoltage(
+              feedbackOutput + feedforward.calculate(getPosition(), currentSetpoint.velocity));
+        });
   }
 
   @Override
   public void periodic() {
-    // TODO: Log that this is being reset, or maybe don't always reset?
-    if (bottomLimit.get()) {
-      elevatorEncoder.setPosition(0);
-    }
+    logValues();
   }
 
   private void logValues() {
-    bottomLimitEntry.append(bottomLimit.get());
     elevatorMotor.logValues();
+    bottomLimitEntry.append(bottomLimit.get());
+    if (FF_GAINS.hasChanged()) {
+      feedforward = FF_GAINS.createFeedforward();
+    }
   }
 }
