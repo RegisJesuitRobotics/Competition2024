@@ -44,7 +44,7 @@ public class WristSubsystem extends SubsystemBase {
           "/wrist/pid", WRIST_PID_GAINS, TRAPEZOIDAL_PROFILE_GAINS);
 
   private final DoubleTelemetryEntry wristVoltageReq =
-      new DoubleTelemetryEntry("/wrist/voltage", true);
+      new DoubleTelemetryEntry("/wrist/voltage", MiscConstants.TUNING_MODE);
   private final EventTelemetryEntry wristEventEntry = new EventTelemetryEntry("/wrist/events");
 
   public WristSubsystem() {

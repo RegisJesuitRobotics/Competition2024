@@ -41,12 +41,13 @@ public class ShooterSubsystem extends SubsystemBase {
       new TunableTelemetryPIDController("/shooter/pid", SHOOTER_PID_GAINS);
   private final SimpleMotorFeedforward feedforward = SHOOTER_FF_GAINS.createFeedforward();
 
-  private final DoubleTelemetryEntry topFlyVoltageReq =
+  private final DoubleTelemetryEntry flyVoltageReq =
       new DoubleTelemetryEntry("/shooter/topVoltage", false);
   private final EventTelemetryEntry shooterEventEntry = new EventTelemetryEntry("/shooter/events");
 
   public ShooterSubsystem() {
     configMotor();
+    setDefaultCommand(setVoltageCommand(0.0));
   }
 
   public void configMotor() {
@@ -92,14 +93,17 @@ public class ShooterSubsystem extends SubsystemBase {
     flywheelMotorAlert.set(faultInitializing);
   }
 
-  public void setFlyVoltage(double voltage) {
+  public void setVoltage(double voltage) {
+    flyVoltageReq.append(voltage);
     flywheelMotor.setVoltage(voltage);
   }
 
-  public void setRPM(double rpm) {
-    double forwardVol = feedforward.calculate(rpm);
+  public Command setVoltageCommand(double voltage) {
+    return this.run(() -> setVoltage(voltage));
+  }
 
-    setFlyVoltage(forwardVol);
+  public Command runVelocityCommand(double setpointRotationsPerSecond) {
+    return this.run(() -> setVoltage(pidController.calculate(flywheelEncoder.getVelocity(), setpointRotationsPerSecond) + feedforward.calculate(setpointRotationsPerSecond)));
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -112,5 +116,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public Command runFlyRPM(double RPM) {
     return this.run(() -> this.setRPM(RPM));
+  @Override
+  public void periodic() {
+    flywheelMotor.logValues();
   }
 }

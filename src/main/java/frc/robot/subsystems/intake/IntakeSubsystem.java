@@ -68,6 +68,11 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeMotor.setVoltage(voltage);
   }
 
+  @Override
+  public void periodic() {
+    intakeMotor.logValues();
+  }
+
   public Command setIntakeVoltageCommand(double voltage) {
     return this.run(() -> this.setIntakeVoltage(voltage));
   }

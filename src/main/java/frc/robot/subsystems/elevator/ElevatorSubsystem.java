@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
+import frc.robot.telemetry.types.BooleanTelemetryEntry;
 import frc.robot.telemetry.types.EventTelemetryEntry;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.utils.Alert;
@@ -45,6 +46,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final RelativeEncoder elevatorEncoder = elevatorMotor.getEncoder();
   private final DigitalInput bottomLimit = new DigitalInput(ELEVATOR_LIMIT_SWITCH);
 
+  private final BooleanTelemetryEntry bottomLimitEntry =
+      new BooleanTelemetryEntry("/elevator/bottomLimit", true);
   private final EventTelemetryEntry elevatorEventEntry =
       new EventTelemetryEntry("/elevator/events");
 
@@ -128,6 +131,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     elevatorMotor.setVoltage(0);
   }
 
+  // TODO: Fix
   public Command runElevatorCommand(double voltage) {
     voltage = MathUtil.clamp(voltage, -0.5, 0.5);
 
@@ -140,6 +144,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
   }
 
+  // TODO: Fix
   public Command setElevatorPositionCommand(double position) {
     return this.run(
         () -> {
@@ -161,10 +166,13 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   @Override
-  public void periodic() {}
+  public void periodic() {
+    logValues();
+  }
 
   private void logValues() {
     elevatorMotor.logValues();
+    bottomLimitEntry.append(bottomLimit.get());
     if (FF_GAINS.hasChanged()) {
       feedforward = FF_GAINS.createFeedforward();
     }
