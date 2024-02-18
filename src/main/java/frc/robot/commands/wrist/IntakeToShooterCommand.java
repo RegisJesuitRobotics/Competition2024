@@ -1,10 +1,8 @@
 package frc.robot.commands.wrist;
 
-import static frc.robot.Constants.WristConstants.*;
-
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.elevator.ElevatorWristParallelCommand;
-import frc.robot.commands.intake.RunIntakeInElevatorDownCommand;
+import frc.robot.commands.intake.runIntakeTransportCommand;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -33,7 +31,7 @@ public class IntakeToShooterCommand extends SequentialCommandGroup {
 
     addCommands(
         new ElevatorWristParallelCommand(wristSubsystem, elevatorSubsystem),
-        new RunIntakeInElevatorDownCommand(
+        new runIntakeTransportCommand(
             elevatorSubsystem, intakeSubsystem, transportSubsystem, shooterSubsystem));
   }
 }

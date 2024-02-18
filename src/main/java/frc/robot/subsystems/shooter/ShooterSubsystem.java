@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter;
 
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.ShooterConstants.*;
 
 import com.revrobotics.CANSparkLowLevel;
@@ -8,6 +9,7 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.telemetry.tunable.TunableTelemetryPIDController;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
@@ -20,6 +22,14 @@ import frc.robot.utils.RaiderUtils;
 public class ShooterSubsystem extends SubsystemBase {
   private static final Alert flywheelMotorAlert =
       new Alert("Shooter motor had a fault initializing", AlertType.ERROR);
+
+  private final SysIdRoutine shooterSysId =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(),
+          new SysIdRoutine.Mechanism(
+              (voltage) -> setFlyVoltage(voltage.in(Volts)),
+              null, // No log consumer, since data is recorded by URCL
+              this));
 
   private final TelemetryCANSparkFlex flywheelMotor =
       new TelemetryCANSparkFlex(
@@ -90,6 +100,14 @@ public class ShooterSubsystem extends SubsystemBase {
     double forwardVol = feedforward.calculate(rpm);
 
     setFlyVoltage(forwardVol);
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return shooterSysId.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return shooterSysId.dynamic(direction);
   }
 
   public Command runFlyRPM(double RPM) {

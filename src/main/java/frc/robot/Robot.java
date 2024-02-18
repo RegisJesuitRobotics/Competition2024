@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.MiscRobotTelemetryAndAlerts;
 import frc.robot.telemetry.wrappers.TelemetryPowerDistribution;
+import org.littletonrobotics.urcl.URCL;
 
 /**
  * The VM is configured to automatically run this class, and to call the methods corresponding to
@@ -49,6 +50,8 @@ public class Robot extends TimedRobot {
     DataLogManager.logNetworkTables(false);
     DataLogManager.start();
     DataLogManager.log("*****START*****");
+
+    URCL.start();
 
     DataLog dataLog = DataLogManager.getLog();
     // Log connections and FMSInfo

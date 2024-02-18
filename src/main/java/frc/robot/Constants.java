@@ -216,6 +216,7 @@ public final class Constants {
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
     public static final double TRANSPORT_VOLTAGE = 2.0;
+    public static final int SHOOTER_SENSOR_ID = 22;
   }
 
   public static class ShooterConstants {

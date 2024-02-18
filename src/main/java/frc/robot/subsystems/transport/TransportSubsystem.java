@@ -4,6 +4,7 @@ import static frc.robot.Constants.TransportConstants.*;
 
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -17,12 +18,10 @@ public class TransportSubsystem extends SubsystemBase {
 
   private static final Alert transportAlert =
       new Alert("Transport motor had a fault initializing", Alert.AlertType.ERROR);
+  private static final DigitalInput shooterSensor = new DigitalInput(SHOOTER_SENSOR_ID);
   public final TelemetryCANSparkMax transportMotor =
       new TelemetryCANSparkMax(
-          TRANSPORT_MOTOR_ID,
-          CANSparkLowLevel.MotorType.kBrushless,
-          "/transport/motor",
-          TUNING_MODE);
+          TRANSPORT_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless, "/transport/motor", false);
 
   public void runShooterTransportVoltage(double voltage) {
     transportMotor.setVoltage(voltage);
@@ -73,6 +72,10 @@ public class TransportSubsystem extends SubsystemBase {
     transportEventEntry.append(
         "Transport motor initialized" + (faultInitializing ? " with faults" : ""));
     transportAlert.set(faultInitializing);
+  }
+
+  public boolean atSensor() {
+    return shooterSensor.get();
   }
 
   public Command runTransportOutCommand() {

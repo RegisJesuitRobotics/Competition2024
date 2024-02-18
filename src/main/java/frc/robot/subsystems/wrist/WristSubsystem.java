@@ -1,5 +1,6 @@
 package frc.robot.subsystems.wrist;
 
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.WristConstants.*;
 
 import com.revrobotics.AbsoluteEncoder;
@@ -11,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
@@ -23,6 +25,13 @@ import frc.robot.utils.RaiderUtils;
 public class WristSubsystem extends SubsystemBase {
   private static final Alert wristAlert =
       new Alert("Wrist motor had a fault initializing", Alert.AlertType.ERROR);
+  private final SysIdRoutine wristSysId =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(),
+          new SysIdRoutine.Mechanism(
+              (voltage) -> setVoltage(voltage.in(Volts)),
+              null, // No log consumer, since data is recorded by URCL
+              this));
 
   private final TelemetryCANSparkMax wristMotor =
       new TelemetryCANSparkMax(
@@ -136,6 +145,14 @@ public class WristSubsystem extends SubsystemBase {
               feedbackOutput
                   + feedforward.calculate(getPosition().getRadians(), currentSetpoint.velocity));
         });
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return wristSysId.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return wristSysId.dynamic(direction);
   }
 
   @Override

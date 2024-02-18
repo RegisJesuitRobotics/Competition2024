@@ -8,6 +8,7 @@ import static frc.robot.Constants.IntakeConstants.*;
 
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.MiscConstants;
@@ -65,5 +66,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void setIntakeVoltage(double voltage) {
     intakeMotor.setVoltage(voltage);
+  }
+
+  public Command setIntakeVoltageCommand(double voltage) {
+    return this.run(() -> this.setIntakeVoltage(voltage));
   }
 }

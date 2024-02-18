@@ -32,6 +32,6 @@ public class RunTransportInCommand extends Command {
 
   @Override
   public boolean isFinished() {
-    return shooterSubsystem.AtSensor();
+    return transportSubsystem.atSensor();
   }
 }

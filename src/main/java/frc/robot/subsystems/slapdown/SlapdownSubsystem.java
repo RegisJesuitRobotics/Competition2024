@@ -1,5 +1,6 @@
 package frc.robot.subsystems.slapdown;
 
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.SlapdownConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -10,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
 import frc.robot.telemetry.types.EventTelemetryEntry;
@@ -33,6 +35,13 @@ public class SlapdownSubsystem extends SubsystemBase {
           CANSparkLowLevel.MotorType.kBrushless,
           "/slapdown/rotation/motor",
           true);
+  private final SysIdRoutine slapdownRotationSysId =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(),
+          new SysIdRoutine.Mechanism(
+              (voltage) -> setRotationVoltage(voltage.in(Volts)),
+              null, // No log consumer, since data is recorded by URCL
+              this));
 
   private final SimpleMotorFeedforward rotationFF;
   private final TunableTelemetryProfiledPIDController rotationController =
@@ -154,17 +163,20 @@ public class SlapdownSubsystem extends SubsystemBase {
         });
   }
 
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return slapdownRotationSysId.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return slapdownRotationSysId.dynamic(direction);
+  }
+
   public Command setFeederVoltageCommand(double voltage) {
     return this.run(() -> this.setFeederVoltage(voltage));
   }
 
   @Override
   public void periodic() {
-    double feedbackOutput = rotationController.calculate(getPosition());
-
-    TrapezoidProfile.State currentSetpoint = rotationController.getSetpoint();
-    double combinedOutput = feedbackOutput + rotationFF.calculate(currentSetpoint.velocity);
-    setRotationVoltage(combinedOutput);
 
     rotationMotor.logValues();
     feederMotor.logValues();
