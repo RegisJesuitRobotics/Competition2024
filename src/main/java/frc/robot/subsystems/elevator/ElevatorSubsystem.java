@@ -77,15 +77,18 @@ public class ElevatorSubsystem extends SubsystemBase {
             () -> elevatorEncoder.setVelocityConversionFactor(METERS_PER_REV / 60),
             () -> elevatorEncoder.getVelocityConversionFactor() == METERS_PER_REV / 60,
             MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |= RaiderUtils.applyAndCheckRev(elevatorMotor::burnFlashWithDelay, () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            elevatorMotor::burnFlashWithDelay, () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    elevatorEventEntry.append("Elevator motor initialized" + (faultInitializing ? " with faults" : ""));
+    elevatorEventEntry.append(
+        "Elevator motor initialized" + (faultInitializing ? " with faults" : ""));
     elevatorAlert.set(faultInitializing);
   }
 
   public void atBottomLimit() {
     if (bottomLimit.get()) {
-      leftMotor.setPosition(0);
+      elevatorEncoder.setPosition(0);
     }
   }
 
@@ -99,19 +102,19 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public void setEncoderPosition(double position) {
-    leftMotor.setPosition(position);
+    elevatorEncoder.setPosition(position);
   }
 
   public void setVoltage(double voltage) {
-    leftMotor.setVoltage(voltage);
+    elevatorMotor.setVoltage(voltage);
   }
 
   public double getPosition() {
-    return leftMotor.getPosition().getValue();
+    return elevatorEncoder.getPosition();
   }
 
   public void stopMove() {
-    leftMotor.setVoltage(0);
+    elevatorMotor.setVoltage(0);
   }
 
   public Command runElevatorCommand(double voltage) {
@@ -127,22 +130,22 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public Command setElevatorPositionCommand(double position) {
-    return this.run(() -> this.setDesiredPosition(position));
+    return this.run(
+        () -> {
+          controller.setGoal(position);
+          double feedbackOutput = controller.calculate(getPosition());
+          TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
+
+          setVoltage(
+              feedbackOutput + feedforward.calculate(getPosition(), currentSetpoint.velocity));
+        });
   }
 
   @Override
-  public void periodic() {
-    double feedbackOutput = controller.calculate(getPosition());
-
-    TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
-    double combinedOutput = feedbackOutput + feedforward.calculate(currentSetpoint.velocity);
-    leftMotor.setVoltage(combinedOutput);
-    atBottomLimit();
-    logValues();
-  }
+  public void periodic() {}
 
   private void logValues() {
-    leftMotor.logValues();
+    elevatorMotor.logValues();
     if (FF_GAINS.hasChanged()) {
       feedforward = FF_GAINS.createFeedforward();
     }

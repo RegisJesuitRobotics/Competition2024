@@ -35,8 +35,8 @@ public class FieldConstants {
   public static final class StagingLocations {
     public static double centerlineX = fieldLength / 2.0;
     // TODO: FIX THIS
-    public static final double stagingThreshold = 0;
-    public static final double ampThreshold = 0;
+    public static final double stagingThreshold = 5;
+    public static final double ampThreshold = 5;
 
     // need to update
     public static double centerlineFirstY = Units.inchesToMeters(29.638);

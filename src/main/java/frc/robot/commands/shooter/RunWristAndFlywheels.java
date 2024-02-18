@@ -4,7 +4,6 @@ import static frc.robot.Constants.ShooterConstants.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import frc.robot.commands.wrist.WristToPositionCommand;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
 
@@ -19,7 +18,6 @@ public class RunWristAndFlywheels extends ParallelCommandGroup {
     this.shooterSubsystem = shooterSubsystem;
 
     addCommands(
-        new WristToPositionCommand(wristSubsystem, shootingAngle),
-        shooterSubsystem.runFlyRPM(SHOOTING_RPM));
+        wristSubsystem.setPosiitonCommand(shootingAngle), shooterSubsystem.runFlyRPM(SHOOTING_RPM));
   }
 }
