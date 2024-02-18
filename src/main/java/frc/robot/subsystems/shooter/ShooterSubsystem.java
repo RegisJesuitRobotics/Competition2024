@@ -103,7 +103,11 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public Command runVelocityCommand(double setpointRotationsPerSecond) {
-    return this.run(() -> setVoltage(pidController.calculate(flywheelEncoder.getVelocity(), setpointRotationsPerSecond) + feedforward.calculate(setpointRotationsPerSecond)));
+    return this.run(
+        () ->
+            setVoltage(
+                pidController.calculate(flywheelEncoder.getVelocity(), setpointRotationsPerSecond)
+                    + feedforward.calculate(setpointRotationsPerSecond)));
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -114,8 +118,14 @@ public class ShooterSubsystem extends SubsystemBase {
     return shooterSysId.dynamic(direction);
   }
 
-  public Command runFlyRPM(double RPM) {
-    return this.run(() -> this.setRPM(RPM));
+  public Command runRPMCommand(double RPM) {
+    return this.run(() -> flywheelMotor.set(RPM));
+  }
+
+  public void setFlyVoltage(double voltage) {
+    flywheelMotor.setVoltage(voltage);
+  }
+
   @Override
   public void periodic() {
     flywheelMotor.logValues();

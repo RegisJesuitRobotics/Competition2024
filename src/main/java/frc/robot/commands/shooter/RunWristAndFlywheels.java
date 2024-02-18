@@ -18,6 +18,7 @@ public class RunWristAndFlywheels extends ParallelCommandGroup {
     this.shooterSubsystem = shooterSubsystem;
 
     addCommands(
-        wristSubsystem.setPosiitonCommand(shootingAngle), shooterSubsystem.runFlyRPM(SHOOTING_RPM));
+        wristSubsystem.setPosiitonCommand(shootingAngle),
+        shooterSubsystem.runRPMCommand(SHOOTING_RPM));
   }
 }

@@ -101,6 +101,7 @@ public class RobotContainer {
         .toggleOnFalse(
             slapdownSubsystem.setRotationGoalCommand(new Rotation2d(Units.degreesToRadians(90))));
     driverController.povDown().toggleOnFalse(slapdownSubsystem.setFeederVoltageCommand(0));
+    driverController.a().onTrue(intakeSubsystem.checkIntakeCommand());
   }
 
   private void configureOperatorBindings() {
