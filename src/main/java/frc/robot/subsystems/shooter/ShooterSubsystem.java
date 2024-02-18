@@ -6,85 +6,90 @@ import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.telemetry.tunable.TunableTelemetryPIDController;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
+import frc.robot.telemetry.types.EventTelemetryEntry;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkFlex;
 import frc.robot.utils.Alert;
+import frc.robot.utils.Alert.AlertType;
 import frc.robot.utils.RaiderUtils;
 
 public class ShooterSubsystem extends SubsystemBase {
-  // TODO I have no clue what the final cad looks like so these are all arbitrary
+  private static final Alert flywheelMotorAlert =
+      new Alert("Shooter motor had a fault initializing", AlertType.ERROR);
 
-  private Alert topFlyAlert;
-
-  private final TelemetryCANSparkFlex topFly =
+  private final TelemetryCANSparkFlex flywheelMotor =
       new TelemetryCANSparkFlex(
-          SHOOTER_ID, CANSparkLowLevel.MotorType.kBrushless, "/shooter/top", true);
+          SHOOTER_ID, CANSparkLowLevel.MotorType.kBrushless, "/shooter/motor", true);
 
-  private RelativeEncoder topFlyEncoder;
-  private final SimpleMotorFeedforward FF =
-      new SimpleMotorFeedforward(
-          SHOOTER_FF_GAINS.sFF.get(), SHOOTER_FF_GAINS.sFF.get(), SHOOTER_FF_GAINS.vFF.get());
+  private RelativeEncoder flywheelEncoder;
+
+  private final TunableTelemetryPIDController pidController =
+      new TunableTelemetryPIDController("/shooter/pid", SHOOTER_PID_GAINS);
+  private final SimpleMotorFeedforward feedforward = SHOOTER_FF_GAINS.createFeedforward();
 
   private final DoubleTelemetryEntry topFlyVoltageReq =
       new DoubleTelemetryEntry("/shooter/topVoltage", false);
-  private final DoubleTelemetryEntry bottomFlyVoltageReq =
-      new DoubleTelemetryEntry("/shooter/bottomVoltage", false);
-
-  private final DigitalInput shooterFrisbeeSensor = new DigitalInput(SHOOTER_SENSOR);
+  private final EventTelemetryEntry shooterEventEntry = new EventTelemetryEntry("/shooter/events");
 
   public ShooterSubsystem() {
-    topFlyAlert = new Alert("Shooter: ", Alert.AlertType.ERROR);
     configMotor();
   }
 
   public void configMotor() {
-    topFlyEncoder = topFly.getEncoder();
-    boolean faultInitializing = false;
-    faultInitializing |=
+    flywheelEncoder = flywheelMotor.getEncoder();
+    boolean faultInitializing =
         RaiderUtils.applyAndCheckRev(
-            () -> topFly.setCANTimeout(250),
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            topFly::restoreFactoryDefaults,
+            () -> flywheelMotor.setCANTimeout(250),
             () -> true,
             Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     faultInitializing |=
         RaiderUtils.applyAndCheckRev(
-            () -> topFly.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
+            flywheelMotor::restoreFactoryDefaults,
             () -> true,
             Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     faultInitializing |=
         RaiderUtils.applyAndCheckRev(
-            () -> topFly.setIdleMode(CANSparkMax.IdleMode.kCoast),
-            () -> topFly.getIdleMode() == CANSparkMax.IdleMode.kCoast,
+            () -> flywheelMotor.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
+            () -> true,
             Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-
     faultInitializing |=
         RaiderUtils.applyAndCheckRev(
-            topFly::burnFlashWithDelay, () -> true, Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+            () -> flywheelMotor.setIdleMode(CANSparkMax.IdleMode.kCoast),
+            () -> flywheelMotor.getIdleMode() == CANSparkMax.IdleMode.kCoast,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> flywheelEncoder.setPositionConversionFactor(1.0 / SHOOTER_GEAR_RATIO),
+            () -> flywheelEncoder.getPositionConversionFactor() == 1.0 / SHOOTER_GEAR_RATIO,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> flywheelEncoder.setVelocityConversionFactor(1.0 / SHOOTER_GEAR_RATIO / 60),
+            () -> flywheelEncoder.getVelocityConversionFactor() == 1.0 / SHOOTER_GEAR_RATIO / 60,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            flywheelMotor::burnFlashWithDelay,
+            () -> true,
+            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    topFlyAlert.set(faultInitializing);
+    shooterEventEntry.append(
+        "Shooter motor initialized" + (faultInitializing ? " with faults" : ""));
+    flywheelMotorAlert.set(faultInitializing);
   }
 
   public void setFlyVoltage(double voltage) {
-    topFly.setVoltage(voltage);
+    flywheelMotor.setVoltage(voltage);
   }
 
   public void setRPM(double rpm) {
-    double forwardVol = FF.calculate(rpm);
+    double forwardVol = feedforward.calculate(rpm);
 
     setFlyVoltage(forwardVol);
-  }
-
-  public boolean AtSensor() {
-    return shooterFrisbeeSensor.get();
   }
 
   public Command runFlyRPM(double RPM) {

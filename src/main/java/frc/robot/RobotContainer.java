@@ -44,13 +44,13 @@ import java.util.function.DoubleSupplier;
  */
 public class RobotContainer {
   private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
+  private final SwerveDriveSubsystem driveSubsystem =
+      new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final WristSubsystem wristSubsystem = new WristSubsystem();
   private final TransportSubsystem transportSubsystem = new TransportSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-  private final SwerveDriveSubsystem driveSubsystem =
-      new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
   private final SlapdownSubsystem slapdownSubsystem = new SlapdownSubsystem();
 
   private final CommandNintendoSwitchController driverController =
@@ -67,7 +67,6 @@ public class RobotContainer {
     configureAutos();
 
     SmartDashboard.putData("Music", OrchestraInstance.playCommand("song1.chrp"));
-
     SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
   }
 
@@ -204,7 +203,6 @@ public class RobotContainer {
             .beforeStarting(resetRateLimiters));
 
     SmartDashboard.putData("Drive Style", driveCommandChooser);
-
     evaluateDriveStyle(driveCommandChooser.getSelected());
     new Trigger(driveCommandChooser::hasNewValue)
         .onTrue(

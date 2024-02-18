@@ -42,6 +42,16 @@ public class RaiderUtils {
     return signal.setUpdateFrequency(signal.getAppliedUpdateFrequency());
   }
 
+  public static boolean applyAndCheck(Runnable apply, BooleanSupplier check, int attempts) {
+    return applyAndCheck(
+        () -> {
+          apply.run();
+          return true;
+        },
+        check,
+        attempts);
+  }
+
   public static boolean applyAndCheck(BooleanSupplier apply, BooleanSupplier check, int attempts) {
     for (int i = 0; i < attempts; i++) {
       if (apply.getAsBoolean() && check.getAsBoolean()) {

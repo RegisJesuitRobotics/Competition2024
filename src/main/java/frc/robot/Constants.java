@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import frc.robot.telemetry.tunable.gains.TunableArmFFGains;
 import frc.robot.telemetry.tunable.gains.TunableFFGains;
 import frc.robot.telemetry.tunable.gains.TunablePIDGains;
 import frc.robot.telemetry.tunable.gains.TunableTrapezoidalProfileGains;
@@ -16,20 +17,30 @@ import frc.robot.utils.SwerveModuleConfiguration.SharedSwerveModuleConfiguration
 public final class Constants {
   private Constants() {}
 
+  public static class ScoringConstants {
+    public static final double AMP_ELEVATOR_HEIGHT = Units.inchesToMeters(3.5);
+    public static final double AMP_WRIST_ANGLE = Units.degreesToRadians(110.0);
+  }
+
   public static class IntakeConstants {
-    public static final int INTAKE_SENSOR_ID = 11;
     public static final int INTAKE_VOLTAGE = 3;
     public static final int INTAKE_MOTOR_ID = 15;
+
+    public static final int STALL_MOTOR_CURRENT = 40;
+    public static final int FREE_MOTOR_CURRENT = 20;
   }
 
   public static class SlapdownConstants {
 
     public static final int FEEDER_MOTOR_ID = 16;
     public static final int ROTATION_MOTOR_ID = 17;
-    public static final double ROTATION_GEAR_RATIO = 5.0 * 3.0;
+    public static final double ROTATION_GEAR_RATIO = 5.0 * 3.0 * 30.0 / 15.0;
 
-    public static final int STALL_MOTOR_CURRENT = 45;
-    public static final int FREE_MOTOR_CURRENT = 25;
+    public static final int FEED_STALL_MOTOR_CURRENT = 20;
+    public static final int FEED_FREE_MOTOR_CURRENT = 10;
+
+    public static final int ROTATION_STALL_MOTOR_CURRENT = 20;
+    public static final int ROTATION_FREE_MOTOR_CURRENT = 10;
 
     public static final TunablePIDGains ROTATION_GAINS =
         new TunablePIDGains("/Slapdown/rotation/gains", 0, 0, 0, true);
@@ -39,39 +50,33 @@ public final class Constants {
         new TunableFFGains("/Slapdown/rotation/FFGains", 0, 0, 0, true);
   }
 
-  public static final double DT = 0.02;
-
   public static class ElevatorConstants {
+    public static final boolean ELEVATOR_INVERTED = false;
 
-    public static final double ELEVATOR_MAX = 12;
-    public static final double ELEVATOR_MIN = 0;
-
-    public static final double ELEVATOR_AMP_POS = Units.inchesToMeters(20);
+    public static final double ELEVATOR_MAX_HEIGHT = Units.inchesToMeters(11.5);
+    public static final double ELEVATOR_MIN_HEIGHT = Units.inchesToMeters(0.0);
 
     // TODO: Figure these out
-    public static final double PEAK_CURRENT_LMIT = 45;
-    public static final double CONTINUOUS_CURRENT_LIMIT = 25;
-    public static final double PEAK_CURRENT_LIMIT_SECONDS = 0.2;
+    public static final int STALL_MOTOR_CURRENT = 45;
+    public static final int FREE_MOTOR_CURRENT = 25;
 
-    public static final int ODOMETRY_FREQUENCY = 250;
-    public static final boolean TUNING_MODE = true;
-
-    public static final int LEFT_ELEVATOR_MOTOR = 14;
+    public static final int ELEVATOR_MOTOR_ID = 14;
 
     public static final int ELEVATOR_LIMIT_SWITCH = 2;
-    public static final double ELEVATOR_GEAR_RATIO = 5.0 * 3.0;
 
-    public static final double METERS_PER_REV = Units.inchesToMeters((Math.PI * 1.75) / 15);
+    public static final double ELEVATOR_GEAR_RATIO = 5.0 * 3.0;
+    public static final double METERS_PER_REV =
+        Units.inchesToMeters((Math.PI * 1.75) / (ELEVATOR_GEAR_RATIO));
 
     // TODO: Do These PID GAINS
     public static final TunablePIDGains PID_GAINS =
-        new TunablePIDGains("gains/elevator", 0, 0, 0, TUNING_MODE);
+        new TunablePIDGains("gains/elevator", 0, 0, 0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
-        new TunableTrapezoidalProfileGains("/gains/extension", 0.5, 0.6, TUNING_MODE);
+        new TunableTrapezoidalProfileGains("/gains/extension", 0.5, 0.6, MiscConstants.TUNING_MODE);
 
     // TODO: TUNE FF GAINS
     public static final TunableFFGains FF_GAINS =
-        new TunableFFGains("gains/elevator", 0, 0, 0, TUNING_MODE);
+        new TunableFFGains("gains/elevator", 0, 0, 0, MiscConstants.TUNING_MODE);
   }
 
   public static class SwerveConstants {
@@ -122,7 +127,7 @@ public final class Constants {
 
     public static final int ODOMETRY_FREQUENCY = 250;
 
-    public static final String CAN_BUS = "rio";
+    public static final String CAN_BUS = "canivore";
     private static final SharedSwerveModuleConfiguration SHARED_SWERVE_MODULE_CONFIGURATION =
         new SharedSwerveModuleConfiguration(
             CAN_BUS,
@@ -184,34 +189,29 @@ public final class Constants {
 
   public static class WristConstants {
 
-    public static final double WRIST_GEAR_RATIO = 18.0 / (25.0 * 42.0);
+    public static final double WRIST_GEAR_RATIO = 25.0 * 42.0 / 18.0;
 
-    public static final boolean TUNING_MODE = true;
     public static final Rotation2d WRIST_AMP_POSITION = new Rotation2d(Units.degreesToRadians(55));
 
     // TODO FIND WRIST CLAMPS
-
     public static final Rotation2d WRIST_MAX = new Rotation2d(Units.degreesToRadians(60));
     public static final Rotation2d WRIST_MIN = new Rotation2d(0);
 
-    public static final int WRIST_ENCODER_ID_A = 10;
-    public static final int WRIST_SWITCH_ID = 12;
     public static final int WRIST_MOTOR_ID = 11;
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
 
     // TODO: TUNE PID & TRAP & FF
-    public static final TunableFFGains WRIST_FF_GAINS =
-        new TunableFFGains("/wrist/FFGAINS", 0, 0, 0, TUNING_MODE);
+    public static final TunableArmFFGains WRIST_FF_GAINS =
+        new TunableArmFFGains("/wrist/ffGains", 0, 0, 0, 0, MiscConstants.TUNING_MODE);
     public static final TunablePIDGains WRIST_PID_GAINS =
-        new TunablePIDGains("/wrist/pidGains", 0, 0, 0, TUNING_MODE);
+        new TunablePIDGains("/wrist/pidGains", 0, 0, 0, MiscConstants.TUNING_MODE);
 
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
-        new TunableTrapezoidalProfileGains("/wrist/trapGains", 0, 0, TUNING_MODE);
+        new TunableTrapezoidalProfileGains("/wrist/trapGains", 0, 0, MiscConstants.TUNING_MODE);
   }
 
   public static class TransportConstants {
-    public static final boolean TUNING_MODE = false;
     public static final int TRANSPORT_MOTOR_ID = 0;
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
@@ -219,22 +219,23 @@ public final class Constants {
   }
 
   public static class ShooterConstants {
-
     public static final int FREE_MOTOR_CURRENT = 25;
     public static final int STALL_MOTOR_CURRENT = 45;
 
     public static final int SHOOTER_ID = 18;
-
-    public static final int SHOOTER_SENSOR = 9;
 
     public static final double SHOOTING_RPM = 3000.0;
 
     public static final Rotation2d SHOOTING_ANGLE =
         new Rotation2d(Units.degreesToRadians(10)); // TODO: Implement Ollies stuff
 
+    public static final double SHOOTER_GEAR_RATIO = 1.0 / 2.0;
+
     // TODO TUNE FF GAINS
+    public static TunablePIDGains SHOOTER_PID_GAINS =
+        new TunablePIDGains("/shooter/pid", 0, 0, 0, MiscConstants.TUNING_MODE);
     public static TunableFFGains SHOOTER_FF_GAINS =
-        new TunableFFGains("/shooter/FF", 0, 0, 0, true);
+        new TunableFFGains("/shooter/FF", 0, 0, 0, MiscConstants.TUNING_MODE);
   }
 
   public static class TeleopConstants {
@@ -252,20 +253,19 @@ public final class Constants {
 
     public static final Transform3d ROBOT_TO_CAM =
         new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0));
-
-    public static final double POSE_AMBIGUITY_CUTOFF = 0.05;
-    public static final double DISTANCE_CUTOFF = 4.0;
   }
 
   public static class MiscConstants {
 
     private MiscConstants() {}
 
-    public static final int[] USED_CONTROLLER_PORTS = {0};
+    public static final int[] USED_CONTROLLER_PORTS = {0, 1};
     public static final boolean TUNING_MODE = true;
 
-    public static final ModuleType POWER_MODULE_TYPE = ModuleType.kCTRE;
+    public static final ModuleType POWER_MODULE_TYPE = ModuleType.kRev;
     public static final int POWER_MODULE_ID = 0;
     public static final int CONFIGURATION_ATTEMPTS = 5;
   }
+
+  public static final double DT = 0.02;
 }

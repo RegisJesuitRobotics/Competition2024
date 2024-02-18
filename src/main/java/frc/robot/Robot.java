@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
 
   private TelemetryPowerDistribution powerDistribution;
   private MiscRobotTelemetryAndAlerts miscRobotTelemetryAndAlerts;
-  //    private OverrunAlertManager overrunAlertManager;
+
   public Robot() {
     instance = this;
     startTime = Timer.getFPGATimestamp();
@@ -62,7 +62,6 @@ public class Robot extends TimedRobot {
         new TelemetryPowerDistribution(
             MiscConstants.POWER_MODULE_ID, MiscConstants.POWER_MODULE_TYPE);
     miscRobotTelemetryAndAlerts = new MiscRobotTelemetryAndAlerts();
-    //        overrunAlertManager = new OverrunAlertManager();
 
     robotContainer = new RobotContainer();
 
@@ -78,8 +77,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    //        overrunAlertManager.update(super.didLastLoopOverrun);
-
     CommandScheduler.getInstance().run();
 
     miscRobotTelemetryAndAlerts.logValues();

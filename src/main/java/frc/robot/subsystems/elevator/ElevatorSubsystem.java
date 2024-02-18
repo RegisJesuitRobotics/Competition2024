@@ -2,31 +2,28 @@ package frc.robot.subsystems.elevator;
 
 import static frc.robot.Constants.ElevatorConstants.*;
 
-import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
-import frc.robot.telemetry.wrappers.TelemetryTalonFX;
+import frc.robot.telemetry.types.EventTelemetryEntry;
+import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.utils.Alert;
 import frc.robot.utils.RaiderUtils;
 
 public class ElevatorSubsystem extends SubsystemBase {
+  private static final Alert elevatorAlert =
+      new Alert("Elevator motor had a fault initializing", Alert.AlertType.ERROR);
 
-  public static int instances = 0;
-
-  private final Alert leftMotorFaultAlert, rightMotorFaultAlert;
-  private StatusSignal<Double> leftPositionSignal, leftVelocitySignal;
-  private StatusSignal<Double> rightPositionSignal, rightVelocitySignal;
-  private final TelemetryTalonFX leftMotor =
-      new TelemetryTalonFX(ElevatorConstants.LEFT_ELEVATOR_MOTOR, "elevator/left", true);
+  private final TelemetryCANSparkMax elevatorMotor =
+      new TelemetryCANSparkMax(ELEVATOR_MOTOR_ID, MotorType.kBrushless, "/elevator/motor", true);
 
   private final TunableTelemetryProfiledPIDController controller =
       new TunableTelemetryProfiledPIDController(
@@ -34,47 +31,56 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   private SimpleMotorFeedforward feedforward = FF_GAINS.createFeedforward();
 
+  private final RelativeEncoder elevatorEncoder = elevatorMotor.getEncoder();
   private final DigitalInput bottomLimit = new DigitalInput(ELEVATOR_LIMIT_SWITCH);
 
+  private final EventTelemetryEntry elevatorEventEntry =
+      new EventTelemetryEntry("/elevator/events");
+
   public ElevatorSubsystem() {
-    int instanceID = instances++;
-    leftMotorFaultAlert = new Alert("Module " + instanceID + ": ", Alert.AlertType.ERROR);
-    rightMotorFaultAlert = new Alert("Module " + instanceID + ": ", Alert.AlertType.ERROR);
     configMotors();
   }
 
   private void configMotors() {
-    TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
-    motorConfiguration.CurrentLimits.SupplyCurrentLimit = CONTINUOUS_CURRENT_LIMIT;
-    motorConfiguration.CurrentLimits.SupplyCurrentThreshold = PEAK_CURRENT_LMIT;
-    motorConfiguration.CurrentLimits.SupplyTimeThreshold = PEAK_CURRENT_LIMIT_SECONDS;
-    motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
-    motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    boolean faultInitializing =
+        RaiderUtils.applyAndCheckRev(
+            () -> elevatorMotor.setCANTimeout(250),
+            () -> true,
+            MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            elevatorMotor::restoreFactoryDefaults,
+            () -> true,
+            MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheck(
+            () -> elevatorMotor.setInverted(ELEVATOR_INVERTED),
+            () -> elevatorMotor.getInverted() == ELEVATOR_INVERTED,
+            MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> elevatorMotor.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
+            () -> true,
+            MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> elevatorMotor.setIdleMode(IdleMode.kBrake),
+            () -> true,
+            MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> elevatorEncoder.setPositionConversionFactor(METERS_PER_REV),
+            () -> elevatorEncoder.getPositionConversionFactor() == METERS_PER_REV,
+            MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |=
+        RaiderUtils.applyAndCheckRev(
+            () -> elevatorEncoder.setVelocityConversionFactor(METERS_PER_REV / 60),
+            () -> elevatorEncoder.getVelocityConversionFactor() == METERS_PER_REV / 60,
+            MiscConstants.CONFIGURATION_ATTEMPTS);
+    faultInitializing |= RaiderUtils.applyAndCheckRev(elevatorMotor::burnFlashWithDelay, () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    leftPositionSignal = leftMotor.getPosition();
-    leftVelocitySignal = leftMotor.getVelocity();
-
-    boolean faultInitializingLeft = false;
-
-    double conversionFactor = METERS_PER_REV / ELEVATOR_GEAR_RATIO;
-
-    faultInitializingLeft |=
-        RaiderUtils.applyAndCheckCTRE(
-            () -> leftMotor.getConfigurator().apply(motorConfiguration),
-            () -> {
-              TalonFXConfiguration appliedConfig = new TalonFXConfiguration();
-              leftMotor.getConfigurator().refresh(appliedConfig);
-              return appliedConfig.equals(motorConfiguration);
-            },
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    leftMotor.hasResetOccurred();
-
-    leftMotor.setLoggingPositionConversionFactor(conversionFactor);
-
-    leftMotor.setLoggingVelocityConversionFactor(conversionFactor / 60);
-
-    leftMotorFaultAlert.set(faultInitializingLeft);
+    elevatorEventEntry.append("Elevator motor initialized" + (faultInitializing ? " with faults" : ""));
+    elevatorAlert.set(faultInitializing);
   }
 
   public void atBottomLimit() {
@@ -111,7 +117,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public Command runElevatorCommand(double voltage) {
     voltage = MathUtil.clamp(voltage, -0.5, 0.5);
 
-    if (getPosition() > ELEVATOR_MIN && getPosition() < ELEVATOR_MAX) {
+    if (getPosition() > ELEVATOR_MIN_HEIGHT && getPosition() < ELEVATOR_MAX_HEIGHT) {
       double finalVoltage = voltage;
       return this.runEnd(() -> this.setVoltage(finalVoltage), () -> this.setVoltage(0));
 
