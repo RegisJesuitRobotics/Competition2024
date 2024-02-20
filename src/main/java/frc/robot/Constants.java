@@ -255,6 +255,15 @@ public final class Constants {
             MiscConstants.TUNING_MODE);
   }
 
+  public static class ClimberConstants {
+    public static final int CLIMBER_MOTOR_ID = 16;
+    public static final boolean INVERTED = false;
+
+    public static final double SUPPLY_CURRENT_LIMIT = 65;
+    public static final double SUPPLY_CURRENT_THRESHOLD = 40;
+    public static final double SUPPLY_TIME_THRESHOLD = 0.0;
+  }
+
   public static class TeleopConstants {
     private TeleopConstants() {}
 

@@ -41,6 +41,7 @@ public class TransportSubsystem extends SubsystemBase {
 
   public TransportSubsystem() {
     configMotor();
+    setDefaultCommand(setVoltageCommand(0.0));
   }
 
   public void configMotor() {
@@ -92,6 +93,10 @@ public class TransportSubsystem extends SubsystemBase {
     return this.startEnd(
         () -> this.runShooterTransportVoltage(TRANSPORT_VOLTAGE),
         () -> this.runShooterTransportVoltage(0));
+  }
+
+  public Command setVoltageCommand(double voltage) {
+    return this.run(() -> this.runShooterTransportVoltage(voltage));
   }
 
   @Override

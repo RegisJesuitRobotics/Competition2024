@@ -57,6 +57,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public ElevatorSubsystem() {
     configMotors();
+
+    setDefaultCommand(setVoltageCommand(0.0));
   }
 
   private void configMotors() {
@@ -156,6 +158,10 @@ public class ElevatorSubsystem extends SubsystemBase {
               controller.reset(getPosition(), elevatorEncoder.getVelocity());
               controller.setGoal(position);
             });
+  }
+
+  public Command setVoltageCommand(double voltage) {
+    return this.run(() -> setVoltage(voltage));
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {

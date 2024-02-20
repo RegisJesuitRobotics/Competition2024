@@ -63,6 +63,8 @@ public class SlapdownSubsystem extends SubsystemBase {
     rotationEncoder = rotationMotor.getEncoder();
     rotationFF = ROTATION_FF_GAINS.createFeedforward();
     configMotors();
+
+    setDefaultCommand(stopAllCommand());
   }
 
   private void configMotors() {
@@ -212,6 +214,14 @@ public class SlapdownSubsystem extends SubsystemBase {
 
   public Command setFeederVoltageCommand(double voltage) {
     return this.run(() -> this.setFeederVoltage(voltage));
+  }
+
+  public Command stopAllCommand() {
+    return this.run(
+        () -> {
+          this.setRotationVoltage(0.0);
+          this.setFeederVoltage(0.0);
+        });
   }
 
   @Override
