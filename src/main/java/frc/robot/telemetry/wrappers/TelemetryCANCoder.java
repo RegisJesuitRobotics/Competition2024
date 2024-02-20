@@ -24,6 +24,9 @@ public class TelemetryCANCoder extends CANcoder {
   private final IntegerTelemetryEntry faultEntry;
   private final IntegerTelemetryEntry stickyFaultEntry;
 
+  private double loggingPositionConversionFactor = 1.0;
+  private double loggingVelocityConversionFactor = 1.0;
+
   public TelemetryCANCoder(int deviceId, String telemetryPath, boolean tuningMode) {
     this(deviceId, telemetryPath, "", tuningMode);
   }
@@ -50,6 +53,14 @@ public class TelemetryCANCoder extends CANcoder {
     stickyFaultEntry = new IntegerTelemetryEntry(telemetryPath + "stickyFaults", tuningMode);
   }
 
+  public void setLoggingPositionConversionFactor(double factor) {
+    loggingPositionConversionFactor = factor;
+  }
+
+  public void setLoggingVelocityConversionFactor(double factor) {
+    loggingVelocityConversionFactor = factor;
+  }
+
   public void logValues() {
     BaseStatusSignal.refreshAll(
         positionSignal,
@@ -60,9 +71,9 @@ public class TelemetryCANCoder extends CANcoder {
         faultSignal,
         stickyFaultSignal);
 
-    positionEntry.append(positionSignal.getValue());
-    velocityEntry.append(velocitySignal.getValue());
-    absolutePositionEntry.append(absolutePositionSignal.getValue());
+    positionEntry.append(positionSignal.getValue() * loggingPositionConversionFactor);
+    velocityEntry.append(velocitySignal.getValue() * loggingVelocityConversionFactor);
+    absolutePositionEntry.append(absolutePositionSignal.getValue() * loggingPositionConversionFactor);
     supplyVoltageEntry.append(supplyVoltageSignal.getValue());
     magnetHealthEntry.append(magnetHealthSignal.getValue().value);
     faultEntry.append(faultSignal.getValue());

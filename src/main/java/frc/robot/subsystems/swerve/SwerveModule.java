@@ -369,6 +369,9 @@ public class SwerveModule {
         "Steer encoder module " + instanceId,
         faultRecorder.getFaultString());
     steerEncoderFaultAlert.set(faultRecorder.hasFault());
+
+    absoluteSteerEncoder.setLoggingPositionConversionFactor(Math.PI * 2);
+    absoluteSteerEncoder.setLoggingVelocityConversionFactor(Math.PI * 2);
   }
 
   private void checkForSteerMotorReset() {
