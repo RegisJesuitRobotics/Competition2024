@@ -9,6 +9,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.MiscConstants;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.EventTelemetryEntry;
 import frc.robot.telemetry.wrappers.TelemetryTalonFX;
@@ -18,7 +19,8 @@ import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
 
 public class ClimberSubsystem extends SubsystemBase {
   private final TelemetryTalonFX climberMotor =
-      new TelemetryTalonFX(CLIMBER_MOTOR_ID, "/climber/motor", MiscConstants.TUNING_MODE);
+      new TelemetryTalonFX(
+          CLIMBER_MOTOR_ID, "/climber/motor", SwerveConstants.CAN_BUS, MiscConstants.TUNING_MODE);
   private final EventTelemetryEntry eventEntry = new EventTelemetryEntry("/climber/events");
   private final DoubleTelemetryEntry voltageReqEntry =
       new DoubleTelemetryEntry("/climber/voltageReq", MiscConstants.TUNING_MODE);
