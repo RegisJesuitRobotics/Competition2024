@@ -2,7 +2,6 @@ package frc.robot;
 
 import static frc.robot.Autos.nearestAmpCommand;
 import static frc.robot.Constants.ShooterConstants.*;
-import static frc.robot.subsystems.swerve.SwerveDriveSubsystem.getDistanceToStaging;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -21,14 +20,12 @@ import frc.robot.Constants.TeleopConstants;
 import frc.robot.commands.drive.LockModulesCommand;
 import frc.robot.commands.drive.teleop.SwerveDriveCommand;
 import frc.robot.commands.elevator.AmpPlaceCommand;
-import frc.robot.commands.intake.intakeSlapCommand;
 import frc.robot.commands.shooter.ShootAtAngleCommand;
 import frc.robot.commands.wrist.IntakeToShooterCommand;
 import frc.robot.hid.CommandNintendoSwitchController;
 import frc.robot.hid.CommandXboxPlaystationController;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.photon.PhotonSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.slapdown.SlapdownSubsystem;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
@@ -36,7 +33,6 @@ import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.telemetry.tunable.gains.TunableDouble;
 import frc.robot.utils.*;
-
 import java.util.List;
 import java.util.function.DoubleSupplier;
 
@@ -47,12 +43,14 @@ import java.util.function.DoubleSupplier;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-//  private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
-//  private final SwerveDriveSubsystem driveSubsystem =
-//      new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
-  private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem((pose) -> {
-    return List.of();
-});
+  //  private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
+  //  private final SwerveDriveSubsystem driveSubsystem =
+  //      new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
+  private final SwerveDriveSubsystem driveSubsystem =
+      new SwerveDriveSubsystem(
+          (pose) -> {
+            return List.of();
+          });
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final WristSubsystem wristSubsystem = new WristSubsystem();
@@ -61,7 +59,6 @@ public class RobotContainer {
   private final SlapdownSubsystem slapdownSubsystem = new SlapdownSubsystem();
 
   private final SendableChooser<Command> autoCommand = new SendableChooser<>();
-
 
   private final CommandNintendoSwitchController driverController =
       new CommandNintendoSwitchController(0);
@@ -77,31 +74,62 @@ public class RobotContainer {
     configureAutos();
 
     SmartDashboard.putData("Music", OrchestraInstance.playCommand("song1.chrp"));
+    SmartDashboard.putData("Alerts", Alert.getDefaultGroup());
     SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
   }
 
   private void configureAutos() {
-    autoCommand.addOption("Elevator Quastatic Forward", elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption("Elevator Quastatic Backward", elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoCommand.addOption("Elevator Dynamic Forward", elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption("Elevator Dynamic Backward", elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    autoCommand.addOption("Elevator Test Command 2 in", elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(2)));
-    autoCommand.addOption("Elevator Test Command 4 in", elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(4)));
-    autoCommand.addOption("Elevator Test Command 8 in", elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(8)));
-    autoCommand.addOption("Intake Test Command", intakeSubsystem.setIntakeVoltageCommand(Constants.IntakeConstants.INTAKE_VOLTAGE));
+    autoCommand.addOption(
+        "Elevator Quastatic Forward",
+        elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption(
+        "Elevator Quastatic Backward",
+        elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoCommand.addOption(
+        "Elevator Dynamic Forward",
+        elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption(
+        "Elevator Dynamic Backward",
+        elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoCommand.addOption(
+        "Elevator Test Command 2 in",
+        elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(2)));
+    autoCommand.addOption(
+        "Elevator Test Command 4 in",
+        elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(4)));
+    autoCommand.addOption(
+        "Elevator Test Command 8 in",
+        elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(8)));
+    autoCommand.addOption(
+        "Intake Test Command",
+        intakeSubsystem.setIntakeVoltageCommand(Constants.IntakeConstants.INTAKE_VOLTAGE));
     autoCommand.addOption("Shooter Test Command 4000", shooterSubsystem.runVelocityCommand(100));
     autoCommand.addOption("Slap Feed", slapdownSubsystem.setFeederVoltageCommand(5));
-    autoCommand.addOption("Intake feed", Commands.parallel(slapdownSubsystem.setFeederVoltageCommand(5), intakeSubsystem.setIntakeVoltageCommand(Constants.IntakeConstants.INTAKE_VOLTAGE)));
-    autoCommand.addOption("Shooter Quastatic Forward Command", shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption("Shooter Quastatic Backward Command", shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoCommand.addOption("Shooter Dynamic Forward Command", shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption("Shooter Dynamic Backward Command", shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-
-
-    autoCommand.addOption("Intake To Shooter", new IntakeToShooterCommand(elevatorSubsystem, intakeSubsystem, wristSubsystem, transportSubsystem, shooterSubsystem));
-
-
+    autoCommand.addOption(
+        "Intake feed",
+        Commands.parallel(
+            slapdownSubsystem.setFeederVoltageCommand(5),
+            intakeSubsystem.setIntakeVoltageCommand(Constants.IntakeConstants.INTAKE_VOLTAGE)));
+    autoCommand.addOption(
+        "Shooter Quastatic Forward Command",
+        shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption(
+        "Shooter Quastatic Backward Command",
+        shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoCommand.addOption(
+        "Shooter Dynamic Forward Command",
+        shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption(
+        "Shooter Dynamic Backward Command",
+        shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoCommand.addOption(
+        "Intake To Shooter",
+        new IntakeToShooterCommand(
+            elevatorSubsystem,
+            intakeSubsystem,
+            wristSubsystem,
+            transportSubsystem,
+            shooterSubsystem));
 
     SmartDashboard.putData("Auto", autoCommand);
   }
@@ -116,10 +144,10 @@ public class RobotContainer {
                 .withName("ZeroHeading"));
     driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
 
-//    driverController
-//        .povLeft()
-//        .and(getDistanceToStaging(DriverStation.getAlliance().get(), driveSubsystem))
-//        .onTrue(nearestClimberCommand(DriverStation.getAlliance().get(), driveSubsystem));
+    //    driverController
+    //        .povLeft()
+    //        .and(getDistanceToStaging(DriverStation.getAlliance().get(), driveSubsystem))
+    //        .onTrue(nearestClimberCommand(DriverStation.getAlliance().get(), driveSubsystem));
     driverController
         .povRight()
         .onTrue(nearestAmpCommand(DriverStation.getAlliance().get(), driveSubsystem));
@@ -148,9 +176,9 @@ public class RobotContainer {
                 transportSubsystem,
                 shooterSubsystem));
 
-//    operatorController
-//        .rightStick()
-//        .whileTrue(elevatorSubsystem.runElevatorCommand(operatorController.getRightY()));
+    //    operatorController
+    //        .rightStick()
+    //        .whileTrue(elevatorSubsystem.runElevatorCommand(operatorController.getRightY()));
     operatorController
         .rightTrigger()
         .onTrue(
@@ -260,7 +288,6 @@ public class RobotContainer {
       oldCommand.cancel();
     }
   }
-
 
   public Command getAutonomousCommand() {
     return autoCommand.getSelected();

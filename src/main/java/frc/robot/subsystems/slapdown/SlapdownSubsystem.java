@@ -16,10 +16,10 @@ import frc.robot.Constants;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.EventTelemetryEntry;
-import frc.robot.telemetry.wrappers.TelemetryCANSparkFlex;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.utils.Alert;
-import frc.robot.utils.RaiderUtils;
+import frc.robot.utils.ConfigurationUtils;
+import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
 
 public class SlapdownSubsystem extends SubsystemBase {
 
@@ -28,16 +28,20 @@ public class SlapdownSubsystem extends SubsystemBase {
   private static final Alert feederMotorAlert =
       new Alert("Slapdown feeder motor had a fault initializing", Alert.AlertType.ERROR);
 
-  private DoubleTelemetryEntry rotationEncoderEntry = new DoubleTelemetryEntry("/slapdown/encoders", true);
+  private DoubleTelemetryEntry rotationEncoderEntry =
+      new DoubleTelemetryEntry("/slapdown/encoders", true);
   private final TelemetryCANSparkMax feederMotor =
       new TelemetryCANSparkMax(
-          FEEDER_MOTOR_ID, MotorType.kBrushless, "/slapdown/feeder/motor", Constants.MiscConstants.TUNING_MODE);
+          FEEDER_MOTOR_ID,
+          MotorType.kBrushless,
+          "/slapdown/feeder/motor",
+          Constants.MiscConstants.TUNING_MODE);
   private final TelemetryCANSparkMax rotationMotor =
       new TelemetryCANSparkMax(
           ROTATION_MOTOR_ID,
           MotorType.kBrushless,
           "/slapdown/rotation/motor",
-              Constants.MiscConstants.TUNING_MODE);
+          Constants.MiscConstants.TUNING_MODE);
   private final SysIdRoutine slapdownRotationSysId =
       new SysIdRoutine(
           new SysIdRoutine.Config(),
@@ -62,86 +66,107 @@ public class SlapdownSubsystem extends SubsystemBase {
   }
 
   private void configMotors() {
+    StringFaultRecorder rotationFaultRecorder = new StringFaultRecorder();
     double rotationConversionFactor = (2 * Math.PI) / ROTATION_GEAR_RATIO;
-    boolean rotationFaultInitializing =
-        RaiderUtils.applyAndCheckRev(
-            () -> rotationMotor.setCANTimeout(250),
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    rotationFaultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            rotationMotor::restoreFactoryDefaults,
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    rotationFaultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () ->
-                rotationMotor.setSmartCurrentLimit(
-                    ROTATION_STALL_MOTOR_CURRENT, ROTATION_FREE_MOTOR_CURRENT),
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    rotationFaultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> rotationMotor.setIdleMode(IdleMode.kBrake),
-            () -> rotationMotor.getIdleMode() == IdleMode.kBrake,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    rotationFaultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> rotationEncoder.setPositionConversionFactor(rotationConversionFactor),
-            () -> rotationEncoder.getPositionConversionFactor() == rotationConversionFactor,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    rotationFaultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> rotationEncoder.setVelocityConversionFactor(rotationConversionFactor / 60),
-            () -> rotationEncoder.getVelocityConversionFactor() == rotationConversionFactor / 60,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    rotationFaultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            rotationMotor::burnFlashWithDelay,
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> rotationMotor.setCANTimeout(250),
+        () -> true,
+        rotationFaultRecorder.run("CAN timeout"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        rotationMotor::restoreFactoryDefaults,
+        () -> true,
+        rotationFaultRecorder.run("Factory defaults"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () ->
+            rotationMotor.setSmartCurrentLimit(
+                ROTATION_STALL_MOTOR_CURRENT, ROTATION_FREE_MOTOR_CURRENT),
+        () -> true,
+        rotationFaultRecorder.run("Current limits"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> rotationMotor.setIdleMode(IdleMode.kBrake),
+        () -> rotationMotor.getIdleMode() == IdleMode.kBrake,
+        rotationFaultRecorder.run("Idle mode"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecord(
+        () -> rotationMotor.setInverted(ROTATION_INVERTED),
+        () -> rotationMotor.getInverted() == ROTATION_INVERTED,
+        rotationFaultRecorder.run("Invert"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> rotationEncoder.setPositionConversionFactor(rotationConversionFactor),
+        () -> rotationEncoder.getPositionConversionFactor() == rotationConversionFactor,
+        rotationFaultRecorder.run("Position conversion factor"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> rotationEncoder.setVelocityConversionFactor(rotationConversionFactor / 60),
+        () -> rotationEncoder.getVelocityConversionFactor() == rotationConversionFactor / 60,
+        rotationFaultRecorder.run("Velocity conversion factor"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        rotationMotor::burnFlashWithDelay,
+        () -> true,
+        rotationFaultRecorder.run("Burn flash"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    slapdownEventEntry.append(
-        "Slapdown rotation motor initialized" + (rotationFaultInitializing ? " with faults" : ""));
-    rotationMotorAlert.set(rotationFaultInitializing);
+    ConfigurationUtils.postDeviceConfig(
+        rotationFaultRecorder.hasFault(),
+        slapdownEventEntry::append,
+        "Slapdown rotation motor",
+        rotationFaultRecorder.getFaultString());
+    rotationMotorAlert.set(rotationFaultRecorder.hasFault());
 
-    boolean feederFaultInitializing =
-        RaiderUtils.applyAndCheckRev(
-            () -> feederMotor.setCANTimeout(250),
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    feederFaultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            feederMotor::restoreFactoryDefaults,
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    feederFaultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () ->
-                feederMotor.setSmartCurrentLimit(FEED_STALL_MOTOR_CURRENT, FEED_FREE_MOTOR_CURRENT),
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    feederFaultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> feederMotor.setIdleMode(IdleMode.kCoast),
-            () -> feederMotor.getIdleMode() == IdleMode.kCoast,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    feederFaultInitializing |=
-            RaiderUtils.applyAndCheck(
-                    () ->
-                            feederMotor.setInverted(true),
-                    () -> true,
-                    Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    double feederConversionFactor = (2 * Math.PI) / FEEDER_GEAR_RATIO;
+    StringFaultRecorder feederFaultRecorder = new StringFaultRecorder();
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> feederMotor.setCANTimeout(250),
+        () -> true,
+        feederFaultRecorder.run("CAN timeout"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        feederMotor::restoreFactoryDefaults,
+        () -> true,
+        feederFaultRecorder.run("Factory default"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> feederMotor.setSmartCurrentLimit(FEED_STALL_MOTOR_CURRENT, FEED_FREE_MOTOR_CURRENT),
+        () -> true,
+        feederFaultRecorder.run("Current limit"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> feederMotor.setIdleMode(IdleMode.kCoast),
+        () -> feederMotor.getIdleMode() == IdleMode.kCoast,
+        feederFaultRecorder.run("Idle mode"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecord(
+        () -> feederMotor.setInverted(FEEDER_INVERTED),
+        () -> feederMotor.getInverted() == FEEDER_INVERTED,
+        feederFaultRecorder.run("Invert"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> feederMotor.getEncoder().setPositionConversionFactor(feederConversionFactor),
+        () -> feederMotor.getEncoder().getPositionConversionFactor() == feederConversionFactor,
+        feederFaultRecorder.run("Position conversion factor"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> feederMotor.getEncoder().setVelocityConversionFactor(feederConversionFactor / 60),
+        () -> feederMotor.getEncoder().getVelocityConversionFactor() == feederConversionFactor / 60,
+        feederFaultRecorder.run("Velocity conversion factor"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        feederMotor::burnFlashWithDelay,
+        () -> true,
+        feederFaultRecorder.run("Burn flash"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    feederFaultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            feederMotor::burnFlashWithDelay,
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    slapdownEventEntry.append(
-        "Slapdown feeder motor initialized" + (feederFaultInitializing ? " with faults" : ""));
-    feederMotorAlert.set(feederFaultInitializing);
+    ConfigurationUtils.postDeviceConfig(
+        feederFaultRecorder.hasFault(),
+        slapdownEventEntry::append,
+        "Slapdown feeder motor",
+        feederFaultRecorder.getFaultString());
+    feederMotorAlert.set(feederFaultRecorder.hasFault());
   }
 
   public void setFeederVoltage(double voltage) {

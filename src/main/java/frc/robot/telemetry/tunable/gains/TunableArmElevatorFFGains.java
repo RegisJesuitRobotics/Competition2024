@@ -33,6 +33,7 @@ public class TunableArmElevatorFFGains {
   public ArmFeedforward createArmFeedforward() {
     return new ArmFeedforward(sFF.get(), gFF.get(), vFF.get(), aFF.get());
   }
+
   public ElevatorFeedforward createElevatorFeedforward() {
     return new ElevatorFeedforward(sFF.get(), gFF.get(), vFF.get(), aFF.get());
   }

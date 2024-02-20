@@ -15,7 +15,8 @@ import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.types.EventTelemetryEntry;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.utils.Alert;
-import frc.robot.utils.RaiderUtils;
+import frc.robot.utils.ConfigurationUtils;
+import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
 
 public class IntakeSubsystem extends SubsystemBase {
   private static final Alert intakeMotorAlert =
@@ -33,35 +34,44 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   private void configMotor() {
-    boolean faultInitializing = false;
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> intakeMotor.setCANTimeout(250),
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            intakeMotor::restoreFactoryDefaults,
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> intakeMotor.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> intakeMotor.setIdleMode(CANSparkMax.IdleMode.kCoast),
-            () -> intakeMotor.getIdleMode() == CANSparkMax.IdleMode.kCoast,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            intakeMotor::burnFlashWithDelay,
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    StringFaultRecorder faultRecorder = new StringFaultRecorder();
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> intakeMotor.setCANTimeout(250),
+        () -> true,
+        faultRecorder.run("CAN timeout"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        intakeMotor::restoreFactoryDefaults,
+        () -> true,
+        faultRecorder.run("Factory default"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> intakeMotor.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
+        () -> true,
+        faultRecorder.run("Current limit"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecord(
+        () -> intakeMotor.setInverted(INVERTED),
+        () -> intakeMotor.getInverted() == INVERTED,
+        faultRecorder.run("Invert"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> intakeMotor.setIdleMode(CANSparkMax.IdleMode.kCoast),
+        () -> intakeMotor.getIdleMode() == CANSparkMax.IdleMode.kCoast,
+        faultRecorder.run("Idle mode"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        intakeMotor::burnFlashWithDelay,
+        () -> true,
+        faultRecorder.run("Burn flash"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    intakeEventEntry.append("Intake motor initialized" + (faultInitializing ? " with faults" : ""));
-    intakeMotorAlert.set(faultInitializing);
+    ConfigurationUtils.postDeviceConfig(
+        faultRecorder.hasFault(),
+        intakeEventEntry::append,
+        "Intake motor",
+        faultRecorder.getFaultString());
+    intakeMotorAlert.set(faultRecorder.hasFault());
   }
 
   public void setIntakeVoltage(double voltage) {

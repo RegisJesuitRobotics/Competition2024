@@ -6,13 +6,8 @@ import static frc.robot.Constants.ElevatorConstants.*;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.Unit;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -24,9 +19,8 @@ import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.EventTelemetryEntry;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.utils.Alert;
-import frc.robot.utils.RaiderUtils;
-
-import java.sql.Time;
+import frc.robot.utils.ConfigurationUtils;
+import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
@@ -53,7 +47,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final RelativeEncoder elevatorEncoder = elevatorMotor.getEncoder();
   private final DigitalInput bottomLimit = new DigitalInput(ELEVATOR_LIMIT_SWITCH);
 
-  private final DoubleTelemetryEntry voltageReq = new DoubleTelemetryEntry("/elevator/voltageReq", MiscConstants.TUNING_MODE);
+  private final DoubleTelemetryEntry voltageReq =
+      new DoubleTelemetryEntry("/elevator/voltageReq", MiscConstants.TUNING_MODE);
 
   private final BooleanTelemetryEntry bottomLimitEntry =
       new BooleanTelemetryEntry("/elevator/bottomLimit", true);
@@ -65,48 +60,55 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   private void configMotors() {
-    boolean faultInitializing =
-        RaiderUtils.applyAndCheckRev(
-            () -> elevatorMotor.setCANTimeout(250),
-            () -> true,
-            MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            elevatorMotor::restoreFactoryDefaults,
-            () -> true,
-            MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheck(
-            () -> elevatorMotor.setInverted(ELEVATOR_INVERTED),
-            () -> elevatorMotor.getInverted() == ELEVATOR_INVERTED,
-            MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> elevatorMotor.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
-            () -> true,
-            MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> elevatorMotor.setIdleMode(IdleMode.kBrake),
-            () -> true,
-            MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> elevatorEncoder.setPositionConversionFactor(METERS_PER_REV),
-            () -> elevatorEncoder.getPositionConversionFactor() == METERS_PER_REV,
-            MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> elevatorEncoder.setVelocityConversionFactor(METERS_PER_REV / 60),
-            () -> elevatorEncoder.getVelocityConversionFactor() == METERS_PER_REV / 60,
-            MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            elevatorMotor::burnFlashWithDelay, () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
+    StringFaultRecorder faultRecorder = new StringFaultRecorder();
 
-    elevatorEventEntry.append(
-        "Elevator motor initialized" + (faultInitializing ? " with faults" : ""));
-    elevatorAlert.set(faultInitializing);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> elevatorMotor.setCANTimeout(250),
+        () -> true,
+        faultRecorder.run("CAN timeout"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        elevatorMotor::restoreFactoryDefaults,
+        () -> true,
+        faultRecorder.run("Factory default"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecord(
+        () -> elevatorMotor.setInverted(INVERTED),
+        () -> elevatorMotor.getInverted() == INVERTED,
+        () -> elevatorEventEntry.append("Motor invert"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> elevatorMotor.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
+        () -> true,
+        faultRecorder.run("Current limit"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> elevatorMotor.setIdleMode(IdleMode.kBrake),
+        () -> true,
+        faultRecorder.run("Idle mode"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> elevatorEncoder.setPositionConversionFactor(METERS_PER_REV),
+        () -> elevatorEncoder.getPositionConversionFactor() == METERS_PER_REV,
+        faultRecorder.run("Position conversion factor"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> elevatorEncoder.setVelocityConversionFactor(METERS_PER_REV / 60),
+        () -> elevatorEncoder.getVelocityConversionFactor() == METERS_PER_REV / 60,
+        faultRecorder.run("Velocity conversion factor"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        elevatorMotor::burnFlashWithDelay,
+        () -> true,
+        faultRecorder.run("Burn flash"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+
+    ConfigurationUtils.postDeviceConfig(
+        faultRecorder.hasFault(),
+        elevatorEventEntry::append,
+        "Elevator motor",
+        faultRecorder.getFaultString());
+    elevatorAlert.set(faultRecorder.hasFault());
   }
 
   public void atBottomLimit() {
@@ -139,18 +141,17 @@ public class ElevatorSubsystem extends SubsystemBase {
   // TODO: Fix
   public Command setElevatorPositionCommand(double position) {
     return this.run(
-        () -> {
-          double feedbackOutput = controller.calculate(getPosition());
-          TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
+            () -> {
+              double feedbackOutput = controller.calculate(getPosition());
+              TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
 
-          setVoltage(
-              feedbackOutput + feedforward.calculate(currentSetpoint.velocity));
-        }).beforeStarting(
+              setVoltage(feedbackOutput + feedforward.calculate(currentSetpoint.velocity));
+            })
+        .beforeStarting(
             () -> {
               controller.reset(getPosition(), elevatorEncoder.getVelocity());
               controller.setGoal(position);
-            }
-    );
+            });
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -160,6 +161,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return elevatorVoltageSysId.dynamic(direction);
   }
+
   @Override
   public void periodic() {
     logValues();
@@ -172,8 +174,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     if (FF_GAINS.hasChanged()) {
       feedforward = FF_GAINS.createElevatorFeedforward();
     }
-    if (PID_GAINS.hasChanged() || TRAPEZOIDAL_PROFILE_GAINS.hasChanged()){
-      controller = new TunableTelemetryProfiledPIDController(
+    if (PID_GAINS.hasChanged() || TRAPEZOIDAL_PROFILE_GAINS.hasChanged()) {
+      controller =
+          new TunableTelemetryProfiledPIDController(
               "elevator/controller", PID_GAINS, TRAPEZOIDAL_PROFILE_GAINS);
     }
   }

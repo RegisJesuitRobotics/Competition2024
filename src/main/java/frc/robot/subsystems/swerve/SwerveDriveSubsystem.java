@@ -24,8 +24,10 @@ import frc.robot.FieldConstants;
 import frc.robot.Robot;
 import frc.robot.telemetry.types.*;
 import frc.robot.telemetry.wrappers.TelemetryPigeon2;
+import frc.robot.utils.Alert;
+import frc.robot.utils.ConfigurationUtils;
+import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
 import frc.robot.utils.RaiderMathUtils;
-import frc.robot.utils.RaiderUtils;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
@@ -96,6 +98,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
   private final SwerveDrivePoseEstimator poseEstimator;
 
+  private final Alert pigeonConfigurationAlert =
+      new Alert("Pigeon failed to initialize", Alert.AlertType.ERROR);
   private final BooleanTelemetryEntry allModulesAtAbsoluteZeroEntry =
       new BooleanTelemetryEntry("/drive/allModulesAtAbsoluteZero", true);
 
@@ -146,18 +150,33 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         new SwerveDrivePoseEstimator(
             kinematics, getGyroRotation(), getModulePositions(), new Pose2d());
 
-    RaiderUtils.applyAndCheckCTRE(
-        () -> yawSignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
-        () -> yawSignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
-        MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    RaiderUtils.applyAndCheckCTRE(
-        pigeon::optimizeBusUtilization, () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
+    configurePigeon();
 
     // Start odometry thread
     Robot.getInstance().addPeriodic(this::updateOdometry, 1.0 / ODOMETRY_FREQUENCY);
 
     stopMovement();
+  }
+
+  private void configurePigeon() {
+    StringFaultRecorder faultRecorder = new StringFaultRecorder();
+    ConfigurationUtils.applyCheckRecordCTRE(
+        () -> yawSignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
+        () -> yawSignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
+        faultRecorder.run("Update frequency"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordCTRE(
+        pigeon::optimizeBusUtilization,
+        () -> true,
+        faultRecorder.run("Optimize bus utilization"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+
+    ConfigurationUtils.postDeviceConfig(
+        faultRecorder.hasFault(),
+        driveEventLogger::append,
+        "Drive Pigeon",
+        faultRecorder.getFaultString());
+    pigeonConfigurationAlert.set(faultRecorder.hasFault());
   }
 
   private void updateOdometry() {

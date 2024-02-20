@@ -6,7 +6,6 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -26,10 +25,12 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.telemetry.tunable.gains.TunableFFGains;
 import frc.robot.telemetry.tunable.gains.TunablePIDGains;
 import frc.robot.telemetry.types.*;
+import frc.robot.telemetry.wrappers.TelemetryCANCoder;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.telemetry.wrappers.TelemetryTalonFX;
 import frc.robot.utils.*;
 import frc.robot.utils.Alert.AlertType;
+import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
 
 public class SwerveModule {
   private enum SwerveModuleControlMode {
@@ -47,10 +48,11 @@ public class SwerveModule {
 
   private static int instances = 0;
 
+  private final int instanceId;
+
   private final DoubleTelemetryEntry driveVelocitySetpointEntry,
       steerPositionGoalEntry,
-      feedForwardOutputEntry,
-      absoluteHeadingEntry;
+      feedForwardOutputEntry;
   private final BooleanTelemetryEntry activeSteerEntry, setToAbsoluteEntry, openLoopEntry;
   private final IntegerTelemetryEntry controlModeEntry;
   private final EventTelemetryEntry moduleEventEntry;
@@ -62,7 +64,7 @@ public class SwerveModule {
 
   private final TelemetryTalonFX driveMotor;
   private final TelemetryCANSparkMax steerMotor;
-  private final CANcoder absoluteSteerEncoder;
+  private final TelemetryCANCoder absoluteSteerEncoder;
 
   private RelativeEncoder steerRelativeEncoder;
   private StatusSignal<Double> absoluteSteerPositionSignal;
@@ -84,7 +86,7 @@ public class SwerveModule {
 
   /** Constructs a new Swerve Module using the given config */
   public SwerveModule(SwerveModuleConfiguration config, boolean tuningMode) {
-    int instanceId = instances++;
+    instanceId = instances++;
 
     // Initialize all telemetry entries
     String tableName = "/drive/modules/" + instanceId + "/";
@@ -94,7 +96,6 @@ public class SwerveModule {
     feedForwardOutputEntry = new DoubleTelemetryEntry(tableName + "feedforwardOutput", tuningMode);
     steerPositionGoalEntry = new DoubleTelemetryEntry(tableName + "steerPositionGoal", true);
     activeSteerEntry = new BooleanTelemetryEntry(tableName + "activeSteer", tuningMode);
-    absoluteHeadingEntry = new DoubleTelemetryEntry(tableName + "absoluteHeading", tuningMode);
     setToAbsoluteEntry = new BooleanTelemetryEntry(tableName + "setToAbsolute", true);
     controlModeEntry = new IntegerTelemetryEntry(tableName + "controlMode", false);
     moduleEventEntry = new EventTelemetryEntry(tableName + "events");
@@ -137,7 +138,11 @@ public class SwerveModule {
 
     // Steer encoder
     absoluteSteerEncoder =
-        new CANcoder(config.steerEncoderID(), config.sharedConfiguration().canBus());
+        new TelemetryCANCoder(
+            config.steerEncoderID(),
+            tableName + "steerEncoder",
+            config.sharedConfiguration().canBus(),
+            tuningMode);
     configSteerEncoder(config);
 
     // Steer motor
@@ -170,146 +175,161 @@ public class SwerveModule {
     drivePositionSignal = driveMotor.getPosition();
     driveVelocitySignal = driveMotor.getVelocity();
 
-    boolean faultInitializing = false;
-    faultInitializing |=
-        RaiderUtils.applyAndCheckCTRE(
-            () -> driveMotor.getConfigurator().apply(motorConfiguration),
-            () -> {
-              TalonFXConfiguration appliedConfig = new TalonFXConfiguration();
-              driveMotor.getConfigurator().refresh(appliedConfig);
-              return appliedConfig.equals(motorConfiguration);
-            },
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+    StringFaultRecorder faultRecorder = new StringFaultRecorder();
+    ConfigurationUtils.applyCheckRecordCTRE(
+        () -> driveMotor.getConfigurator().apply(motorConfiguration),
+        () -> {
+          TalonFXConfiguration appliedConfig = new TalonFXConfiguration();
+          driveMotor.getConfigurator().refresh(appliedConfig);
+          return appliedConfig.equals(motorConfiguration);
+        },
+        faultRecorder.run("Motor configuration"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordCTRE(
+        () ->
+            drivePositionSignal.setUpdateFrequency(
+                config.sharedConfiguration().odometryFrequency()),
+        () ->
+            drivePositionSignal.getAppliedUpdateFrequency()
+                == config.sharedConfiguration().odometryFrequency(),
+        faultRecorder.run("Position signal update frequency"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordCTRE(
+        () ->
+            driveVelocitySignal.setUpdateFrequency(
+                config.sharedConfiguration().odometryFrequency()),
+        () ->
+            driveVelocitySignal.getAppliedUpdateFrequency()
+                == config.sharedConfiguration().odometryFrequency(),
+        faultRecorder.run("Velocity signal update frequency"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordCTRE(
+        driveMotor::optimizeBusUtilization,
+        () -> true,
+        faultRecorder.run("Optimize bus utilization"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |=
-        RaiderUtils.applyAndCheckCTRE(
-            () ->
-                drivePositionSignal.setUpdateFrequency(
-                    config.sharedConfiguration().odometryFrequency()),
-            () ->
-                drivePositionSignal.getAppliedUpdateFrequency()
-                    == config.sharedConfiguration().odometryFrequency(),
-            MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheckCTRE(
-            () ->
-                driveVelocitySignal.setUpdateFrequency(
-                    config.sharedConfiguration().odometryFrequency()),
-            () ->
-                driveVelocitySignal.getAppliedUpdateFrequency()
-                    == config.sharedConfiguration().odometryFrequency(),
-            MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    faultInitializing |=
-        RaiderUtils.applyAndCheckCTRE(
-            driveMotor::optimizeBusUtilization, () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    // Clear reset as this is on startup
-    driveMotor.hasResetOccurred();
-    driveMotorFaultAlert.set(faultInitializing);
-    moduleEventEntry.append("Drive motor initialized" + (faultInitializing ? " with faults" : ""));
+    ConfigurationUtils.postDeviceConfig(
+        faultRecorder.hasFault(),
+        moduleEventEntry::append,
+        "Drive motor module " + instanceId,
+        faultRecorder.getFaultString());
+    driveMotorFaultAlert.set(faultRecorder.hasFault());
 
     driveMotor.setLoggingPositionConversionFactor(drivePositionConversion);
     driveMotor.setLoggingVelocityConversionFactor(driveVelocityConversion);
+
+    // Clear reset as this is on startup
+    driveMotor.hasResetOccurred();
   }
 
   private void configSteerMotor(SwerveModuleConfiguration config) {
     steerRelativeEncoder = steerMotor.getEncoder();
     steerController = steerMotor.getPIDController();
 
-    boolean faultInitializing = false;
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> steerMotor.setCANTimeout(250), () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
+    StringFaultRecorder faultRecorder = new StringFaultRecorder();
 
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            steerMotor::restoreFactoryDefaults, () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> steerMotor.setCANTimeout(250),
+        () -> true,
+        faultRecorder.run("CAN timeout"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () ->
-                steerMotor.setSmartCurrentLimit(
-                    config.sharedConfiguration().steerStallCurrentLimit(),
-                    config.sharedConfiguration().steerFreeCurrentLimit()),
-            () -> true,
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        steerMotor::restoreFactoryDefaults,
+        () -> true,
+        faultRecorder.run("Factory default"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |=
-        RaiderUtils.applyAndCheck(
-            () -> {
-              steerMotor.setInverted(config.steerMotorInverted());
-              return true;
-            },
-            () -> steerMotor.getInverted() == config.steerMotorInverted(),
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () ->
+            steerMotor.setSmartCurrentLimit(
+                config.sharedConfiguration().steerStallCurrentLimit(),
+                config.sharedConfiguration().steerFreeCurrentLimit()),
+        () -> true,
+        faultRecorder.run("Current limit"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> steerController.setP(steerPositionPIDGains.p.get()),
-            () -> steerController.getP() == steerPositionPIDGains.p.get(),
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecord(
+        () -> {
+          steerMotor.setInverted(config.steerMotorInverted());
+        },
+        () -> steerMotor.getInverted() == config.steerMotorInverted(),
+        faultRecorder.run("Invert"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> steerController.setI(steerPositionPIDGains.i.get()),
-            () -> steerController.getI() == steerPositionPIDGains.i.get(),
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> steerController.setP(steerPositionPIDGains.p.get()),
+        () -> steerController.getP() == steerPositionPIDGains.p.get(),
+        faultRecorder.run("P gain"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> steerController.setD(steerPositionPIDGains.d.get()),
-            () -> steerController.getD() == steerPositionPIDGains.d.get(),
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> steerController.setI(steerPositionPIDGains.i.get()),
+        () -> steerController.getI() == steerPositionPIDGains.i.get(),
+        faultRecorder.run("I gain"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> steerController.setPositionPIDWrappingEnabled(true),
-            () -> steerController.getPositionPIDWrappingEnabled(),
-            MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> steerController.setPositionPIDWrappingMinInput(-Math.PI),
-            () -> steerController.getPositionPIDWrappingMinInput() == -Math.PI,
-            MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> steerController.setPositionPIDWrappingMaxInput(Math.PI),
-            () -> steerController.getPositionPIDWrappingMaxInput() == Math.PI,
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> steerController.setD(steerPositionPIDGains.d.get()),
+        () -> steerController.getD() == steerPositionPIDGains.d.get(),
+        faultRecorder.run("D gain"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> steerRelativeEncoder.setPositionConversionFactor(steerPositionConversion),
-            () -> steerRelativeEncoder.getPositionConversionFactor() == steerPositionConversion,
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> steerController.setPositionPIDWrappingEnabled(true),
+        () -> steerController.getPositionPIDWrappingEnabled(),
+        faultRecorder.run("PID wrapping"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> steerController.setPositionPIDWrappingMinInput(-Math.PI),
+        () -> steerController.getPositionPIDWrappingMinInput() == -Math.PI,
+        faultRecorder.run("PID wrapping min input"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> steerController.setPositionPIDWrappingMaxInput(Math.PI),
+        () -> steerController.getPositionPIDWrappingMaxInput() == Math.PI,
+        faultRecorder.run("PID wrapping max input"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> steerRelativeEncoder.setVelocityConversionFactor(steerVelocityConversion),
-            () -> steerRelativeEncoder.getVelocityConversionFactor() == steerVelocityConversion,
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> steerRelativeEncoder.setPositionConversionFactor(steerPositionConversion),
+        () -> steerRelativeEncoder.getPositionConversionFactor() == steerPositionConversion,
+        faultRecorder.run("Position conversion factor"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> steerMotor.setIdleMode(CANSparkMax.IdleMode.kBrake),
-            () -> steerMotor.getIdleMode() == CANSparkMax.IdleMode.kBrake,
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> steerRelativeEncoder.setVelocityConversionFactor(steerVelocityConversion),
+        () -> steerRelativeEncoder.getVelocityConversionFactor() == steerVelocityConversion,
+        faultRecorder.run("Velocity conversion factor"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () ->
-                steerMotor.setPeriodicFramePeriod(
-                    PeriodicFrame.kStatus2, 1000 / SwerveConstants.ODOMETRY_FREQUENCY),
-            () -> true,
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> steerMotor.setIdleMode(CANSparkMax.IdleMode.kBrake),
+        () -> steerMotor.getIdleMode() == CANSparkMax.IdleMode.kBrake,
+        faultRecorder.run("Idle mode"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            steerMotor::burnFlashWithDelay, () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () ->
+            steerMotor.setPeriodicFramePeriod(
+                PeriodicFrame.kStatus2, 1000 / SwerveConstants.ODOMETRY_FREQUENCY),
+        () -> true,
+        faultRecorder.run("Status 2 frame period"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    steerMotorFaultAlert.set(faultInitializing);
-    moduleEventEntry.append("Steer motor initialized" + (faultInitializing ? " with faults" : ""));
+    ConfigurationUtils.applyCheckRecordRev(
+        steerMotor::burnFlashWithDelay,
+        () -> true,
+        faultRecorder.run("Burn flash"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+
+    ConfigurationUtils.postDeviceConfig(
+        faultRecorder.hasFault(),
+        moduleEventEntry::append,
+        "Steer motor module " + instanceId,
+        faultRecorder.getFaultString());
+    steerMotorFaultAlert.set(faultRecorder.hasFault());
   }
 
   private void configSteerEncoder(SwerveModuleConfiguration config) {
@@ -322,19 +342,33 @@ public class SwerveModule {
 
     absoluteSteerPositionSignal = absoluteSteerEncoder.getAbsolutePosition();
 
-    boolean faultInitializing =
-        RaiderUtils.applyAndCheckCTRE(
-            () -> absoluteSteerEncoder.getConfigurator().apply(encoderConfiguration),
-            () -> {
-              CANcoderConfiguration appliedConfig = new CANcoderConfiguration();
-              absoluteSteerEncoder.getConfigurator().refresh(appliedConfig);
-              return appliedConfig.equals(encoderConfiguration);
-            },
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+    StringFaultRecorder faultRecorder = new StringFaultRecorder();
+    ConfigurationUtils.applyCheckRecordCTRE(
+        () -> absoluteSteerEncoder.getConfigurator().apply(encoderConfiguration),
+        () -> {
+          CANcoderConfiguration appliedConfig = new CANcoderConfiguration();
+          absoluteSteerEncoder.getConfigurator().refresh(appliedConfig);
+          return appliedConfig.equals(encoderConfiguration);
+        },
+        faultRecorder.run("Encoder configuration"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordCTRE(
+        () -> ConfigurationUtils.explicitlySetSignalFrequency(absoluteSteerPositionSignal),
+        () -> true,
+        faultRecorder.run("Absolute signal update frequency"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordCTRE(
+        absoluteSteerEncoder::optimizeBusUtilization,
+        () -> true,
+        faultRecorder.run("Optimize bus utilization"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    steerEncoderFaultAlert.set(faultInitializing);
-    moduleEventEntry.append(
-        "Steer encoder initialized" + (faultInitializing ? " with faults" : ""));
+    ConfigurationUtils.postDeviceConfig(
+        faultRecorder.hasFault(),
+        moduleEventEntry::append,
+        "Steer encoder module " + instanceId,
+        faultRecorder.getFaultString());
+    steerEncoderFaultAlert.set(faultRecorder.hasFault());
   }
 
   private void checkForSteerMotorReset() {
@@ -540,9 +574,9 @@ public class SwerveModule {
   public void logValues() {
     driveMotor.logValues();
     steerMotor.logValues();
+    absoluteSteerEncoder.logValues();
 
     notSetToAbsoluteAlert.set(!setToAbsolute);
-    absoluteHeadingEntry.append(absoluteSteerPositionSignal.refresh().getValue() * Math.PI * 2);
     setToAbsoluteEntry.append(setToAbsolute);
   }
 }

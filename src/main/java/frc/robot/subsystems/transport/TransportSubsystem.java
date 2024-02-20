@@ -13,7 +13,8 @@ import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.EventTelemetryEntry;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.utils.Alert;
-import frc.robot.utils.RaiderUtils;
+import frc.robot.utils.ConfigurationUtils;
+import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
 
 public class TransportSubsystem extends SubsystemBase {
 
@@ -25,12 +26,14 @@ public class TransportSubsystem extends SubsystemBase {
           TRANSPORT_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless, "/transport/motor", false);
 
   public void runShooterTransportVoltage(double voltage) {
+    voltageReq.append(voltage);
     transportMotor.setVoltage(voltage);
   }
 
-  private final BooleanTelemetryEntry sensorEntry = new BooleanTelemetryEntry("/transport/sensor", true);
+  private final BooleanTelemetryEntry sensorEntry =
+      new BooleanTelemetryEntry("/transport/sensor", true);
 
-  private final DoubleTelemetryEntry topTransportVoltageReq =
+  private final DoubleTelemetryEntry voltageReq =
       new DoubleTelemetryEntry("/transport/voltageReq", Constants.MiscConstants.TUNING_MODE);
 
   private final EventTelemetryEntry transportEventEntry =
@@ -41,40 +44,44 @@ public class TransportSubsystem extends SubsystemBase {
   }
 
   public void configMotor() {
-    boolean faultInitializing = false;
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> transportMotor.setCANTimeout(250),
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    StringFaultRecorder faultRecorder = new StringFaultRecorder();
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> transportMotor.setCANTimeout(250),
+        () -> true,
+        faultRecorder.run("CAN timeout"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        transportMotor::restoreFactoryDefaults,
+        () -> true,
+        faultRecorder.run("Factory default"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> transportMotor.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
+        () -> true,
+        faultRecorder.run("Current limit"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecord(
+        () -> transportMotor.setInverted(INVERTED),
+        () -> transportMotor.getInverted() == INVERTED,
+        faultRecorder.run("Invert"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> transportMotor.setIdleMode(CANSparkMax.IdleMode.kBrake),
+        () -> transportMotor.getIdleMode() == CANSparkMax.IdleMode.kBrake,
+        faultRecorder.run("Idle mode"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        transportMotor::burnFlashWithDelay,
+        () -> true,
+        faultRecorder.run("Burn flash"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            transportMotor::restoreFactoryDefaults,
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> transportMotor.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> transportMotor.setIdleMode(CANSparkMax.IdleMode.kBrake),
-            () -> transportMotor.getIdleMode() == CANSparkMax.IdleMode.kBrake,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            transportMotor::burnFlashWithDelay,
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    transportEventEntry.append(
-        "Transport motor initialized" + (faultInitializing ? " with faults" : ""));
-    transportAlert.set(faultInitializing);
+    ConfigurationUtils.postDeviceConfig(
+        faultRecorder.hasFault(),
+        transportEventEntry::append,
+        "Transport motor",
+        faultRecorder.getFaultString());
+    transportAlert.set(faultRecorder.hasFault());
   }
 
   public boolean atSensor() {

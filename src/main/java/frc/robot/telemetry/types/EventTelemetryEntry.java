@@ -8,7 +8,6 @@ public class EventTelemetryEntry extends StringTelemetryEntry {
 
   @Override
   public void append(String value) {
-    System.out.println(value);
     super.append(value);
   }
 }

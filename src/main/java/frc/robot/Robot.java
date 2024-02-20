@@ -51,7 +51,6 @@ public class Robot extends TimedRobot {
     DataLogManager.start();
     DataLogManager.log("*****START*****");
 
-
     DataLog dataLog = DataLogManager.getLog();
     if (MiscConstants.TUNING_MODE) {
       URCL.start();
@@ -64,8 +63,7 @@ public class Robot extends TimedRobot {
 
     DriverStation.silenceJoystickConnectionWarning(true);
 
-    powerDistribution =
-        new TelemetryPowerDistribution();
+    powerDistribution = new TelemetryPowerDistribution();
     miscRobotTelemetryAndAlerts = new MiscRobotTelemetryAndAlerts();
 
     robotContainer = new RobotContainer();

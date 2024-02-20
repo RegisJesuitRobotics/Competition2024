@@ -31,6 +31,7 @@ public class TelemetryPowerDistribution extends PowerDistribution {
     inputVoltageEntry = new DoubleTelemetryEntry(thisTableName + "inputVoltage", false);
     channelCurrentEntry = new DoubleArrayTelemetryEntry(thisTableName + "channelCurrents", false);
   }
+
   public TelemetryPowerDistribution() {
     super.resetTotalEnergy();
 
