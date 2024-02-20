@@ -51,9 +51,12 @@ public class Robot extends TimedRobot {
     DataLogManager.start();
     DataLogManager.log("*****START*****");
 
-    URCL.start();
 
     DataLog dataLog = DataLogManager.getLog();
+    if (MiscConstants.TUNING_MODE) {
+      URCL.start();
+      NetworkTableInstance.getDefault().startEntryDataLog(dataLog, "/URCL/", "URCL/");
+    }
     // Log connections and FMSInfo
     NetworkTableInstance.getDefault().startConnectionDataLog(dataLog, "NTConnection");
     NetworkTableInstance.getDefault().startEntryDataLog(dataLog, "/FMSInfo/", "FMSInfo/");
@@ -62,8 +65,7 @@ public class Robot extends TimedRobot {
     DriverStation.silenceJoystickConnectionWarning(true);
 
     powerDistribution =
-        new TelemetryPowerDistribution(
-            MiscConstants.POWER_MODULE_ID, MiscConstants.POWER_MODULE_TYPE);
+        new TelemetryPowerDistribution();
     miscRobotTelemetryAndAlerts = new MiscRobotTelemetryAndAlerts();
 
     robotContainer = new RobotContainer();

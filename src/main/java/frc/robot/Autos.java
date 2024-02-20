@@ -12,15 +12,15 @@ import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 
 public class Autos {
 
-  public static Command nearestClimberCommand(Alliance alliance, SwerveDriveSubsystem swerve) {
-    Pose2d stagingLoc;
-    if (alliance == Alliance.Red) {
-      stagingLoc = swerve.getPose().nearest(redStagingLocations);
-    } else {
-      stagingLoc = swerve.getPose().nearest(blueStagingLocations);
-    }
-    return new SimpleToPointCommand(stagingLoc, swerve);
-  }
+//  public static Command nearestClimberCommand(Alliance alliance, SwerveDriveSubsystem swerve) {
+//    Pose2d stagingLoc;
+//    if (alliance == Alliance.Red) {
+//      stagingLoc = swerve.getPose().nearest(redStagingLocations);
+//    } else {
+//      stagingLoc = swerve.getPose().nearest(blueStagingLocations);
+//    }
+//    return new SimpleToPointCommand(stagingLoc, swerve);
+//  }
 
   public static Command nearestAmpCommand(Alliance alliance, SwerveDriveSubsystem swerve) {
     Pose2d ampLoc;

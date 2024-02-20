@@ -1,14 +1,18 @@
 package frc.robot.subsystems.elevator;
 
-import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.*;
 import static frc.robot.Constants.ElevatorConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.Unit;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -16,16 +20,19 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
 import frc.robot.telemetry.types.BooleanTelemetryEntry;
+import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.EventTelemetryEntry;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.utils.Alert;
 import frc.robot.utils.RaiderUtils;
 
+import java.sql.Time;
+
 public class ElevatorSubsystem extends SubsystemBase {
 
   private final SysIdRoutine elevatorVoltageSysId =
       new SysIdRoutine(
-          new SysIdRoutine.Config(),
+          new SysIdRoutine.Config(Volts.per(Second).of(1.0), Volts.of(4), null, null),
           new SysIdRoutine.Mechanism(
               (voltage) -> setVoltage(voltage.in(Volts)),
               null, // No log consumer, since data is recorded by URCL
@@ -37,14 +44,16 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final TelemetryCANSparkMax elevatorMotor =
       new TelemetryCANSparkMax(ELEVATOR_MOTOR_ID, MotorType.kBrushless, "/elevator/motor", true);
 
-  private final TunableTelemetryProfiledPIDController controller =
+  private TunableTelemetryProfiledPIDController controller =
       new TunableTelemetryProfiledPIDController(
           "elevator/controller", PID_GAINS, TRAPEZOIDAL_PROFILE_GAINS);
 
-  private SimpleMotorFeedforward feedforward = FF_GAINS.createFeedforward();
+  private ElevatorFeedforward feedforward = FF_GAINS.createElevatorFeedforward();
 
   private final RelativeEncoder elevatorEncoder = elevatorMotor.getEncoder();
   private final DigitalInput bottomLimit = new DigitalInput(ELEVATOR_LIMIT_SWITCH);
+
+  private final DoubleTelemetryEntry voltageReq = new DoubleTelemetryEntry("/elevator/voltageReq", MiscConstants.TUNING_MODE);
 
   private final BooleanTelemetryEntry bottomLimitEntry =
       new BooleanTelemetryEntry("/elevator/bottomLimit", true);
@@ -106,11 +115,6 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
   }
 
-  public void setDesiredPosition(double desiredPosition) {
-    // TODO: CLAMP THIS
-    controller.setGoal(desiredPosition);
-  }
-
   public boolean atGoal() {
     return controller.atGoal();
   }
@@ -121,6 +125,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public void setVoltage(double voltage) {
     elevatorMotor.setVoltage(voltage);
+    voltageReq.append(voltage);
   }
 
   public double getPosition() {
@@ -132,29 +137,20 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   // TODO: Fix
-  public Command runElevatorCommand(double voltage) {
-    voltage = MathUtil.clamp(voltage, -0.5, 0.5);
-
-    if (getPosition() > ELEVATOR_MIN_HEIGHT && getPosition() < ELEVATOR_MAX_HEIGHT) {
-      double finalVoltage = voltage;
-      return this.runEnd(() -> this.setVoltage(finalVoltage), () -> this.setVoltage(0));
-
-    } else {
-      return this.run(() -> this.setVoltage(0));
-    }
-  }
-
-  // TODO: Fix
   public Command setElevatorPositionCommand(double position) {
     return this.run(
         () -> {
-          controller.setGoal(position);
           double feedbackOutput = controller.calculate(getPosition());
           TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
 
           setVoltage(
-              feedbackOutput + feedforward.calculate(getPosition(), currentSetpoint.velocity));
-        });
+              feedbackOutput + feedforward.calculate(currentSetpoint.velocity));
+        }).beforeStarting(
+            () -> {
+              controller.reset(getPosition(), elevatorEncoder.getVelocity());
+              controller.setGoal(position);
+            }
+    );
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -164,7 +160,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return elevatorVoltageSysId.dynamic(direction);
   }
-
   @Override
   public void periodic() {
     logValues();
@@ -173,8 +168,13 @@ public class ElevatorSubsystem extends SubsystemBase {
   private void logValues() {
     elevatorMotor.logValues();
     bottomLimitEntry.append(bottomLimit.get());
+
     if (FF_GAINS.hasChanged()) {
-      feedforward = FF_GAINS.createFeedforward();
+      feedforward = FF_GAINS.createElevatorFeedforward();
+    }
+    if (PID_GAINS.hasChanged() || TRAPEZOIDAL_PROFILE_GAINS.hasChanged()){
+      controller = new TunableTelemetryProfiledPIDController(
+              "elevator/controller", PID_GAINS, TRAPEZOIDAL_PROFILE_GAINS);
     }
   }
 }

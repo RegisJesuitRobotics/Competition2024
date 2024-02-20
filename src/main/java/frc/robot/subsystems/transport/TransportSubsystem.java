@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.telemetry.types.BooleanTelemetryEntry;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.EventTelemetryEntry;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
@@ -27,8 +28,10 @@ public class TransportSubsystem extends SubsystemBase {
     transportMotor.setVoltage(voltage);
   }
 
+  private final BooleanTelemetryEntry sensorEntry = new BooleanTelemetryEntry("/transport/sensor", true);
+
   private final DoubleTelemetryEntry topTransportVoltageReq =
-      new DoubleTelemetryEntry("/transport/voltageReq", false);
+      new DoubleTelemetryEntry("/transport/voltageReq", Constants.MiscConstants.TUNING_MODE);
 
   private final EventTelemetryEntry transportEventEntry =
       new EventTelemetryEntry("/transport/events");
@@ -87,5 +90,6 @@ public class TransportSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     transportMotor.logValues();
+    sensorEntry.append(atSensor());
   }
 }

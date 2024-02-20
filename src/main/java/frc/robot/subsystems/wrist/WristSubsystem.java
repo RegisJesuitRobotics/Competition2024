@@ -3,10 +3,9 @@ package frc.robot.subsystems.wrist;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.WristConstants.*;
 
-import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel;
-import com.revrobotics.SparkAbsoluteEncoder.Type;
+import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -33,12 +32,14 @@ public class WristSubsystem extends SubsystemBase {
               null, // No log consumer, since data is recorded by URCL
               this));
 
+  private DoubleTelemetryEntry absoluteEncoderEntry = new DoubleTelemetryEntry("/wrist/encoders", true);
+
   private final TelemetryCANSparkMax wristMotor =
       new TelemetryCANSparkMax(
           WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless, "/wrist/motors", true);
-  private final AbsoluteEncoder absoluteEncoder = wristMotor.getAbsoluteEncoder(Type.kDutyCycle);
+  private final RelativeEncoder absoluteEncoder = wristMotor.getAlternateEncoder(4096);
 
-  private final ArmFeedforward feedforward = WRIST_FF_GAINS.createFeedforward();
+  private final ArmFeedforward feedforward = WRIST_FF_GAINS.createArmFeedforward();
   private final TunableTelemetryProfiledPIDController controller =
       new TunableTelemetryProfiledPIDController(
           "/wrist/pid", WRIST_PID_GAINS, TRAPEZOIDAL_PROFILE_GAINS);
@@ -152,11 +153,12 @@ public class WristSubsystem extends SubsystemBase {
   }
 
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return wristSysId.dynamic(direction);
+    return wristSysId .dynamic(direction);
   }
 
   @Override
   public void periodic() {
     wristMotor.logValues();
+    absoluteEncoderEntry.append(absoluteEncoder.getPosition());
   }
 }

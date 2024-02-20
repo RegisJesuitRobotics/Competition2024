@@ -31,6 +31,17 @@ public class TelemetryPowerDistribution extends PowerDistribution {
     inputVoltageEntry = new DoubleTelemetryEntry(thisTableName + "inputVoltage", false);
     channelCurrentEntry = new DoubleArrayTelemetryEntry(thisTableName + "channelCurrents", false);
   }
+  public TelemetryPowerDistribution() {
+    super.resetTotalEnergy();
+
+    String thisTableName = tableName + "/";
+    totalEnergyEntry = new DoubleTelemetryEntry(thisTableName + "totalEnergy", true);
+    totalPowerEntry = new DoubleTelemetryEntry(thisTableName + "totalPower", false);
+    totalCurrentEntry = new DoubleTelemetryEntry(thisTableName + "totalCurrent", false);
+    temperatureEntry = new DoubleTelemetryEntry(thisTableName + "temperature", false);
+    inputVoltageEntry = new DoubleTelemetryEntry(thisTableName + "inputVoltage", false);
+    channelCurrentEntry = new DoubleArrayTelemetryEntry(thisTableName + "channelCurrents", false);
+  }
 
   public void logValues() {
     totalEnergyEntry.append(super.getTotalEnergy());

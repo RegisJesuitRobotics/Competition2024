@@ -24,6 +24,6 @@ public class ShootAtAngleCommand extends SequentialCommandGroup {
     addCommands(
         new RunWristAndFlywheels(wristSubsystem, shooterSubsystem, angle),
         transportSubsystem.runTransportOutCommand(),
-        shooterSubsystem.runRPMCommand(0));
+        shooterSubsystem.runVelocityCommand(0));
   }
 }

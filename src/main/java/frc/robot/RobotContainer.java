@@ -1,7 +1,6 @@
 package frc.robot;
 
 import static frc.robot.Autos.nearestAmpCommand;
-import static frc.robot.Autos.nearestClimberCommand;
 import static frc.robot.Constants.ShooterConstants.*;
 import static frc.robot.subsystems.swerve.SwerveDriveSubsystem.getDistanceToStaging;
 
@@ -10,16 +9,19 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.commands.drive.LockModulesCommand;
 import frc.robot.commands.drive.teleop.SwerveDriveCommand;
 import frc.robot.commands.elevator.AmpPlaceCommand;
+import frc.robot.commands.intake.intakeSlapCommand;
 import frc.robot.commands.shooter.ShootAtAngleCommand;
 import frc.robot.commands.wrist.IntakeToShooterCommand;
 import frc.robot.hid.CommandNintendoSwitchController;
@@ -34,6 +36,8 @@ import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.telemetry.tunable.gains.TunableDouble;
 import frc.robot.utils.*;
+
+import java.util.List;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -43,15 +47,21 @@ import java.util.function.DoubleSupplier;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
-  private final SwerveDriveSubsystem driveSubsystem =
-      new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
+//  private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
+//  private final SwerveDriveSubsystem driveSubsystem =
+//      new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
+  private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem((pose) -> {
+    return List.of();
+});
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final WristSubsystem wristSubsystem = new WristSubsystem();
   private final TransportSubsystem transportSubsystem = new TransportSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final SlapdownSubsystem slapdownSubsystem = new SlapdownSubsystem();
+
+  private final SendableChooser<Command> autoCommand = new SendableChooser<>();
+
 
   private final CommandNintendoSwitchController driverController =
       new CommandNintendoSwitchController(0);
@@ -70,7 +80,31 @@ public class RobotContainer {
     SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
   }
 
-  private void configureAutos() {}
+  private void configureAutos() {
+    autoCommand.addOption("Elevator Quastatic Forward", elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption("Elevator Quastatic Backward", elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoCommand.addOption("Elevator Dynamic Forward", elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption("Elevator Dynamic Backward", elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoCommand.addOption("Elevator Test Command 2 in", elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(2)));
+    autoCommand.addOption("Elevator Test Command 4 in", elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(4)));
+    autoCommand.addOption("Elevator Test Command 8 in", elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(8)));
+    autoCommand.addOption("Intake Test Command", intakeSubsystem.setIntakeVoltageCommand(Constants.IntakeConstants.INTAKE_VOLTAGE));
+    autoCommand.addOption("Shooter Test Command 4000", shooterSubsystem.runVelocityCommand(100));
+    autoCommand.addOption("Slap Feed", slapdownSubsystem.setFeederVoltageCommand(5));
+    autoCommand.addOption("Intake feed", Commands.parallel(slapdownSubsystem.setFeederVoltageCommand(5), intakeSubsystem.setIntakeVoltageCommand(Constants.IntakeConstants.INTAKE_VOLTAGE)));
+    autoCommand.addOption("Shooter Quastatic Forward Command", shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption("Shooter Quastatic Backward Command", shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoCommand.addOption("Shooter Dynamic Forward Command", shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption("Shooter Dynamic Backward Command", shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+
+
+    autoCommand.addOption("Intake To Shooter", new IntakeToShooterCommand(elevatorSubsystem, intakeSubsystem, wristSubsystem, transportSubsystem, shooterSubsystem));
+
+
+
+    SmartDashboard.putData("Auto", autoCommand);
+  }
 
   private void configureDriverBindings() {
     configureDriving();
@@ -82,13 +116,12 @@ public class RobotContainer {
                 .withName("ZeroHeading"));
     driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
 
-    driverController
-        .povLeft()
-        .and(getDistanceToStaging(DriverStation.getAlliance().get(), driveSubsystem))
-        .onTrue(nearestClimberCommand(DriverStation.getAlliance().get(), driveSubsystem));
+//    driverController
+//        .povLeft()
+//        .and(getDistanceToStaging(DriverStation.getAlliance().get(), driveSubsystem))
+//        .onTrue(nearestClimberCommand(DriverStation.getAlliance().get(), driveSubsystem));
     driverController
         .povRight()
-        .and(driveSubsystem.getDistanceToAmp(DriverStation.getAlliance().get(), driveSubsystem))
         .onTrue(nearestAmpCommand(DriverStation.getAlliance().get(), driveSubsystem));
     driverController
         .povDown()
@@ -115,9 +148,9 @@ public class RobotContainer {
                 transportSubsystem,
                 shooterSubsystem));
 
-    operatorController
-        .rightStick()
-        .whileTrue(elevatorSubsystem.runElevatorCommand(operatorController.getRightY()));
+//    operatorController
+//        .rightStick()
+//        .whileTrue(elevatorSubsystem.runElevatorCommand(operatorController.getRightY()));
     operatorController
         .rightTrigger()
         .onTrue(
@@ -228,7 +261,8 @@ public class RobotContainer {
     }
   }
 
+
   public Command getAutonomousCommand() {
-    return Commands.none();
+    return autoCommand.getSelected();
   }
 }

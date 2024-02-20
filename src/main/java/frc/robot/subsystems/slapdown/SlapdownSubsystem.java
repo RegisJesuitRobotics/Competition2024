@@ -4,7 +4,7 @@ import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.SlapdownConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
+import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.EventTelemetryEntry;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkFlex;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
@@ -26,15 +27,17 @@ public class SlapdownSubsystem extends SubsystemBase {
       new Alert("Slapdown rotation motor had a fault initializing", Alert.AlertType.ERROR);
   private static final Alert feederMotorAlert =
       new Alert("Slapdown feeder motor had a fault initializing", Alert.AlertType.ERROR);
+
+  private DoubleTelemetryEntry rotationEncoderEntry = new DoubleTelemetryEntry("/slapdown/encoders", true);
   private final TelemetryCANSparkMax feederMotor =
       new TelemetryCANSparkMax(
-          FEEDER_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless, "/slapdown/feeder/motor", false);
-  private final TelemetryCANSparkFlex rotationMotor =
-      new TelemetryCANSparkFlex(
+          FEEDER_MOTOR_ID, MotorType.kBrushless, "/slapdown/feeder/motor", Constants.MiscConstants.TUNING_MODE);
+  private final TelemetryCANSparkMax rotationMotor =
+      new TelemetryCANSparkMax(
           ROTATION_MOTOR_ID,
-          CANSparkLowLevel.MotorType.kBrushless,
+          MotorType.kBrushless,
           "/slapdown/rotation/motor",
-          true);
+              Constants.MiscConstants.TUNING_MODE);
   private final SysIdRoutine slapdownRotationSysId =
       new SysIdRoutine(
           new SysIdRoutine.Config(),
@@ -55,7 +58,6 @@ public class SlapdownSubsystem extends SubsystemBase {
   public SlapdownSubsystem() {
     rotationEncoder = rotationMotor.getEncoder();
     rotationFF = ROTATION_FF_GAINS.createFeedforward();
-
     configMotors();
   }
 
@@ -125,6 +127,13 @@ public class SlapdownSubsystem extends SubsystemBase {
             () -> feederMotor.getIdleMode() == IdleMode.kCoast,
             Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     feederFaultInitializing |=
+            RaiderUtils.applyAndCheck(
+                    () ->
+                            feederMotor.setInverted(true),
+                    () -> true,
+                    Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+
+    feederFaultInitializing |=
         RaiderUtils.applyAndCheckRev(
             feederMotor::burnFlashWithDelay,
             () -> true,
@@ -175,5 +184,7 @@ public class SlapdownSubsystem extends SubsystemBase {
   public void periodic() {
     rotationMotor.logValues();
     feederMotor.logValues();
+
+    rotationEncoderEntry.append(getPosition());
   }
 }

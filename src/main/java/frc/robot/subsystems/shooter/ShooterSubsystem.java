@@ -118,10 +118,6 @@ public class ShooterSubsystem extends SubsystemBase {
     return shooterSysId.dynamic(direction);
   }
 
-  public Command runRPMCommand(double RPM) {
-    return this.run(() -> flywheelMotor.set(RPM));
-  }
-
   public void setFlyVoltage(double voltage) {
     flywheelMotor.setVoltage(voltage);
   }

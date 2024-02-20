@@ -5,8 +5,9 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Unit;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import frc.robot.telemetry.tunable.gains.TunableArmFFGains;
+import frc.robot.telemetry.tunable.gains.TunableArmElevatorFFGains;
 import frc.robot.telemetry.tunable.gains.TunableFFGains;
 import frc.robot.telemetry.tunable.gains.TunablePIDGains;
 import frc.robot.telemetry.tunable.gains.TunableTrapezoidalProfileGains;
@@ -23,8 +24,8 @@ public final class Constants {
   }
 
   public static class IntakeConstants {
-    public static final int INTAKE_VOLTAGE = 3;
-    public static final int INTAKE_MOTOR_ID = 12;
+    public static final int INTAKE_VOLTAGE = 6;
+    public static final int INTAKE_MOTOR_ID = 6;
 
     public static final int STALL_MOTOR_CURRENT = 40;
     public static final int FREE_MOTOR_CURRENT = 20;
@@ -32,8 +33,8 @@ public final class Constants {
 
   public static class SlapdownConstants {
 
-    public static final int FEEDER_MOTOR_ID = 14;
-    public static final int ROTATION_MOTOR_ID = 13;
+    public static final int FEEDER_MOTOR_ID = 7;
+    public static final int ROTATION_MOTOR_ID = 8;
     public static final double ROTATION_GEAR_RATIO = 5.0 * 3.0 * 30.0 / 15.0;
 
     public static final int FEED_STALL_MOTOR_CURRENT = 20;
@@ -60,7 +61,7 @@ public final class Constants {
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
 
-    public static final int ELEVATOR_MOTOR_ID = 15;
+    public static final int ELEVATOR_MOTOR_ID = 4;
 
     public static final int ELEVATOR_LIMIT_SWITCH = 2;
 
@@ -70,19 +71,19 @@ public final class Constants {
 
     // TODO: Do These PID GAINS
     public static final TunablePIDGains PID_GAINS =
-        new TunablePIDGains("gains/elevator", 0, 0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("gains/elevator", 57, 0, 0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
-        new TunableTrapezoidalProfileGains("/gains/extension", 0.5, 0.6, MiscConstants.TUNING_MODE);
+        new TunableTrapezoidalProfileGains("/gains/extension", Units.inchesToMeters(15), Units.inchesToMeters(40), MiscConstants.TUNING_MODE);
 
     // TODO: TUNE FF GAINS
-    public static final TunableFFGains FF_GAINS =
-        new TunableFFGains("gains/elevator", 0, 0, 0, MiscConstants.TUNING_MODE);
+    public static final TunableArmElevatorFFGains FF_GAINS =
+        new TunableArmElevatorFFGains("gains/elevator", 0.22339, 0.041616, 13.1, 1.2556,  MiscConstants.TUNING_MODE);
   }
 
   public static class SwerveConstants {
     private SwerveConstants() {}
 
-    public static final int PIGEON_ID = 13;
+    public static final int PIGEON_ID = 21;
 
     public static final int NUM_MODULES = 4;
     public static final double WHEEL_DIAMETER_METERS = Units.inchesToMeters(3.875);
@@ -146,18 +147,18 @@ public final class Constants {
 
     public static final SwerveModuleConfiguration FRONT_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            1, 5, 17, false, true, -0.7455146908760071, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            12, 9, 17, false, true, -0.7455146908760071, false, SHARED_SWERVE_MODULE_CONFIGURATION);
     public static final SwerveModuleConfiguration FRONT_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            2, 6, 18, false, true, 2.7857091108003242, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            13, 5, 18, false, true, 2.7857091108003242, false, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            3, 7, 19, false, true, 2.676796474860444, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            14, 10, 19, false, true, 2.676796474860444, false, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            4, 8, 20, false, true, -2.4605051837685683, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            15, 3, 20, false, true, -2.4605051837685683, false, SHARED_SWERVE_MODULE_CONFIGURATION);
   }
 
   public static class AutoConstants {
@@ -197,13 +198,13 @@ public final class Constants {
     public static final Rotation2d WRIST_MAX = new Rotation2d(Units.degreesToRadians(60));
     public static final Rotation2d WRIST_MIN = new Rotation2d(0);
 
-    public static final int WRIST_MOTOR_ID = 9;
+    public static final int WRIST_MOTOR_ID = 2;
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
 
     // TODO: TUNE PID & TRAP & FF
-    public static final TunableArmFFGains WRIST_FF_GAINS =
-        new TunableArmFFGains("/wrist/ffGains", 0, 0, 0, 0, MiscConstants.TUNING_MODE);
+    public static final TunableArmElevatorFFGains WRIST_FF_GAINS =
+        new TunableArmElevatorFFGains("/wrist/ffGains", 0, 0, 0, 0, MiscConstants.TUNING_MODE);
     public static final TunablePIDGains WRIST_PID_GAINS =
         new TunablePIDGains("/wrist/pidGains", 0, 0, 0, MiscConstants.TUNING_MODE);
 
@@ -212,18 +213,18 @@ public final class Constants {
   }
 
   public static class TransportConstants {
-    public static final int TRANSPORT_MOTOR_ID = 11;
+    public static final int TRANSPORT_MOTOR_ID = 1;
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
     public static final double TRANSPORT_VOLTAGE = 2.0;
-    public static final int SHOOTER_SENSOR_ID = 22;
+    public static final int SHOOTER_SENSOR_ID = 8;
   }
 
   public static class ShooterConstants {
     public static final int FREE_MOTOR_CURRENT = 25;
     public static final int STALL_MOTOR_CURRENT = 45;
 
-    public static final int SHOOTER_ID = 10;
+    public static final int SHOOTER_ID = 11;
 
     public static final double SHOOTING_RPM = 3000.0;
 
@@ -234,9 +235,9 @@ public final class Constants {
 
     // TODO TUNE FF GAINS
     public static TunablePIDGains SHOOTER_PID_GAINS =
-        new TunablePIDGains("/shooter/pid", 0, 0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/shooter/pid", 0.024885, 0, 0, MiscConstants.TUNING_MODE);
     public static TunableFFGains SHOOTER_FF_GAINS =
-        new TunableFFGains("/shooter/FF", 0, 0, 0, MiscConstants.TUNING_MODE);
+        new TunableFFGains("/shooter/FF", 0.34964, 0.05597, 0.01424, MiscConstants.TUNING_MODE);
   }
 
   public static class TeleopConstants {

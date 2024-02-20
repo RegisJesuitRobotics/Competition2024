@@ -1,8 +1,9 @@
 package frc.robot.telemetry.tunable.gains;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 
-public class TunableArmFFGains {
+public class TunableArmElevatorFFGains {
   public final TunableDouble sFF;
   public final TunableDouble gFF;
   public final TunableDouble vFF;
@@ -16,7 +17,7 @@ public class TunableArmFFGains {
    * @param aFF the acceleration feedforward gain (also known as kA) (in volts units/second^2)
    * @param tuningMode if false the gains will be not be changeable
    */
-  public TunableArmFFGains(
+  public TunableArmElevatorFFGains(
       String networkName, double sFF, double gFF, double vFF, double aFF, boolean tuningMode) {
     networkName += "/";
     this.sFF = new TunableDouble(networkName + "sFF", sFF, tuningMode);
@@ -29,7 +30,10 @@ public class TunableArmFFGains {
     return sFF.hasChanged() || gFF.hasChanged() || vFF.hasChanged() || aFF.hasChanged();
   }
 
-  public ArmFeedforward createFeedforward() {
+  public ArmFeedforward createArmFeedforward() {
     return new ArmFeedforward(sFF.get(), gFF.get(), vFF.get(), aFF.get());
+  }
+  public ElevatorFeedforward createElevatorFeedforward() {
+    return new ElevatorFeedforward(sFF.get(), gFF.get(), vFF.get(), aFF.get());
   }
 }
