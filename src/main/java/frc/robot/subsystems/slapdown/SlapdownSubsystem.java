@@ -97,12 +97,16 @@ public class SlapdownSubsystem extends SubsystemBase {
         Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
         () -> rotationEncoder.setPositionConversionFactor(rotationConversionFactor),
-        () -> rotationEncoder.getPositionConversionFactor() == rotationConversionFactor,
+        () ->
+            ConfigurationUtils.fpEqual(
+                rotationEncoder.getPositionConversionFactor(), rotationConversionFactor),
         rotationFaultRecorder.run("Position conversion factor"),
         Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
         () -> rotationEncoder.setVelocityConversionFactor(rotationConversionFactor / 60),
-        () -> rotationEncoder.getVelocityConversionFactor() == rotationConversionFactor / 60,
+        () ->
+            ConfigurationUtils.fpEqual(
+                rotationEncoder.getVelocityConversionFactor(), rotationConversionFactor / 60),
         rotationFaultRecorder.run("Velocity conversion factor"),
         Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
@@ -147,12 +151,17 @@ public class SlapdownSubsystem extends SubsystemBase {
         Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
         () -> feederMotor.getEncoder().setPositionConversionFactor(feederConversionFactor),
-        () -> feederMotor.getEncoder().getPositionConversionFactor() == feederConversionFactor,
+        () ->
+            ConfigurationUtils.fpEqual(
+                feederMotor.getEncoder().getPositionConversionFactor(), feederConversionFactor),
         feederFaultRecorder.run("Position conversion factor"),
         Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
         () -> feederMotor.getEncoder().setVelocityConversionFactor(feederConversionFactor / 60),
-        () -> feederMotor.getEncoder().getVelocityConversionFactor() == feederConversionFactor / 60,
+        () ->
+            ConfigurationUtils.fpEqual(
+                feederMotor.getEncoder().getVelocityConversionFactor(),
+                feederConversionFactor / 60),
         feederFaultRecorder.run("Velocity conversion factor"),
         Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(

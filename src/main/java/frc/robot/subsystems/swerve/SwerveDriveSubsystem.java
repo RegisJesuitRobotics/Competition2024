@@ -100,7 +100,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   private final TelemetryPigeon2 pigeon =
       new TelemetryPigeon2(PIGEON_ID, "/drive/gyro", CAN_BUS, MiscConstants.TUNING_MODE);
 
-  private final StatusSignal<Double> yawSignal = pigeon.getYaw();
+  private StatusSignal<Double> yawSignal;
 
   private final SwerveDrivePoseEstimator poseEstimator;
 
@@ -156,16 +156,14 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     modules[1] = new SwerveModule(FRONT_RIGHT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
     modules[2] = new SwerveModule(BACK_LEFT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
     modules[3] = new SwerveModule(BACK_RIGHT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
-
     driveEventLogger.append("Swerve modules initialized");
+    configurePigeon();
 
     this.cameraPoseDataSupplier = cameraPoseDataSupplier;
 
     poseEstimator =
         new SwerveDrivePoseEstimator(
             kinematics, getGyroRotation(), getModulePositions(), new Pose2d());
-
-    configurePigeon();
 
     // Start odometry thread
     Robot.getInstance().addPeriodic(this::updateOdometry, 1.0 / ODOMETRY_FREQUENCY);
@@ -175,6 +173,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
   private void configurePigeon() {
     StringFaultRecorder faultRecorder = new StringFaultRecorder();
+    yawSignal = pigeon.getYaw();
     ConfigurationUtils.applyCheckRecordCTRE(
         () -> yawSignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
         () -> yawSignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,

@@ -89,12 +89,16 @@ public class ElevatorSubsystem extends SubsystemBase {
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
         () -> elevatorEncoder.setPositionConversionFactor(METERS_PER_REV),
-        () -> elevatorEncoder.getPositionConversionFactor() == METERS_PER_REV,
+        () ->
+            ConfigurationUtils.fpEqual(
+                elevatorEncoder.getPositionConversionFactor(), METERS_PER_REV),
         faultRecorder.run("Position conversion factor"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
         () -> elevatorEncoder.setVelocityConversionFactor(METERS_PER_REV / 60),
-        () -> elevatorEncoder.getVelocityConversionFactor() == METERS_PER_REV / 60,
+        () ->
+            ConfigurationUtils.fpEqual(
+                elevatorEncoder.getVelocityConversionFactor(), METERS_PER_REV / 60),
         faultRecorder.run("Velocity conversion factor"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(

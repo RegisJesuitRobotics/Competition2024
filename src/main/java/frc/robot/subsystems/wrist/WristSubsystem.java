@@ -86,12 +86,15 @@ public class WristSubsystem extends SubsystemBase {
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
         () -> absoluteEncoder.setPositionConversionFactor(Math.PI * 2),
-        () -> absoluteEncoder.getPositionConversionFactor() == Math.PI * 2,
+        () ->
+            ConfigurationUtils.fpEqual(absoluteEncoder.getPositionConversionFactor(), Math.PI * 2),
         faultRecorder.run("Position conversion factor"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
-        () -> absoluteEncoder.setVelocityConversionFactor(Math.PI * 2),
-        () -> absoluteEncoder.getVelocityConversionFactor() == Math.PI * 2,
+        () -> absoluteEncoder.setVelocityConversionFactor(Math.PI * 2 / 60.0),
+        () ->
+            ConfigurationUtils.fpEqual(
+                absoluteEncoder.getVelocityConversionFactor(), Math.PI * 2 / 60.0),
         faultRecorder.run("Velocity conversion factor"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     // Set the relative encoder too for logging
@@ -99,8 +102,9 @@ public class WristSubsystem extends SubsystemBase {
     ConfigurationUtils.applyCheckRecordRev(
         () -> wristMotor.getEncoder().setPositionConversionFactor(relativeEncoderConversionFactor),
         () ->
-            wristMotor.getEncoder().getPositionConversionFactor()
-                == relativeEncoderConversionFactor,
+            ConfigurationUtils.fpEqual(
+                wristMotor.getEncoder().getPositionConversionFactor(),
+                relativeEncoderConversionFactor),
         faultRecorder.run("Position conversion factor"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
@@ -109,8 +113,9 @@ public class WristSubsystem extends SubsystemBase {
                 .getEncoder()
                 .setVelocityConversionFactor(relativeEncoderConversionFactor / 60.0),
         () ->
-            wristMotor.getEncoder().getVelocityConversionFactor()
-                == relativeEncoderConversionFactor / 60.0,
+            ConfigurationUtils.fpEqual(
+                wristMotor.getEncoder().getVelocityConversionFactor(),
+                relativeEncoderConversionFactor / 60.0),
         faultRecorder.run("Velocity conversion factor"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(

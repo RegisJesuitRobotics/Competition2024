@@ -1,13 +1,11 @@
 package frc.robot;
 
-import static frc.robot.Autos.nearestAmpCommand;
 import static frc.robot.Constants.ShooterConstants.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -148,9 +146,9 @@ public class RobotContainer {
     //        .povLeft()
     //        .and(getDistanceToStaging(DriverStation.getAlliance().get(), driveSubsystem))
     //        .onTrue(nearestClimberCommand(DriverStation.getAlliance().get(), driveSubsystem));
-    driverController
-        .povRight()
-        .onTrue(nearestAmpCommand(DriverStation.getAlliance().get(), driveSubsystem));
+    //    driverController
+    //        .povRight()
+    //        .onTrue(nearestAmpCommand(DriverStation.getAlliance().get(), driveSubsystem));
     driverController
         .povDown()
         .toggleOnTrue(slapdownSubsystem.setRotationGoalCommand(new Rotation2d(0)));

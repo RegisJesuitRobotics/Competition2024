@@ -84,12 +84,16 @@ public class ShooterSubsystem extends SubsystemBase {
         Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
         () -> flywheelEncoder.setPositionConversionFactor(conversionFactor),
-        () -> flywheelEncoder.getPositionConversionFactor() == conversionFactor,
+        () ->
+            ConfigurationUtils.fpEqual(
+                flywheelEncoder.getPositionConversionFactor(), conversionFactor),
         faultRecorder.run("Position conversion factor"),
         Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
         () -> flywheelEncoder.setVelocityConversionFactor(conversionFactor / 60),
-        () -> flywheelEncoder.getVelocityConversionFactor() == conversionFactor / 60,
+        () ->
+            ConfigurationUtils.fpEqual(
+                flywheelEncoder.getVelocityConversionFactor(), conversionFactor / 60),
         faultRecorder.run("Velocity conversion factor"),
         Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(

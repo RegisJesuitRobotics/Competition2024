@@ -181,7 +181,7 @@ public class SwerveModule {
         () -> {
           TalonFXConfiguration appliedConfig = new TalonFXConfiguration();
           driveMotor.getConfigurator().refresh(appliedConfig);
-          return appliedConfig.equals(motorConfiguration);
+          return ConfigEquality.isTalonConfigurationEqual(motorConfiguration, appliedConfig);
         },
         faultRecorder.run("Motor configuration"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
@@ -260,19 +260,19 @@ public class SwerveModule {
 
     ConfigurationUtils.applyCheckRecordRev(
         () -> steerController.setP(steerPositionPIDGains.p.get()),
-        () -> steerController.getP() == steerPositionPIDGains.p.get(),
+        () -> ConfigurationUtils.fpEqual(steerController.getP(), steerPositionPIDGains.p.get()),
         faultRecorder.run("P gain"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
 
     ConfigurationUtils.applyCheckRecordRev(
         () -> steerController.setI(steerPositionPIDGains.i.get()),
-        () -> steerController.getI() == steerPositionPIDGains.i.get(),
+        () -> ConfigurationUtils.fpEqual(steerController.getI(), steerPositionPIDGains.i.get()),
         faultRecorder.run("I gain"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
 
     ConfigurationUtils.applyCheckRecordRev(
         () -> steerController.setD(steerPositionPIDGains.d.get()),
-        () -> steerController.getD() == steerPositionPIDGains.d.get(),
+        () -> ConfigurationUtils.fpEqual(steerController.getD(), steerPositionPIDGains.d.get()),
         faultRecorder.run("D gain"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
 
@@ -283,24 +283,29 @@ public class SwerveModule {
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
         () -> steerController.setPositionPIDWrappingMinInput(-Math.PI),
-        () -> steerController.getPositionPIDWrappingMinInput() == -Math.PI,
+        () ->
+            ConfigurationUtils.fpEqual(steerController.getPositionPIDWrappingMinInput(), -Math.PI),
         faultRecorder.run("PID wrapping min input"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
         () -> steerController.setPositionPIDWrappingMaxInput(Math.PI),
-        () -> steerController.getPositionPIDWrappingMaxInput() == Math.PI,
+        () -> ConfigurationUtils.fpEqual(steerController.getPositionPIDWrappingMaxInput(), Math.PI),
         faultRecorder.run("PID wrapping max input"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
 
     ConfigurationUtils.applyCheckRecordRev(
         () -> steerRelativeEncoder.setPositionConversionFactor(steerPositionConversion),
-        () -> steerRelativeEncoder.getPositionConversionFactor() == steerPositionConversion,
+        () ->
+            ConfigurationUtils.fpEqual(
+                steerRelativeEncoder.getPositionConversionFactor(), steerPositionConversion),
         faultRecorder.run("Position conversion factor"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
 
     ConfigurationUtils.applyCheckRecordRev(
         () -> steerRelativeEncoder.setVelocityConversionFactor(steerVelocityConversion),
-        () -> steerRelativeEncoder.getVelocityConversionFactor() == steerVelocityConversion,
+        () ->
+            ConfigurationUtils.fpEqual(
+                steerRelativeEncoder.getVelocityConversionFactor(), steerVelocityConversion),
         faultRecorder.run("Velocity conversion factor"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
 
@@ -348,7 +353,7 @@ public class SwerveModule {
         () -> {
           CANcoderConfiguration appliedConfig = new CANcoderConfiguration();
           absoluteSteerEncoder.getConfigurator().refresh(appliedConfig);
-          return appliedConfig.equals(encoderConfiguration);
+          return ConfigEquality.isCANcoderConfigurationEqual(encoderConfiguration, appliedConfig);
         },
         faultRecorder.run("Encoder configuration"),
         MiscConstants.CONFIGURATION_ATTEMPTS);

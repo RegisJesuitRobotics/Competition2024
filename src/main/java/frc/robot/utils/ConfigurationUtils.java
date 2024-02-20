@@ -52,48 +52,67 @@ public class ConfigurationUtils {
   public static boolean applyCheckRecord(
       Runnable apply, BooleanSupplier check, Runnable record, int attempts) {
     if (applyCheck(apply, check, attempts)) {
-      record.run();
       return true;
     }
+    record.run();
     return false;
   }
 
   public static boolean applyCheckRecord(
       BooleanSupplier apply, BooleanSupplier check, Runnable record, int attempts) {
     if (applyCheck(apply, check, attempts)) {
-      record.run();
       return true;
     }
+    record.run();
     return false;
   }
 
   public static boolean applyCheckRecordRev(
       Supplier<REVLibError> apply, BooleanSupplier check, Runnable record, int attempts) {
     if (applyCheckRev(apply, check, attempts)) {
-      record.run();
       return true;
     }
+    record.run();
     return false;
   }
 
   public static boolean applyCheckRecordCTRE(
       Supplier<StatusCode> apply, BooleanSupplier check, Runnable record, int attempts) {
     if (applyCheckCTRE(apply, check, attempts)) {
-      record.run();
       return true;
     }
+    record.run();
     return false;
   }
 
+  /**
+   * Post a device configuration message to the subsystem event entry
+   *
+   * @param fault true if there was a fault
+   * @param subsystemEventEntry a logger for the subsystem
+   * @param deviceName the name of the motor
+   * @param faultString the fault string
+   */
   public static void postDeviceConfig(
-      boolean fault, Consumer<String> subsystemEventEntry, String motorName, String faultString) {
+      boolean fault, Consumer<String> subsystemEventEntry, String deviceName, String faultString) {
     if (fault) {
-      String message = motorName + " failed to initialize: " + faultString;
+      String message = deviceName + " failed to initialize: " + faultString;
       subsystemEventEntry.accept(message);
-      DriverStation.reportWarning(message, false);
+      DriverStation.reportWarning(message, true);
     } else {
-      subsystemEventEntry.accept(motorName + " initialized");
+      subsystemEventEntry.accept(deviceName + " initialized");
     }
+  }
+
+  /**
+   * Compare two doubles for equality within a small epsilon
+   *
+   * @param d1 the first double
+   * @param d2 the second double
+   * @return true if the doubles are equal within a small epsilon
+   */
+  public static boolean fpEqual(double d1, double d2) {
+    return Math.abs(d1 - d2) < 0.001;
   }
 
   public static class StringFaultRecorder {

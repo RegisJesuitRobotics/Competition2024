@@ -1,11 +1,14 @@
 package frc.robot.telemetry;
 
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.CANBus.CANBusStatus;
 import edu.wpi.first.hal.can.CANStatus;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.BuildConstants;
 import frc.robot.Constants.MiscConstants;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.StructTelemetryEntry;
 import frc.robot.utils.Alert;
@@ -16,8 +19,12 @@ import frc.robot.utils.RaiderStructs;
 public class MiscRobotTelemetryAndAlerts {
   private static final String tableName = "/robot/";
 
-  private final Alert highCanUsageAlert = new Alert("High CAN Usage", AlertType.WARNING);
-  private final LinearFilter highCanUsageFilter = LinearFilter.movingAverage(50);
+  private final Alert highRIOCanUsageAlert = new Alert("High RIO CAN Usage", AlertType.WARNING);
+  private final LinearFilter highRIOCanUsageFilter = LinearFilter.movingAverage(50);
+
+  private final Alert highCANivoreCanUsageAlert =
+      new Alert("High CANivore CAN Usage", AlertType.WARNING);
+  private final LinearFilter highCANivoreCanUsageFilter = LinearFilter.movingAverage(50);
 
   private final Alert[] controllerAlerts = new Alert[MiscConstants.USED_CONTROLLER_PORTS.length];
 
@@ -27,7 +34,12 @@ public class MiscRobotTelemetryAndAlerts {
       new DoubleTelemetryEntry(tableName + "inputCurrent", MiscConstants.TUNING_MODE);
   private final StructTelemetryEntry<CANStatus> canStatusEntry =
       new StructTelemetryEntry<>(
-          tableName + "canStatus", RaiderStructs.CANStatusStruct, MiscConstants.TUNING_MODE);
+          tableName + "rioCANStatus", RaiderStructs.CANStatusStruct, MiscConstants.TUNING_MODE);
+  private final StructTelemetryEntry<CANBusStatus> canivoreStatusEntry =
+      new StructTelemetryEntry<>(
+          tableName + "canivoreCANStatus",
+          RaiderStructs.CANBusStatusStruct,
+          MiscConstants.TUNING_MODE);
 
   public MiscRobotTelemetryAndAlerts() {
     for (int i = 0; i < controllerAlerts.length; i++) {
@@ -58,13 +70,19 @@ public class MiscRobotTelemetryAndAlerts {
     inputVoltageEntry.append(RobotController.getInputVoltage());
     inputCurrentEntry.append(RobotController.getInputCurrent());
 
+    // RIO CAN Usage
     CANStatus canStatus = RobotController.getCANStatus();
     canStatusEntry.append(canStatus);
-
-    // CAN Usage
     double percentBusUsage = canStatus.percentBusUtilization;
-    double filtered = highCanUsageFilter.calculate(percentBusUsage);
-    highCanUsageAlert.set(filtered >= 0.9);
+    double filtered = highRIOCanUsageFilter.calculate(percentBusUsage);
+    highRIOCanUsageAlert.set(filtered >= 0.9);
+
+    // CANivore CAN Usage
+    CANBusStatus canivoreStatus = CANBus.getStatus(SwerveConstants.CAN_BUS);
+    canivoreStatusEntry.append(canivoreStatus);
+    double percentBusUsageCanivore = canivoreStatus.BusUtilization;
+    double filteredCanivore = highCANivoreCanUsageFilter.calculate(percentBusUsageCanivore);
+    highCANivoreCanUsageAlert.set(filteredCanivore >= 0.9);
 
     // Joysticks
     for (int i = 0; i < controllerAlerts.length; i++) {

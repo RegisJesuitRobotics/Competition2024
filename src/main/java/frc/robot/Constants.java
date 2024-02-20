@@ -279,7 +279,7 @@ public final class Constants {
     public static final int[] USED_CONTROLLER_PORTS = {0, 1};
     public static final boolean TUNING_MODE = true;
 
-    public static final int CONFIGURATION_ATTEMPTS = 5;
+    public static final int CONFIGURATION_ATTEMPTS = 10;
   }
 
   public static final double DT = 0.02;
