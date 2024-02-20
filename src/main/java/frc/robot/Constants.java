@@ -46,12 +46,20 @@ public final class Constants {
     public static final int ROTATION_STALL_MOTOR_CURRENT = 20;
     public static final int ROTATION_FREE_MOTOR_CURRENT = 10;
 
+    public static final double ROTATION_UP_ANGLE = Units.degreesToRadians(-24.404689 - 90.0);
+    public static final double ROTATION_DOWN_ANGLE =
+        ROTATION_UP_ANGLE + Units.degreesToRadians(128.817943);
+
+    public static final int ROTATION_LIMIT_SWITCH_ID = 0;
+
     public static final TunablePIDGains ROTATION_GAINS =
-        new TunablePIDGains("/slapdown/rotation/gains", 0, 0, 0, true);
+        new TunablePIDGains("/slapdown/rotation/gains", 0, 0, 0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains ROTATION_TRAP_GAINS =
-        new TunableTrapezoidalProfileGains("/slapdown/rotation/trapGains", 0, 0, true);
-    public static final TunableFFGains ROTATION_FF_GAINS =
-        new TunableFFGains("/slapdown/rotation/FFGains", 0, 0, 0, true);
+        new TunableTrapezoidalProfileGains(
+            "/slapdown/rotation/trapGains", 0, 0, MiscConstants.TUNING_MODE);
+    public static final TunableArmElevatorFFGains ROTATION_FF_GAINS =
+        new TunableArmElevatorFFGains(
+            "/slapdown/rotation/FFGains", 0, 0, 0, 0, MiscConstants.TUNING_MODE);
   }
 
   public static class ElevatorConstants {

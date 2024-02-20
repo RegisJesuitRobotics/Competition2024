@@ -6,15 +6,15 @@ import static frc.robot.Constants.SlapdownConstants.*;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
-import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.EventTelemetryEntry;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.utils.Alert;
@@ -28,8 +28,6 @@ public class SlapdownSubsystem extends SubsystemBase {
   private static final Alert feederMotorAlert =
       new Alert("Slapdown feeder motor had a fault initializing", Alert.AlertType.ERROR);
 
-  private DoubleTelemetryEntry rotationEncoderEntry =
-      new DoubleTelemetryEntry("/slapdown/encoders", true);
   private final TelemetryCANSparkMax feederMotor =
       new TelemetryCANSparkMax(
           FEEDER_MOTOR_ID,
@@ -42,6 +40,7 @@ public class SlapdownSubsystem extends SubsystemBase {
           MotorType.kBrushless,
           "/slapdown/rotation/motor",
           Constants.MiscConstants.TUNING_MODE);
+
   private final SysIdRoutine slapdownRotationSysId =
       new SysIdRoutine(
           new SysIdRoutine.Config(),
@@ -50,18 +49,20 @@ public class SlapdownSubsystem extends SubsystemBase {
               null, // No log consumer, since data is recorded by URCL
               this));
 
-  private final SimpleMotorFeedforward rotationFF;
+  private final ArmFeedforward rotationFF = ROTATION_FF_GAINS.createArmFeedforward();
   private final TunableTelemetryProfiledPIDController rotationController =
       new TunableTelemetryProfiledPIDController(
           "/slapdown/rotation/controller", ROTATION_GAINS, ROTATION_TRAP_GAINS);
+
   private final RelativeEncoder rotationEncoder;
+
+  private final DigitalInput rotationLimitSwitch = new DigitalInput(ROTATION_LIMIT_SWITCH_ID);
 
   private final EventTelemetryEntry slapdownEventEntry =
       new EventTelemetryEntry("/slapdown/events");
 
   public SlapdownSubsystem() {
     rotationEncoder = rotationMotor.getEncoder();
-    rotationFF = ROTATION_FF_GAINS.createFeedforward();
     configMotors();
 
     setDefaultCommand(stopAllCommand());
@@ -226,9 +227,11 @@ public class SlapdownSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    if (rotationLimitSwitch.get()) {
+      rotationEncoder.setPosition(ROTATION_UP_ANGLE);
+    }
+
     rotationMotor.logValues();
     feederMotor.logValues();
-
-    rotationEncoderEntry.append(getPosition());
   }
 }
