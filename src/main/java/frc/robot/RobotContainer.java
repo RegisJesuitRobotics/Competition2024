@@ -79,9 +79,11 @@ public class RobotContainer {
   }
 
   private void configureAutos() {
-    autoCommand.addOption(
-        "Elevator Quastatic Forward",
-        elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption("Wrist Q Forward", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption("Wrist Q Back", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoCommand.addOption("Wrist D Forward", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption("Wrist D Back", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoCommand.addOption("Wrist 5 deg", wristSubsystem.setPositonCommand(new Rotation2d(Units.degreesToRadians(40))));
     autoCommand.addOption(
         "Elevator Quastatic Backward",
         elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));

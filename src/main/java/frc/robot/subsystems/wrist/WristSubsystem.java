@@ -1,5 +1,6 @@
 package frc.robot.subsystems.wrist;
 
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.WristConstants.*;
 
@@ -27,14 +28,14 @@ public class WristSubsystem extends SubsystemBase {
       new Alert("Wrist motor had a fault initializing", Alert.AlertType.ERROR);
   private final SysIdRoutine wristSysId =
       new SysIdRoutine(
-          new SysIdRoutine.Config(),
+          new SysIdRoutine.Config(Volts.per(Second).of(.5), Volts.of(2), null, null),
           new SysIdRoutine.Mechanism(
               (voltage) -> setVoltage(voltage.in(Volts)),
               null, // No log consumer, since data is recorded by URCL
               this));
 
   private DoubleTelemetryEntry absoluteEncoderEntry =
-      new DoubleTelemetryEntry("/wrist/encoders", true);
+      new DoubleTelemetryEntry("/wrist/absoluteEncoder", true);
 
   private final TelemetryCANSparkMax wristMotor =
       new TelemetryCANSparkMax(
@@ -149,7 +150,7 @@ public class WristSubsystem extends SubsystemBase {
     return this.run(() -> setVoltage(voltage));
   }
 
-  public Command setPosiitonCommand(Rotation2d desiredPosition) {
+  public Command setPositonCommand(Rotation2d desiredPosition) {
     return this.run(
         () -> {
           controller.setGoal(desiredPosition.getRadians());

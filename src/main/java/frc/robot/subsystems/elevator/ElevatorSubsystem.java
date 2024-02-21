@@ -174,6 +174,10 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // TODO: make this or elegant
+    if (bottomLimit.get()) {
+      elevatorEncoder.setPosition(0.0);
+    }
     logValues();
   }
 

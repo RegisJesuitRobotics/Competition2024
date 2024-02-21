@@ -50,7 +50,7 @@ public final class Constants {
     public static final double ROTATION_DOWN_ANGLE =
         ROTATION_UP_ANGLE + Units.degreesToRadians(128.817943);
 
-    public static final int ROTATION_LIMIT_SWITCH_ID = 0;
+    public static final int ROTATION_LIMIT_SWITCH_ID = 1;
 
     public static final TunablePIDGains ROTATION_GAINS =
         new TunablePIDGains("/slapdown/rotation/gains", 0, 0, 0, MiscConstants.TUNING_MODE);
@@ -74,7 +74,7 @@ public final class Constants {
 
     public static final int ELEVATOR_MOTOR_ID = 4;
 
-    public static final int ELEVATOR_LIMIT_SWITCH = 2;
+    public static final int ELEVATOR_LIMIT_SWITCH = 0;
 
     public static final double ELEVATOR_GEAR_RATIO = 5.0 * 3.0;
     public static final double METERS_PER_REV =
@@ -214,18 +214,21 @@ public final class Constants {
     public static final Rotation2d WRIST_MIN = new Rotation2d(0);
 
     public static final int WRIST_MOTOR_ID = 2;
-    public static final boolean INVERTED = false;
+    public static final boolean INVERTED = true;
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
 
     // TODO: TUNE PID & TRAP & FF
     public static final TunableArmElevatorFFGains WRIST_FF_GAINS =
-        new TunableArmElevatorFFGains("/wrist/ffGains", 0, 0, 0, 0, MiscConstants.TUNING_MODE);
-    public static final TunablePIDGains WRIST_PID_GAINS =
+        new TunableArmElevatorFFGains("/wrist/ffGains", 0.078, 0.292, 1.0951, 0.261, MiscConstants.TUNING_MODE);
+//    public static final TunablePIDGains WRIST_PID_GAINS =
+//        new TunablePIDGains("/wrist/pidGains", 56.599, 0, 4.8897, MiscConstants.TUNING_MODE);
+//
+public static final TunablePIDGains WRIST_PID_GAINS =
         new TunablePIDGains("/wrist/pidGains", 0, 0, 0, MiscConstants.TUNING_MODE);
 
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
-        new TunableTrapezoidalProfileGains("/wrist/trapGains", 0, 0, MiscConstants.TUNING_MODE);
+        new TunableTrapezoidalProfileGains("/wrist/trapGains", Units.rotationsToRadians(0.5), Units.rotationsToRadians(0.5), MiscConstants.TUNING_MODE);
   }
 
   public static class TransportConstants {

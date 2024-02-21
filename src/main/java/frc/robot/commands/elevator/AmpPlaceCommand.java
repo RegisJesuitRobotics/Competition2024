@@ -27,7 +27,7 @@ public class AmpPlaceCommand extends SequentialCommandGroup {
     this.transportSubsystem = transportSubsystem;
     addCommands(
         elevatorSubsystem.setElevatorPositionCommand(AMP_ELEVATOR_HEIGHT),
-        wristSubsystem.setPosiitonCommand(WRIST_AMP_POSITION),
+        wristSubsystem.setPositonCommand(WRIST_AMP_POSITION),
         new ShootAtAngleCommand(
             shooterSubsystem, transportSubsystem, wristSubsystem, WRIST_AMP_POSITION));
   }
