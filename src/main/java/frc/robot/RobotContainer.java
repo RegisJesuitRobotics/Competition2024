@@ -181,10 +181,7 @@ public class RobotContainer {
     //    operatorController
     //        .rightStick()
     //        .whileTrue(elevatorSubsystem.runElevatorCommand(operatorController.getRightY()));
-    operatorController
-        .rightTrigger()
-        .onTrue(
-            new ShootAtAngleCommand(
+    operatorController.rightTrigger().onTrue(new ShootAtAngleCommand(
                 shooterSubsystem, transportSubsystem, wristSubsystem, SHOOTING_ANGLE));
     operatorController
         .leftTrigger()
@@ -200,6 +197,9 @@ public class RobotContainer {
         .onTrue(
             new AmpPlaceCommand(
                 elevatorSubsystem, wristSubsystem, shooterSubsystem, transportSubsystem));
+    operatorController.share().whileTrue(Commands.parallel(elevatorSubsystem.setElevatorPositionCommand(0), slapdownSubsystem.setFeederVoltageCommand(6), intakeSubsystem.setIntakeVoltageCommand(6), transportSubsystem.setVoltageCommand(6.0).until(transportSubsystem::atSensor).andThen(transportSubsystem.setVoltageCommand(0.0))));
+//    operatorController.share().onTrue(transportSubsystem.setVoltageCommand(6.0).until(transportSubsystem::atSensor));
+    operatorController.options().whileTrue(Commands.parallel(elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(3)), shooterSubsystem.runVelocityCommand(3000.0/60), Commands.sequence(Commands.waitUntil(() -> shooterSubsystem.getVelocity() >= Units.rotationsToRadians(3000.0/60)), transportSubsystem.setVoltageCommand(10.0))));
   }
 
   private void configureDriving() {

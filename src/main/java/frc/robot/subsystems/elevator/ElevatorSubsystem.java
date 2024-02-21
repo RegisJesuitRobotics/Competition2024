@@ -118,7 +118,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public void atBottomLimit() {
-    if (bottomLimit.get()) {
+    if (!bottomLimit.get()) {
       elevatorEncoder.setPosition(0);
     }
   }
@@ -175,7 +175,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // TODO: make this or elegant
-    if (bottomLimit.get()) {
+    if (!bottomLimit.get()) {
       elevatorEncoder.setPosition(0.0);
     }
     logValues();
@@ -183,7 +183,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   private void logValues() {
     elevatorMotor.logValues();
-    bottomLimitEntry.append(bottomLimit.get());
+    bottomLimitEntry.append(!bottomLimit.get());
 
     if (FF_GAINS.hasChanged()) {
       feedforward = FF_GAINS.createElevatorFeedforward();

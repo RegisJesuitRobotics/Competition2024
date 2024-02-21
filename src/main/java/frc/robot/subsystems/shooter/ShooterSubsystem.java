@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -43,7 +44,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private final SimpleMotorFeedforward feedforward = SHOOTER_FF_GAINS.createFeedforward();
 
   private final DoubleTelemetryEntry flyVoltageReq =
-      new DoubleTelemetryEntry("/shooter/voltageReq", false);
+      new DoubleTelemetryEntry("/shooter/voltageReq", true);
   private final EventTelemetryEntry shooterEventEntry = new EventTelemetryEntry("/shooter/events");
 
   public ShooterSubsystem() {
@@ -115,16 +116,21 @@ public class ShooterSubsystem extends SubsystemBase {
     flywheelMotor.setVoltage(voltage);
   }
 
+  public double getVelocity() {
+    return flywheelEncoder.getVelocity();
+  }
+
   public Command setVoltageCommand(double voltage) {
     return this.run(() -> setVoltage(voltage));
   }
 
   public Command runVelocityCommand(double setpointRotationsPerSecond) {
+    double radiansPerSecond = Units.rotationsToRadians(setpointRotationsPerSecond);
     return this.run(
         () ->
             setVoltage(
-                pidController.calculate(flywheelEncoder.getVelocity(), setpointRotationsPerSecond)
-                    + feedforward.calculate(setpointRotationsPerSecond)));
+                pidController.calculate(flywheelEncoder.getVelocity(), radiansPerSecond)
+                    + feedforward.calculate(radiansPerSecond)));
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {

@@ -86,7 +86,7 @@ public class TransportSubsystem extends SubsystemBase {
   }
 
   public boolean atSensor() {
-    return shooterSensor.get();
+    return !shooterSensor.get();
   }
 
   public Command runTransportOutCommand() {
