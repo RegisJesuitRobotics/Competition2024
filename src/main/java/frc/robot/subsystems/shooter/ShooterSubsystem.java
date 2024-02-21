@@ -27,9 +27,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private final SysIdRoutine shooterSysId =
       new SysIdRoutine(
-          new SysIdRoutine.Config(
-            Volts.per(Second).of(0.5), Volts.of(10), Seconds.of(12), null
-          ),
+          new SysIdRoutine.Config(Volts.per(Second).of(0.5), Volts.of(10), Seconds.of(12), null),
           new SysIdRoutine.Mechanism(
               (voltage) -> setFlyVoltage(voltage.in(Volts)),
               null, // No log consumer, since data is recorded by URCL
@@ -123,7 +121,8 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public boolean inTolerance() {
-    return Math.abs(getVelocity() - pidController.getSetpoint()) / (pidController.getSetpoint()) < 0.01;
+    return Math.abs(getVelocity() - pidController.getSetpoint()) / (pidController.getSetpoint())
+        < 0.01;
   }
 
   public Command setVoltageCommand(double voltage) {

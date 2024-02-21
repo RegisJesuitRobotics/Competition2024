@@ -52,6 +52,8 @@ public final class Constants {
 
     public static final int ROTATION_LIMIT_SWITCH_ID = 1;
 
+    public static final double FEEDER_VOLTAGE = 6.0;
+
     public static final TunablePIDGains ROTATION_GAINS =
         new TunablePIDGains("/slapdown/rotation/gains", 0, 0, 0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains ROTATION_TRAP_GAINS =
@@ -86,8 +88,8 @@ public final class Constants {
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
         new TunableTrapezoidalProfileGains(
             "/gains/extension",
-            Units.inchesToMeters(15),
-            Units.inchesToMeters(40),
+            Units.inchesToMeters(25),
+            Units.inchesToMeters(100),
             MiscConstants.TUNING_MODE);
 
     // TODO: TUNE FF GAINS
@@ -213,6 +215,9 @@ public final class Constants {
     public static final Rotation2d WRIST_MAX = new Rotation2d(Units.degreesToRadians(60));
     public static final Rotation2d WRIST_MIN = new Rotation2d(0);
 
+    public static final double WRIST_OFFSET = 0.0;
+    public static final int WRIST_ENCODER_PORT = 2;
+
     public static final int WRIST_MOTOR_ID = 2;
     public static final boolean INVERTED = true;
     public static final int STALL_MOTOR_CURRENT = 45;
@@ -220,15 +225,20 @@ public final class Constants {
 
     // TODO: TUNE PID & TRAP & FF
     public static final TunableArmElevatorFFGains WRIST_FF_GAINS =
-        new TunableArmElevatorFFGains("/wrist/ffGains", 0.078, 0.292, 1.0951, 0.261, MiscConstants.TUNING_MODE);
-//    public static final TunablePIDGains WRIST_PID_GAINS =
-//        new TunablePIDGains("/wrist/pidGains", 56.599, 0, 4.8897, MiscConstants.TUNING_MODE);
-//
-public static final TunablePIDGains WRIST_PID_GAINS =
+        new TunableArmElevatorFFGains(
+            "/wrist/ffGains", 0.078, 0.292, 1.0951, 0.261, MiscConstants.TUNING_MODE);
+    //    public static final TunablePIDGains WRIST_PID_GAINS =
+    //        new TunablePIDGains("/wrist/pidGains", 56.599, 0, 4.8897, MiscConstants.TUNING_MODE);
+    //
+    public static final TunablePIDGains WRIST_PID_GAINS =
         new TunablePIDGains("/wrist/pidGains", 0, 0, 0, MiscConstants.TUNING_MODE);
 
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
-        new TunableTrapezoidalProfileGains("/wrist/trapGains", Units.rotationsToRadians(0.5), Units.rotationsToRadians(0.5), MiscConstants.TUNING_MODE);
+        new TunableTrapezoidalProfileGains(
+            "/wrist/trapGains",
+            Units.rotationsToRadians(0.5),
+            Units.rotationsToRadians(0.5),
+            MiscConstants.TUNING_MODE);
   }
 
   public static class TransportConstants {
@@ -255,15 +265,9 @@ public static final TunablePIDGains WRIST_PID_GAINS =
     public static final double SHOOTER_GEAR_RATIO = 1.0 / 2.0;
 
     public static TunablePIDGains SHOOTER_PID_GAINS =
-        new TunablePIDGains(
-            "/shooter/pid", 0.005, 0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/shooter/pid", 0.005, 0, 0, MiscConstants.TUNING_MODE);
     public static TunableFFGains SHOOTER_FF_GAINS =
-        new TunableFFGains(
-            "/shooter/FF",
-                0.39383,
-            0.0089833,
-            0.0010833,
-            MiscConstants.TUNING_MODE);
+        new TunableFFGains("/shooter/FF", 0.39383, 0.0089833, 0.0010833, MiscConstants.TUNING_MODE);
   }
 
   public static class ClimberConstants {

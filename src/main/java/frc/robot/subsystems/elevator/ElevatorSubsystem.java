@@ -10,6 +10,7 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.MiscConstants;
@@ -21,6 +22,7 @@ import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.utils.Alert;
 import frc.robot.utils.ConfigurationUtils;
 import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
+import frc.robot.utils.RaiderCommands;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
@@ -38,7 +40,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final TelemetryCANSparkMax elevatorMotor =
       new TelemetryCANSparkMax(ELEVATOR_MOTOR_ID, MotorType.kBrushless, "/elevator/motor", true);
 
-  private TunableTelemetryProfiledPIDController controller =
+  private final TunableTelemetryProfiledPIDController controller =
       new TunableTelemetryProfiledPIDController(
           "elevator/controller", PID_GAINS, TRAPEZOIDAL_PROFILE_GAINS);
 
@@ -54,6 +56,8 @@ public class ElevatorSubsystem extends SubsystemBase {
       new BooleanTelemetryEntry("/elevator/bottomLimit", true);
   private final EventTelemetryEntry elevatorEventEntry =
       new EventTelemetryEntry("/elevator/events");
+
+  private boolean isHomed = false;
 
   public ElevatorSubsystem() {
     configMotors();
@@ -117,10 +121,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     elevatorAlert.set(faultRecorder.hasFault());
   }
 
-  public void atBottomLimit() {
-    if (!bottomLimit.get()) {
-      elevatorEncoder.setPosition(0);
-    }
+  public boolean atBottomLimit() {
+    return !bottomLimit.get();
   }
 
   public boolean atGoal() {
@@ -144,20 +146,31 @@ public class ElevatorSubsystem extends SubsystemBase {
     elevatorMotor.setVoltage(0);
   }
 
-  // TODO: Fix
-  public Command setElevatorPositionCommand(double position) {
-    return this.run(
-            () -> {
-              double feedbackOutput = controller.calculate(getPosition());
-              TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
+  public boolean isHomed() {
+    return isHomed;
+  }
 
-              setVoltage(feedbackOutput + feedforward.calculate(currentSetpoint.velocity));
-            })
-        .beforeStarting(
-            () -> {
-              controller.reset(getPosition(), elevatorEncoder.getVelocity());
-              controller.setGoal(position);
-            });
+  public Command setElevatorPositionCommand(double position) {
+    // If we are not homed, then do not try to run closed loop. that will end poorly
+    return RaiderCommands.ifCondition(this::isHomed)
+        .then(
+            this.run(
+                    () -> {
+                      double feedbackOutput = controller.calculate(getPosition());
+                      TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
+
+                      setVoltage(feedbackOutput + feedforward.calculate(currentSetpoint.velocity));
+                    })
+                .beforeStarting(
+                    () -> {
+                      controller.reset(getPosition(), elevatorEncoder.getVelocity());
+                      controller.setGoal(position);
+                    }))
+        .otherwise(Commands.none());
+  }
+
+  public Command probeHomeCommand() {
+    return setVoltageCommand(-0.5).unless(this::isHomed).until(this::isHomed);
   }
 
   public Command setVoltageCommand(double voltage) {
@@ -175,23 +188,19 @@ public class ElevatorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // TODO: make this or elegant
-    if (!bottomLimit.get()) {
-      elevatorEncoder.setPosition(0.0);
+    if (atBottomLimit()) {
+      isHomed = true;
+      setEncoderPosition(0.0);
     }
     logValues();
   }
 
   private void logValues() {
     elevatorMotor.logValues();
-    bottomLimitEntry.append(!bottomLimit.get());
+    bottomLimitEntry.append(atBottomLimit());
 
     if (FF_GAINS.hasChanged()) {
       feedforward = FF_GAINS.createElevatorFeedforward();
-    }
-    if (PID_GAINS.hasChanged() || TRAPEZOIDAL_PROFILE_GAINS.hasChanged()) {
-      controller =
-          new TunableTelemetryProfiledPIDController(
-              "elevator/controller", PID_GAINS, TRAPEZOIDAL_PROFILE_GAINS);
     }
   }
 }

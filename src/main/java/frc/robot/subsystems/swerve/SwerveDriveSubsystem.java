@@ -166,7 +166,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             kinematics, getGyroRotation(), getModulePositions(), new Pose2d());
 
     // Start odometry thread
-    Robot.getInstance().addPeriodic(this::updateOdometry, 1.0 / ODOMETRY_FREQUENCY);
+//    Robot.getInstance().addPeriodic(this::updateOdometry, 1.0 / ODOMETRY_FREQUENCY);
 
     stopMovement();
   }

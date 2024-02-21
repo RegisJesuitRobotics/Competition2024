@@ -26,7 +26,7 @@ import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.subsystems.slapdown.SlapdownSubsystem;
+import frc.robot.subsystems.slapdown.SlapdownSuperstructure;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
@@ -47,15 +47,13 @@ public class RobotContainer {
   //      new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
   private final SwerveDriveSubsystem driveSubsystem =
       new SwerveDriveSubsystem(
-          (pose) -> {
-            return List.of();
-          });
+          (pose) -> List.of());
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final WristSubsystem wristSubsystem = new WristSubsystem();
   private final TransportSubsystem transportSubsystem = new TransportSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-  private final SlapdownSubsystem slapdownSubsystem = new SlapdownSubsystem();
+  private final SlapdownSuperstructure slapdownSuperstructure = new SlapdownSuperstructure();
   private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
   private final SendableChooser<Command> autoCommand = new SendableChooser<>();
@@ -79,11 +77,17 @@ public class RobotContainer {
   }
 
   private void configureAutos() {
-    autoCommand.addOption("Wrist Q Forward", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption("Wrist Q Back", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoCommand.addOption("Wrist D Forward", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption("Wrist D Back", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    autoCommand.addOption("Wrist 5 deg", wristSubsystem.setPositonCommand(new Rotation2d(Units.degreesToRadians(40))));
+    autoCommand.addOption(
+        "Wrist Q Forward", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption(
+        "Wrist Q Back", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoCommand.addOption(
+        "Wrist D Forward", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption(
+        "Wrist D Back", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoCommand.addOption(
+        "Wrist 5 deg",
+        wristSubsystem.setPositonCommand(new Rotation2d(Units.degreesToRadians(40))));
     autoCommand.addOption(
         "Elevator Quastatic Backward",
         elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
@@ -106,12 +110,6 @@ public class RobotContainer {
         "Intake Test Command",
         intakeSubsystem.setIntakeVoltageCommand(Constants.IntakeConstants.INTAKE_VOLTAGE));
     autoCommand.addOption("Shooter Test Command 4000", shooterSubsystem.runVelocityCommand(100));
-    autoCommand.addOption("Slap Feed", slapdownSubsystem.setFeederVoltageCommand(5));
-    autoCommand.addOption(
-        "Intake feed",
-        Commands.parallel(
-            slapdownSubsystem.setFeederVoltageCommand(5),
-            intakeSubsystem.setIntakeVoltageCommand(Constants.IntakeConstants.INTAKE_VOLTAGE)));
     autoCommand.addOption(
         "Shooter Quastatic Forward Command",
         shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
@@ -155,15 +153,10 @@ public class RobotContainer {
     //        .onTrue(nearestAmpCommand(DriverStation.getAlliance().get(), driveSubsystem));
     driverController
         .povDown()
-        .toggleOnTrue(slapdownSubsystem.setRotationGoalCommand(new Rotation2d(0)));
+        .toggleOnTrue(slapdownSuperstructure.setDownAndRunCommand());
     driverController
-        .povDown()
-        .toggleOnTrue(slapdownSubsystem.setFeederVoltageCommand(4)); // TODO: THIS
-    driverController
-        .povDown()
-        .toggleOnFalse(
-            slapdownSubsystem.setRotationGoalCommand(new Rotation2d(Units.degreesToRadians(90))));
-    driverController.povDown().toggleOnFalse(slapdownSubsystem.setFeederVoltageCommand(0));
+        .povUp()
+        .toggleOnTrue(slapdownSuperstructure.setUpCommand()); // TODO: THIS
     driverController.a().onTrue(intakeSubsystem.checkIntakeCommand());
   }
 
@@ -181,7 +174,10 @@ public class RobotContainer {
     //    operatorController
     //        .rightStick()
     //        .whileTrue(elevatorSubsystem.runElevatorCommand(operatorController.getRightY()));
-    operatorController.rightTrigger().onTrue(new ShootAtAngleCommand(
+    operatorController
+        .rightTrigger()
+        .onTrue(
+            new ShootAtAngleCommand(
                 shooterSubsystem, transportSubsystem, wristSubsystem, SHOOTING_ANGLE));
     operatorController
         .leftTrigger()
@@ -197,10 +193,29 @@ public class RobotContainer {
         .onTrue(
             new AmpPlaceCommand(
                 elevatorSubsystem, wristSubsystem, shooterSubsystem, transportSubsystem));
-    operatorController.share().whileTrue(Commands.parallel(elevatorSubsystem.setElevatorPositionCommand(0), slapdownSubsystem.setFeederVoltageCommand(6), intakeSubsystem.setIntakeVoltageCommand(6), transportSubsystem.setVoltageCommand(4.0).until(transportSubsystem::atSensor).andThen(transportSubsystem.setVoltageCommand(0.0))));
-//    operatorController.share().onTrue(transportSubsystem.setVoltageCommand(6.0).until(transportSubsystem::atSensor));
+    operatorController
+        .share()
+        .whileTrue(
+            Commands.parallel(
+                elevatorSubsystem.setElevatorPositionCommand(0),
+                slapdownSuperstructure.setDownAndRunCommand(),
+                intakeSubsystem.setIntakeVoltageCommand(6),
+                transportSubsystem
+                    .setVoltageCommand(4.0)
+                    .until(transportSubsystem::atSensor)
+                    .andThen(transportSubsystem.setVoltageCommand(0.0))));
+    //
+    // operatorController.share().onTrue(transportSubsystem.setVoltageCommand(6.0).until(transportSubsystem::atSensor));
     double rpm = 10000;
-    operatorController.options().whileTrue(Commands.parallel(elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(0)), shooterSubsystem.runVelocityCommand(rpm/60), Commands.sequence(Commands.waitUntil(shooterSubsystem::inTolerance), transportSubsystem.setVoltageCommand(12.0))));
+    operatorController
+        .options()
+        .whileTrue(
+            Commands.parallel(
+                elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(0)),
+                shooterSubsystem.runVelocityCommand(rpm / 60),
+                Commands.sequence(
+                    Commands.waitUntil(shooterSubsystem::inTolerance),
+                    transportSubsystem.setVoltageCommand(12.0))));
   }
 
   private void configureDriving() {

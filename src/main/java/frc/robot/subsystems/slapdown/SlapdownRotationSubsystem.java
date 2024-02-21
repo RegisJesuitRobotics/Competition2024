@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
@@ -20,20 +21,13 @@ import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.utils.Alert;
 import frc.robot.utils.ConfigurationUtils;
 import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
+import frc.robot.utils.RaiderCommands;
 
-public class SlapdownSubsystem extends SubsystemBase {
+public class SlapdownRotationSubsystem extends SubsystemBase {
 
   private static final Alert rotationMotorAlert =
       new Alert("Slapdown rotation motor had a fault initializing", Alert.AlertType.ERROR);
-  private static final Alert feederMotorAlert =
-      new Alert("Slapdown feeder motor had a fault initializing", Alert.AlertType.ERROR);
 
-  private final TelemetryCANSparkMax feederMotor =
-      new TelemetryCANSparkMax(
-          FEEDER_MOTOR_ID,
-          MotorType.kBrushless,
-          "/slapdown/feeder/motor",
-          Constants.MiscConstants.TUNING_MODE);
   private final TelemetryCANSparkMax rotationMotor =
       new TelemetryCANSparkMax(
           ROTATION_MOTOR_ID,
@@ -55,17 +49,18 @@ public class SlapdownSubsystem extends SubsystemBase {
           "/slapdown/rotation/controller", ROTATION_GAINS, ROTATION_TRAP_GAINS);
 
   private final RelativeEncoder rotationEncoder;
-
   private final DigitalInput rotationLimitSwitch = new DigitalInput(ROTATION_LIMIT_SWITCH_ID);
 
-  private final EventTelemetryEntry slapdownEventEntry =
-      new EventTelemetryEntry("/slapdown/events");
+  private final EventTelemetryEntry eventEntry =
+      new EventTelemetryEntry("/slapdown/rotation/events");
 
-  public SlapdownSubsystem() {
+  private boolean isHomed = false;
+
+  public SlapdownRotationSubsystem() {
     rotationEncoder = rotationMotor.getEncoder();
     configMotors();
 
-    setDefaultCommand(stopAllCommand());
+    setDefaultCommand(setVoltageCommand(0.0));
   }
 
   private void configMotors() {
@@ -120,69 +115,10 @@ public class SlapdownSubsystem extends SubsystemBase {
 
     ConfigurationUtils.postDeviceConfig(
         rotationFaultRecorder.hasFault(),
-        slapdownEventEntry::append,
+        eventEntry::append,
         "Slapdown rotation motor",
         rotationFaultRecorder.getFaultString());
     rotationMotorAlert.set(rotationFaultRecorder.hasFault());
-
-    double feederConversionFactor = (2 * Math.PI) / FEEDER_GEAR_RATIO;
-    StringFaultRecorder feederFaultRecorder = new StringFaultRecorder();
-    ConfigurationUtils.applyCheckRecordRev(
-        () -> feederMotor.setCANTimeout(250),
-        () -> true,
-        feederFaultRecorder.run("CAN timeout"),
-        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    ConfigurationUtils.applyCheckRecordRev(
-        feederMotor::restoreFactoryDefaults,
-        () -> true,
-        feederFaultRecorder.run("Factory default"),
-        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    ConfigurationUtils.applyCheckRecordRev(
-        () -> feederMotor.setSmartCurrentLimit(FEED_STALL_MOTOR_CURRENT, FEED_FREE_MOTOR_CURRENT),
-        () -> true,
-        feederFaultRecorder.run("Current limit"),
-        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    ConfigurationUtils.applyCheckRecordRev(
-        () -> feederMotor.setIdleMode(IdleMode.kCoast),
-        () -> feederMotor.getIdleMode() == IdleMode.kCoast,
-        feederFaultRecorder.run("Idle mode"),
-        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    ConfigurationUtils.applyCheckRecord(
-        () -> feederMotor.setInverted(FEEDER_INVERTED),
-        () -> feederMotor.getInverted() == FEEDER_INVERTED,
-        feederFaultRecorder.run("Invert"),
-        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    ConfigurationUtils.applyCheckRecordRev(
-        () -> feederMotor.getEncoder().setPositionConversionFactor(feederConversionFactor),
-        () ->
-            ConfigurationUtils.fpEqual(
-                feederMotor.getEncoder().getPositionConversionFactor(), feederConversionFactor),
-        feederFaultRecorder.run("Position conversion factor"),
-        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    ConfigurationUtils.applyCheckRecordRev(
-        () -> feederMotor.getEncoder().setVelocityConversionFactor(feederConversionFactor / 60),
-        () ->
-            ConfigurationUtils.fpEqual(
-                feederMotor.getEncoder().getVelocityConversionFactor(),
-                feederConversionFactor / 60),
-        feederFaultRecorder.run("Velocity conversion factor"),
-        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    ConfigurationUtils.applyCheckRecordRev(
-        feederMotor::burnFlashWithDelay,
-        () -> true,
-        feederFaultRecorder.run("Burn flash"),
-        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    ConfigurationUtils.postDeviceConfig(
-        feederFaultRecorder.hasFault(),
-        slapdownEventEntry::append,
-        "Slapdown feeder motor",
-        feederFaultRecorder.getFaultString());
-    feederMotorAlert.set(feederFaultRecorder.hasFault());
-  }
-
-  public void setFeederVoltage(double voltage) {
-    feederMotor.setVoltage(voltage);
   }
 
   public void setRotationVoltage(double voltage) {
@@ -193,16 +129,34 @@ public class SlapdownSubsystem extends SubsystemBase {
     return rotationEncoder.getPosition();
   }
 
-  public Command setRotationGoalCommand(Rotation2d goal) {
-    return this.run(
-        () -> {
-          rotationController.setGoal(goal.getRadians());
-          double feedbackOutput = rotationController.calculate(getPosition());
-          TrapezoidProfile.State currentSetpoint = rotationController.getSetpoint();
+  private boolean atLimit() {
+    return !rotationLimitSwitch.get();
+  }
 
-          setRotationVoltage(
-              feedbackOutput + rotationFF.calculate(getPosition(), currentSetpoint.velocity));
-        });
+  private boolean isHomed() {
+    return isHomed;
+  }
+
+  public Command setRotationGoalCommand(Rotation2d goal) {
+    return RaiderCommands.ifCondition(this::isHomed).then(
+            this.run(
+                    () -> {
+                      rotationController.setGoal(goal.getRadians());
+                      double feedbackOutput = rotationController.calculate(getPosition());
+                      TrapezoidProfile.State currentSetpoint = rotationController.getSetpoint();
+
+                      setRotationVoltage(
+                              feedbackOutput + rotationFF.calculate(getPosition(), currentSetpoint.velocity));
+                    })
+    ).otherwise(Commands.none());
+  }
+
+  public Command setVoltageCommand(double voltage) {
+    return this.run(() -> setRotationVoltage(voltage));
+  }
+
+  public Command probeHomeCommand() {
+    return setVoltageCommand(-0.5).unless(this::atLimit).until(this::atLimit);
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -213,25 +167,13 @@ public class SlapdownSubsystem extends SubsystemBase {
     return slapdownRotationSysId.dynamic(direction);
   }
 
-  public Command setFeederVoltageCommand(double voltage) {
-    return this.run(() -> this.setFeederVoltage(voltage));
-  }
-
-  public Command stopAllCommand() {
-    return this.run(
-        () -> {
-          this.setRotationVoltage(0.0);
-          this.setFeederVoltage(0.0);
-        });
-  }
-
   @Override
   public void periodic() {
-    if (rotationLimitSwitch.get()) {
+    if (atLimit()) {
       rotationEncoder.setPosition(ROTATION_UP_ANGLE);
+      isHomed = true;
     }
 
     rotationMotor.logValues();
-    feederMotor.logValues();
   }
 }

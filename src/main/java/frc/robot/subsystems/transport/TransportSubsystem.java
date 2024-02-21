@@ -24,7 +24,10 @@ public class TransportSubsystem extends SubsystemBase {
   private static final DigitalInput shooterSensor = new DigitalInput(SHOOTER_SENSOR_ID);
   public final TelemetryCANSparkMax transportMotor =
       new TelemetryCANSparkMax(
-          TRANSPORT_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless, "/transport/motor", MiscConstants.TUNING_MODE);
+          TRANSPORT_MOTOR_ID,
+          CANSparkLowLevel.MotorType.kBrushless,
+          "/transport/motor",
+          MiscConstants.TUNING_MODE);
 
   public void runShooterTransportVoltage(double voltage) {
     voltageReq.append(voltage);

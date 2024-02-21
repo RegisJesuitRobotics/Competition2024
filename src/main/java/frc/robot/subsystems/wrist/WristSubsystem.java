@@ -6,10 +6,10 @@ import static frc.robot.Constants.WristConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel;
-import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -40,7 +40,7 @@ public class WristSubsystem extends SubsystemBase {
   private final TelemetryCANSparkMax wristMotor =
       new TelemetryCANSparkMax(
           WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless, "/wrist/motors", true);
-  private final RelativeEncoder absoluteEncoder = wristMotor.getAlternateEncoder(4096);
+  private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(WRIST_ENCODER_PORT);
 
   private final ArmFeedforward feedforward = WRIST_FF_GAINS.createArmFeedforward();
   private final TunableTelemetryProfiledPIDController controller =
@@ -53,6 +53,7 @@ public class WristSubsystem extends SubsystemBase {
 
   public WristSubsystem() {
     configMotor();
+    absoluteEncoder.setDutyCycleRange(1.0 / 1025.0, 1024.0 / 1025.0);
 
     // Default command is safe state
     setDefaultCommand(setVotageCommand(0.0));
@@ -84,19 +85,6 @@ public class WristSubsystem extends SubsystemBase {
         () -> wristMotor.setIdleMode(IdleMode.kBrake),
         () -> wristMotor.getIdleMode() == IdleMode.kBrake,
         faultRecorder.run("Idle mode"),
-        MiscConstants.CONFIGURATION_ATTEMPTS);
-    ConfigurationUtils.applyCheckRecordRev(
-        () -> absoluteEncoder.setPositionConversionFactor(Math.PI * 2),
-        () ->
-            ConfigurationUtils.fpEqual(absoluteEncoder.getPositionConversionFactor(), Math.PI * 2),
-        faultRecorder.run("Position conversion factor"),
-        MiscConstants.CONFIGURATION_ATTEMPTS);
-    ConfigurationUtils.applyCheckRecordRev(
-        () -> absoluteEncoder.setVelocityConversionFactor(Math.PI * 2 / 60.0),
-        () ->
-            ConfigurationUtils.fpEqual(
-                absoluteEncoder.getVelocityConversionFactor(), Math.PI * 2 / 60.0),
-        faultRecorder.run("Velocity conversion factor"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     // Set the relative encoder too for logging
     double relativeEncoderConversionFactor = (2 * Math.PI) / WRIST_GEAR_RATIO;
@@ -134,7 +122,7 @@ public class WristSubsystem extends SubsystemBase {
   }
 
   public Rotation2d getPosition() {
-    return Rotation2d.fromRadians(absoluteEncoder.getPosition());
+    return Rotation2d.fromRotations(absoluteEncoder.getAbsolutePosition() + WRIST_OFFSET);
   }
 
   public boolean atGoal() {
@@ -174,6 +162,6 @@ public class WristSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     wristMotor.logValues();
-    absoluteEncoderEntry.append(absoluteEncoder.getPosition());
+    absoluteEncoderEntry.append(getPosition().getRadians());
   }
 }
