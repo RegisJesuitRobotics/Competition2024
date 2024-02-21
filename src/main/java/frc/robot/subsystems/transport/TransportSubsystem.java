@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.types.BooleanTelemetryEntry;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.EventTelemetryEntry;
@@ -23,7 +24,7 @@ public class TransportSubsystem extends SubsystemBase {
   private static final DigitalInput shooterSensor = new DigitalInput(SHOOTER_SENSOR_ID);
   public final TelemetryCANSparkMax transportMotor =
       new TelemetryCANSparkMax(
-          TRANSPORT_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless, "/transport/motor", false);
+          TRANSPORT_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless, "/transport/motor", MiscConstants.TUNING_MODE);
 
   public void runShooterTransportVoltage(double voltage) {
     voltageReq.append(voltage);

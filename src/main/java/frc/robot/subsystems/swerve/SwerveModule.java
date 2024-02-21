@@ -10,6 +10,7 @@ import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.*;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -310,8 +311,8 @@ public class SwerveModule {
         MiscConstants.CONFIGURATION_ATTEMPTS);
 
     ConfigurationUtils.applyCheckRecordRev(
-        () -> steerMotor.setIdleMode(CANSparkMax.IdleMode.kBrake),
-        () -> steerMotor.getIdleMode() == CANSparkMax.IdleMode.kBrake,
+        () -> steerMotor.setIdleMode(IdleMode.kCoast),
+        () -> steerMotor.getIdleMode() == IdleMode.kCoast,
         faultRecorder.run("Idle mode"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
 

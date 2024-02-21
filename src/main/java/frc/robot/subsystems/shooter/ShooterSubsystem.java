@@ -1,6 +1,6 @@
 package frc.robot.subsystems.shooter;
 
-import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.*;
 import static frc.robot.Constants.ShooterConstants.*;
 
 import com.revrobotics.CANSparkLowLevel;
@@ -27,7 +27,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private final SysIdRoutine shooterSysId =
       new SysIdRoutine(
-          new SysIdRoutine.Config(),
+          new SysIdRoutine.Config(
+            Volts.per(Second).of(0.5), Volts.of(10), Seconds.of(12), null
+          ),
           new SysIdRoutine.Mechanism(
               (voltage) -> setFlyVoltage(voltage.in(Volts)),
               null, // No log consumer, since data is recorded by URCL
@@ -41,7 +43,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private final TunableTelemetryPIDController pidController =
       new TunableTelemetryPIDController("/shooter/pid", SHOOTER_PID_GAINS);
-  private final SimpleMotorFeedforward feedforward = SHOOTER_FF_GAINS.createFeedforward();
+  private SimpleMotorFeedforward feedforward = SHOOTER_FF_GAINS.createFeedforward();
 
   private final DoubleTelemetryEntry flyVoltageReq =
       new DoubleTelemetryEntry("/shooter/voltageReq", true);
@@ -120,6 +122,10 @@ public class ShooterSubsystem extends SubsystemBase {
     return flywheelEncoder.getVelocity();
   }
 
+  public boolean inTolerance() {
+    return Math.abs(getVelocity() - pidController.getSetpoint()) / (pidController.getSetpoint()) < 0.01;
+  }
+
   public Command setVoltageCommand(double voltage) {
     return this.run(() -> setVoltage(voltage));
   }
@@ -147,6 +153,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    if (SHOOTER_FF_GAINS.hasChanged()) {
+      feedforward = SHOOTER_FF_GAINS.createFeedforward();
+    }
     flywheelMotor.logValues();
   }
 }

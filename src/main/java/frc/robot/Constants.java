@@ -32,7 +32,7 @@ public final class Constants {
 
   public static class SlapdownConstants {
     public static final int FEEDER_MOTOR_ID = 7;
-    public static final int ROTATION_MOTOR_ID = 8;
+    public static final int ROTATION_MOTOR_ID = 9;
 
     public static final boolean FEEDER_INVERTED = true;
     public static final boolean ROTATION_INVERTED = false;
@@ -163,18 +163,18 @@ public final class Constants {
 
     public static final SwerveModuleConfiguration FRONT_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            12, 9, 17, false, true, -0.7455146908760071, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            12, 8, 17, false, true, 2.862408, false, SHARED_SWERVE_MODULE_CONFIGURATION);
     public static final SwerveModuleConfiguration FRONT_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            13, 5, 18, false, true, 2.7857091108003242, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            13, 5, 18, false, true, -1.294680, false, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            14, 10, 19, false, true, 2.676796474860444, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            14, 10, 19, false, true, 0.368155, false, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            15, 3, 20, false, true, -2.4605051837685683, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            15, 3, 20, false, true, 2.906894, false, SHARED_SWERVE_MODULE_CONFIGURATION);
   }
 
   public static class AutoConstants {
@@ -256,13 +256,13 @@ public static final TunablePIDGains WRIST_PID_GAINS =
 
     public static TunablePIDGains SHOOTER_PID_GAINS =
         new TunablePIDGains(
-            "/shooter/pid", 0.024885 / (Math.PI * 2), 0, 0, MiscConstants.TUNING_MODE);
+            "/shooter/pid", 0.005, 0, 0, MiscConstants.TUNING_MODE);
     public static TunableFFGains SHOOTER_FF_GAINS =
         new TunableFFGains(
             "/shooter/FF",
-            0.34964 / (Math.PI * 2),
-            0.05597 / (Math.PI * 2),
-            0.01424 / (Math.PI * 2),
+                0.39383,
+            0.0089833,
+            0.0010833,
             MiscConstants.TUNING_MODE);
   }
 
