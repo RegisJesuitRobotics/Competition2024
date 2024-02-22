@@ -148,31 +148,24 @@ public class RobotContainer {
 
   private void configureDriverBindings() {
     configureDriving();
-    driverController.leftTrigger().onTrue(transportSubsystem.setVoltageCommand(Constants.TransportConstants.TRANSPORT_VOLTAGE).until(()->!transportSubsystem.atSensor()).andThen(transportSubsystem.setVoltageCommand(0)));
     driverController
-        .home()
-        .onTrue(
-            RaiderCommands.runOnceAllowDisable(driveSubsystem::zeroHeading)
-                .withName("ZeroHeading"));
+            .home()
+            .onTrue(
+                    RaiderCommands.runOnceAllowDisable(driveSubsystem::zeroHeading)
+                            .withName("ZeroHeading"));
+    driverController.leftTrigger().whileTrue(transportSubsystem.setVoltageCommand(Constants.TransportConstants.TRANSPORT_VOLTAGE));
     driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
-
-    //    driverController
-    //        .povLeft()
-    //        .and(getDistanceToStaging(DriverStation.getAlliance().get(), driveSubsystem))
-    //        .onTrue(nearestClimberCommand(DriverStation.getAlliance().get(), driveSubsystem));
-    //    driverController
-    //        .povRight()
-    //        .onTrue(nearestAmpCommand(DriverStation.getAlliance().get(), driveSubsystem));
-    driverController
-        .povDown()
-        .toggleOnTrue(slapdownSuperstructure.setDownAndRunCommand());
-    driverController
-        .povUp()
-        .toggleOnTrue(slapdownSuperstructure.setUpCommand()); // TODO: THIS
-    driverController.a().onTrue(intakeSubsystem.checkIntakeCommand());
     Command intakeAndFeedUntilDone = Commands.parallel(intakeSubsystem.setIntakeVoltageCommand(Constants.IntakeConstants.INTAKE_VOLTAGE), transportSubsystem.setVoltageCommand(Constants.TransportConstants.TRANSPORT_VOLTAGE)).until(transportSubsystem::atSensor).unless(transportSubsystem::atSensor);
     driverController.leftBumper().whileTrue(Commands.parallel(slapdownSuperstructure.setDownAndRunCommand(), intakeAndFeedUntilDone.asProxy(), elevatorSubsystem.setElevatorPositionCommand(0), wristSubsystem.setPositonCommand(new Rotation2d(0))));
     driverController.leftBumper().onFalse(slapdownSuperstructure.setUpCommand());
+    // TODO: Speaker centric
+    driverController.rightTrigger().whileTrue(Commands.none());
+    // TODO: Amp auto align
+    driverController.x().whileTrue(Commands.none());
+    // TODO: Climb auto align
+    driverController.a().whileTrue(Commands.none());
+    driverController.circle().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
+
   }
 
   private void configureOperatorBindings() {
@@ -269,13 +262,13 @@ public class RobotContainer {
                     vectorRateLimiter.calculate(
                         new Translation2d(
                                 RaiderMathUtils.deadZoneAndCubeJoystick(
-                                    -1 * driverController.getLeftY()),
+                                    driverController.getLeftY()),
                                 RaiderMathUtils.deadZoneAndCubeJoystick(
-                                    -1 * driverController.getLeftX()))
+                                    driverController.getLeftX()))
                             .times(maxTranslationalSpeedSuppler.getAsDouble())),
                 () ->
                     rotationLimiter.calculate(
-                        RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getRightX())
+                        RaiderMathUtils.deadZoneAndCubeJoystick(driverController.getRightX())
                             * maxAngularSpeedSupplier.getAsDouble()),
                 driverController.rightBumper().negate(),
                 driveSubsystem)
@@ -288,13 +281,13 @@ public class RobotContainer {
                     vectorRateLimiter.calculate(
                         new Translation2d(
                                 RaiderMathUtils.deadZoneAndCubeJoystick(
-                                    -1 * driverController.getLeftY()),
+                                    driverController.getLeftY()),
                                 RaiderMathUtils.deadZoneAndCubeJoystick(
-                                    -1 * driverController.getLeftX()))
+                                    driverController.getLeftX()))
                             .times(maxTranslationalSpeedSuppler.getAsDouble())),
                 () ->
                     rotationLimiter.calculate(
-                        RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getRightX())
+                        RaiderMathUtils.deadZoneAndCubeJoystick(driverController.getRightX())
                             * maxAngularSpeedSupplier.getAsDouble()),
                 () -> false,
                 driveSubsystem)

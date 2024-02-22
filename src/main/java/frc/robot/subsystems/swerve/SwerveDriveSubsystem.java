@@ -119,7 +119,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
       new BooleanTelemetryEntry("/drive/allModulesAtAbsoluteZero", true);
 
   private final DoubleTelemetryEntry gyroEntry =
-      new DoubleTelemetryEntry("/drive/gyroDegrees", true);
+      new DoubleTelemetryEntry("/drive/gyroRadians", true);
 
   private final StructTelemetryEntry<ChassisSpeeds> chassisSpeedsEntry =
       new StructTelemetryEntry<>("/drive/speeds", ChassisSpeeds.struct, MiscConstants.TUNING_MODE);
@@ -284,6 +284,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     this.activeSteer = activeSteer;
 
     this.desiredStates = RaiderMathUtils.copySwerveStateArray(desiredStates);
+    desiredSwerveStatesEntry.append(this.desiredStates);
   }
 
   /**
@@ -418,9 +419,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
   private void logValues() {
     allModulesAtAbsoluteZeroEntry.append(allModulesAtAbsolute());
-    gyroEntry.append(getGyroRotation().getDegrees());
+    gyroEntry.append(getGyroRotation().getRadians());
     chassisSpeedsEntry.append(getCurrentChassisSpeeds());
-    desiredSwerveStatesEntry.append(desiredStates);
     actualSwerveStatesEntry.append(getActualStates());
 
     for (SwerveModule module : modules) {
