@@ -1,6 +1,6 @@
 package frc.robot.subsystems.slapdown;
 
-import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.*;
 import static frc.robot.Constants.SlapdownConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
+import frc.robot.telemetry.types.BooleanTelemetryEntry;
+import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.EventTelemetryEntry;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.utils.Alert;
@@ -37,13 +39,17 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
 
   private final SysIdRoutine slapdownRotationSysId =
       new SysIdRoutine(
-          new SysIdRoutine.Config(),
+          new SysIdRoutine.Config(Volts.per(Second).of(0.5), Volts.of(2), Seconds.of(5), null),
           new SysIdRoutine.Mechanism(
               (voltage) -> setRotationVoltage(voltage.in(Volts)),
               null, // No log consumer, since data is recorded by URCL
               this));
 
   private final ArmFeedforward rotationFF = ROTATION_FF_GAINS.createArmFeedforward();
+  private final BooleanTelemetryEntry atLimitEntry = new BooleanTelemetryEntry("/slapdown/rotation/atLimit", true);
+
+  private final BooleanTelemetryEntry isHomedEntry = new BooleanTelemetryEntry("/slapdown/rotation/isHomed", true);
+  private final DoubleTelemetryEntry voltageRequestEntry = new DoubleTelemetryEntry("/slapdown/rotation/voltageReq", Constants.MiscConstants.TUNING_MODE);
   private final TunableTelemetryProfiledPIDController rotationController =
       new TunableTelemetryProfiledPIDController(
           "/slapdown/rotation/controller", ROTATION_GAINS, ROTATION_TRAP_GAINS);
@@ -123,6 +129,7 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
 
   public void setRotationVoltage(double voltage) {
     rotationMotor.setVoltage(voltage);
+    voltageRequestEntry.append(voltage);
   }
 
   private double getPosition() {
@@ -141,13 +148,17 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
     return RaiderCommands.ifCondition(this::isHomed).then(
             this.run(
                     () -> {
-                      rotationController.setGoal(goal.getRadians());
                       double feedbackOutput = rotationController.calculate(getPosition());
                       TrapezoidProfile.State currentSetpoint = rotationController.getSetpoint();
 
                       setRotationVoltage(
-                              feedbackOutput + rotationFF.calculate(getPosition(), currentSetpoint.velocity));
-                    })
+                              feedbackOutput + rotationFF.calculate(currentSetpoint.position, currentSetpoint.velocity));
+                    }).beforeStarting(
+                    () -> {
+                      rotationController.setGoal(goal.getRadians());
+                      rotationController.reset(getPosition(), rotationEncoder.getVelocity());
+                    }
+            )
     ).otherwise(Commands.none());
   }
 
@@ -172,7 +183,10 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
     if (atLimit()) {
       rotationEncoder.setPosition(ROTATION_UP_ANGLE);
       isHomed = true;
+
     }
+    isHomedEntry.append(isHomed);
+    atLimitEntry.append(atLimit());
 
     rotationMotor.logValues();
   }

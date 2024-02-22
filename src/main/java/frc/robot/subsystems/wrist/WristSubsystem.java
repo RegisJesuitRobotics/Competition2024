@@ -6,9 +6,11 @@ import static frc.robot.Constants.WristConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -54,7 +56,7 @@ public class WristSubsystem extends SubsystemBase {
   public WristSubsystem() {
     configMotor();
     absoluteEncoder.setDutyCycleRange(1.0 / 1025.0, 1024.0 / 1025.0);
-
+    wristMotor.getEncoder().setPosition(getPosition());
     // Default command is safe state
     setDefaultCommand(setVotageCommand(0.0));
   }
@@ -121,8 +123,9 @@ public class WristSubsystem extends SubsystemBase {
     wristAlert.set(faultRecorder.hasFault());
   }
 
-  public Rotation2d getPosition() {
-    return Rotation2d.fromRotations(absoluteEncoder.getAbsolutePosition() + WRIST_OFFSET);
+  public double getPosition() {
+
+    return MathUtil.angleModulus(Units.rotationsToRadians(absoluteEncoder.getAbsolutePosition()) + WRIST_OFFSET);
   }
 
   public boolean atGoal() {
@@ -140,15 +143,19 @@ public class WristSubsystem extends SubsystemBase {
 
   public Command setPositonCommand(Rotation2d desiredPosition) {
     return this.run(
-        () -> {
-          controller.setGoal(desiredPosition.getRadians());
-          double feedbackOutput = controller.calculate(getPosition().getRadians());
-          TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
+                    () -> {
+                      double feedbackOutput = controller.calculate(getPosition());
+                      TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
 
-          setVoltage(
-              feedbackOutput
-                  + feedforward.calculate(getPosition().getRadians(), currentSetpoint.velocity));
-        });
+                      setVoltage(
+                              feedbackOutput
+                                      + feedforward.calculate(currentSetpoint.position, currentSetpoint.velocity));
+                    })
+            .beforeStarting(
+                    () -> {
+                      controller.reset(getPosition(), wristMotor.getEncoder().getVelocity());
+                      controller.setGoal(desiredPosition.getRadians());
+                    });
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -162,6 +169,6 @@ public class WristSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     wristMotor.logValues();
-    absoluteEncoderEntry.append(getPosition().getRadians());
+    absoluteEncoderEntry.append(getPosition());
   }
 }

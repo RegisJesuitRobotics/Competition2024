@@ -46,22 +46,21 @@ public final class Constants {
     public static final int ROTATION_STALL_MOTOR_CURRENT = 20;
     public static final int ROTATION_FREE_MOTOR_CURRENT = 10;
 
-    public static final double ROTATION_UP_ANGLE = Units.degreesToRadians(-24.404689 - 90.0);
-    public static final double ROTATION_DOWN_ANGLE =
-        ROTATION_UP_ANGLE + Units.degreesToRadians(128.817943);
+    public static final double ROTATION_UP_ANGLE = -0.0648 - Units.degreesToRadians(90);
+    public static final double ROTATION_DOWN_ANGLE = 2.3 - Units.degreesToRadians(90);
 
     public static final int ROTATION_LIMIT_SWITCH_ID = 1;
 
     public static final double FEEDER_VOLTAGE = 6.0;
 
     public static final TunablePIDGains ROTATION_GAINS =
-        new TunablePIDGains("/slapdown/rotation/gains", 0, 0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/slapdown/rotation/gains", 4.0, 0, 0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains ROTATION_TRAP_GAINS =
         new TunableTrapezoidalProfileGains(
-            "/slapdown/rotation/trapGains", 0, 0, MiscConstants.TUNING_MODE);
+            "/slapdown/rotation/trapGains", 25, 40, MiscConstants.TUNING_MODE);
     public static final TunableArmElevatorFFGains ROTATION_FF_GAINS =
         new TunableArmElevatorFFGains(
-            "/slapdown/rotation/FFGains", 0, 0, 0, 0, MiscConstants.TUNING_MODE);
+            "/slapdown/rotation/FFGains", 0.10403, 0.17546, 0.61704, 0.084257, MiscConstants.TUNING_MODE);
   }
 
   public static class ElevatorConstants {
@@ -84,12 +83,12 @@ public final class Constants {
 
     // TODO: Do These PID GAINS
     public static final TunablePIDGains PID_GAINS =
-        new TunablePIDGains("gains/elevator", 57, 0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("gains/elevator", 20.0, 0, 0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
         new TunableTrapezoidalProfileGains(
             "/gains/extension",
-            Units.inchesToMeters(25),
-            Units.inchesToMeters(100),
+            Units.inchesToMeters(28),
+            Units.inchesToMeters(125),
             MiscConstants.TUNING_MODE);
 
     // TODO: TUNE FF GAINS
@@ -213,9 +212,9 @@ public final class Constants {
 
     // TODO FIND WRIST CLAMPS
     public static final Rotation2d WRIST_MAX = new Rotation2d(Units.degreesToRadians(60));
-    public static final Rotation2d WRIST_MIN = new Rotation2d(0);
+    public static final Rotation2d WRIST_MIN = Rotation2d.fromRadians(-0.027);
 
-    public static final double WRIST_OFFSET = 0.0;
+    public static final double WRIST_OFFSET = -0.288 + Units.degreesToRadians(90.0);
     public static final int WRIST_ENCODER_PORT = 2;
 
     public static final int WRIST_MOTOR_ID = 2;
@@ -226,12 +225,12 @@ public final class Constants {
     // TODO: TUNE PID & TRAP & FF
     public static final TunableArmElevatorFFGains WRIST_FF_GAINS =
         new TunableArmElevatorFFGains(
-            "/wrist/ffGains", 0.078, 0.292, 1.0951, 0.261, MiscConstants.TUNING_MODE);
+            "/wrist/ffGains", .16624, 0.35068, 1.0512, 0.2769, MiscConstants.TUNING_MODE);
     //    public static final TunablePIDGains WRIST_PID_GAINS =
     //        new TunablePIDGains("/wrist/pidGains", 56.599, 0, 4.8897, MiscConstants.TUNING_MODE);
     //
     public static final TunablePIDGains WRIST_PID_GAINS =
-        new TunablePIDGains("/wrist/pidGains", 0, 0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/wrist/pidGains", 2, 0, 0, MiscConstants.TUNING_MODE);
 
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
         new TunableTrapezoidalProfileGains(
@@ -246,7 +245,7 @@ public final class Constants {
     public static final boolean INVERTED = false;
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
-    public static final double TRANSPORT_VOLTAGE = 2.0;
+    public static final double TRANSPORT_VOLTAGE = 6.0;
     public static final int SHOOTER_SENSOR_ID = 8;
   }
 

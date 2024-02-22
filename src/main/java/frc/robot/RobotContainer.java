@@ -77,6 +77,14 @@ public class RobotContainer {
   }
 
   private void configureAutos() {
+    autoCommand.addOption("Slapdown Q Forward", slapdownSuperstructure.getSlapdownRotationSubsystem().sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption("Slapdown Q Back", slapdownSuperstructure.getSlapdownRotationSubsystem().sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoCommand.addOption("Slapdown D Forward", slapdownSuperstructure.getSlapdownRotationSubsystem().sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption("Slapdown D Back", slapdownSuperstructure.getSlapdownRotationSubsystem().sysIdDynamic(SysIdRoutine.Direction.kReverse));
+  autoCommand.addOption("slapdown bottom", slapdownSuperstructure.setDownAndRunCommand());
+    autoCommand.addOption("slapdown top", slapdownSuperstructure.setUpCommand());
+
+  autoCommand.addOption("Probe Elevator", elevatorSubsystem.probeHomeCommand());
     autoCommand.addOption(
         "Wrist Q Forward", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     autoCommand.addOption(
@@ -87,7 +95,7 @@ public class RobotContainer {
         "Wrist D Back", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     autoCommand.addOption(
         "Wrist 5 deg",
-        wristSubsystem.setPositonCommand(new Rotation2d(Units.degreesToRadians(40))));
+        wristSubsystem.setPositonCommand(new Rotation2d(Units.degreesToRadians(5))));
     autoCommand.addOption(
         "Elevator Quastatic Backward",
         elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
@@ -113,6 +121,10 @@ public class RobotContainer {
     autoCommand.addOption(
         "Shooter Quastatic Forward Command",
         shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption("WristElevatorZero", Commands.parallel(
+            wristSubsystem.setPositonCommand(Constants.WristConstants.WRIST_MIN), elevatorSubsystem.setElevatorPositionCommand(0.0)));
+    autoCommand.addOption("WristElevatorNot", Commands.parallel(wristSubsystem.setPositonCommand(Rotation2d.fromDegrees(40.0)), elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(8.0))));
+
     autoCommand.addOption(
         "Shooter Quastatic Backward Command",
         shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
@@ -136,7 +148,7 @@ public class RobotContainer {
 
   private void configureDriverBindings() {
     configureDriving();
-
+    driverController.leftTrigger().onTrue(transportSubsystem.setVoltageCommand(Constants.TransportConstants.TRANSPORT_VOLTAGE).until(()->!transportSubsystem.atSensor()).andThen(transportSubsystem.setVoltageCommand(0)));
     driverController
         .home()
         .onTrue(
@@ -158,9 +170,14 @@ public class RobotContainer {
         .povUp()
         .toggleOnTrue(slapdownSuperstructure.setUpCommand()); // TODO: THIS
     driverController.a().onTrue(intakeSubsystem.checkIntakeCommand());
+    Command intakeAndFeedUntilDone = Commands.parallel(intakeSubsystem.setIntakeVoltageCommand(Constants.IntakeConstants.INTAKE_VOLTAGE), transportSubsystem.setVoltageCommand(Constants.TransportConstants.TRANSPORT_VOLTAGE)).until(transportSubsystem::atSensor).unless(transportSubsystem::atSensor);
+    driverController.leftBumper().whileTrue(Commands.parallel(slapdownSuperstructure.setDownAndRunCommand(), intakeAndFeedUntilDone.asProxy(), elevatorSubsystem.setElevatorPositionCommand(0), wristSubsystem.setPositonCommand(new Rotation2d(0))));
+    driverController.leftBumper().onFalse(slapdownSuperstructure.setUpCommand());
   }
 
   private void configureOperatorBindings() {
+    operatorController.triangle().onTrue(Commands.sequence(shooterSubsystem.runVelocityCommand(10000.0/60)));
+    operatorController.x().onTrue(shooterSubsystem.setVoltageCommand(0));
     operatorController
         .leftTrigger()
         .onTrue(
@@ -204,6 +221,7 @@ public class RobotContainer {
                     .setVoltageCommand(4.0)
                     .until(transportSubsystem::atSensor)
                     .andThen(transportSubsystem.setVoltageCommand(0.0))));
+
     //
     // operatorController.share().onTrue(transportSubsystem.setVoltageCommand(6.0).until(transportSubsystem::atSensor));
     double rpm = 10000;
