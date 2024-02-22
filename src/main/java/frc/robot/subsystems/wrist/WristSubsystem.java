@@ -125,7 +125,8 @@ public class WristSubsystem extends SubsystemBase {
 
   public double getPosition() {
 
-    return MathUtil.angleModulus(Units.rotationsToRadians(absoluteEncoder.getAbsolutePosition()) + WRIST_OFFSET);
+    return MathUtil.angleModulus(
+        Units.rotationsToRadians(absoluteEncoder.getAbsolutePosition()) + WRIST_OFFSET);
   }
 
   public boolean atGoal() {
@@ -143,19 +144,19 @@ public class WristSubsystem extends SubsystemBase {
 
   public Command setPositonCommand(Rotation2d desiredPosition) {
     return this.run(
-                    () -> {
-                      double feedbackOutput = controller.calculate(getPosition());
-                      TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
+            () -> {
+              double feedbackOutput = controller.calculate(getPosition());
+              TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
 
-                      setVoltage(
-                              feedbackOutput
-                                      + feedforward.calculate(currentSetpoint.position, currentSetpoint.velocity));
-                    })
-            .beforeStarting(
-                    () -> {
-                      controller.reset(getPosition(), wristMotor.getEncoder().getVelocity());
-                      controller.setGoal(desiredPosition.getRadians());
-                    });
+              setVoltage(
+                  feedbackOutput
+                      + feedforward.calculate(currentSetpoint.position, currentSetpoint.velocity));
+            })
+        .beforeStarting(
+            () -> {
+              controller.reset(getPosition(), wristMotor.getEncoder().getVelocity());
+              controller.setGoal(desiredPosition.getRadians());
+            });
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {

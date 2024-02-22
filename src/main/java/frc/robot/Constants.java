@@ -60,7 +60,12 @@ public final class Constants {
             "/slapdown/rotation/trapGains", 25, 40, MiscConstants.TUNING_MODE);
     public static final TunableArmElevatorFFGains ROTATION_FF_GAINS =
         new TunableArmElevatorFFGains(
-            "/slapdown/rotation/FFGains", 0.10403, 0.17546, 0.61704, 0.084257, MiscConstants.TUNING_MODE);
+            "/slapdown/rotation/FFGains",
+            0.10403,
+            0.17546,
+            0.61704,
+            0.084257,
+            MiscConstants.TUNING_MODE);
   }
 
   public static class ElevatorConstants {

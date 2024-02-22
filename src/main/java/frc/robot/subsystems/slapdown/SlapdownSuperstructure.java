@@ -16,7 +16,8 @@ public class SlapdownSuperstructure extends SubsystemBase {
         feederSubsystem.setVoltageCommand(FEEDER_VOLTAGE),
         rotationSubsystem.setRotationGoalCommand(Rotation2d.fromRadians(ROTATION_DOWN_ANGLE)));
   }
-  public SlapdownRotationSubsystem getSlapdownRotationSubsystem(){
+
+  public SlapdownRotationSubsystem getSlapdownRotationSubsystem() {
     return rotationSubsystem;
   }
 

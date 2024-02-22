@@ -46,10 +46,14 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
               this));
 
   private final ArmFeedforward rotationFF = ROTATION_FF_GAINS.createArmFeedforward();
-  private final BooleanTelemetryEntry atLimitEntry = new BooleanTelemetryEntry("/slapdown/rotation/atLimit", true);
+  private final BooleanTelemetryEntry atLimitEntry =
+      new BooleanTelemetryEntry("/slapdown/rotation/atLimit", true);
 
-  private final BooleanTelemetryEntry isHomedEntry = new BooleanTelemetryEntry("/slapdown/rotation/isHomed", true);
-  private final DoubleTelemetryEntry voltageRequestEntry = new DoubleTelemetryEntry("/slapdown/rotation/voltageReq", Constants.MiscConstants.TUNING_MODE);
+  private final BooleanTelemetryEntry isHomedEntry =
+      new BooleanTelemetryEntry("/slapdown/rotation/isHomed", true);
+  private final DoubleTelemetryEntry voltageRequestEntry =
+      new DoubleTelemetryEntry(
+          "/slapdown/rotation/voltageReq", Constants.MiscConstants.TUNING_MODE);
   private final TunableTelemetryProfiledPIDController rotationController =
       new TunableTelemetryProfiledPIDController(
           "/slapdown/rotation/controller", ROTATION_GAINS, ROTATION_TRAP_GAINS);
@@ -145,21 +149,24 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
   }
 
   public Command setRotationGoalCommand(Rotation2d goal) {
-    return RaiderCommands.ifCondition(this::isHomed).then(
+    return RaiderCommands.ifCondition(this::isHomed)
+        .then(
             this.run(
                     () -> {
                       double feedbackOutput = rotationController.calculate(getPosition());
                       TrapezoidProfile.State currentSetpoint = rotationController.getSetpoint();
 
                       setRotationVoltage(
-                              feedbackOutput + rotationFF.calculate(currentSetpoint.position, currentSetpoint.velocity));
-                    }).beforeStarting(
+                          feedbackOutput
+                              + rotationFF.calculate(
+                                  currentSetpoint.position, currentSetpoint.velocity));
+                    })
+                .beforeStarting(
                     () -> {
                       rotationController.setGoal(goal.getRadians());
                       rotationController.reset(getPosition(), rotationEncoder.getVelocity());
-                    }
-            )
-    ).otherwise(Commands.none());
+                    }))
+        .otherwise(Commands.none());
   }
 
   public Command setVoltageCommand(double voltage) {
@@ -183,7 +190,6 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
     if (atLimit()) {
       rotationEncoder.setPosition(ROTATION_UP_ANGLE);
       isHomed = true;
-
     }
     isHomedEntry.append(isHomed);
     atLimitEntry.append(atLimit());
