@@ -17,7 +17,7 @@ import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
 public class SlapdownFeederSubsystem extends SubsystemBase {
   private static final Alert feederMotorAlert =
       new Alert("Slapdown feeder motor had a fault initializing", Alert.AlertType.ERROR);
-DoubleTelemetryEntry voltageReq = new DoubleTelemetryEntry("/slapdown/feeder/voltageReq", true);
+  DoubleTelemetryEntry voltageReq = new DoubleTelemetryEntry("/slapdown/feeder/voltageReq", true);
   private final TelemetryCANSparkMax feederMotor =
       new TelemetryCANSparkMax(
           FEEDER_MOTOR_ID,

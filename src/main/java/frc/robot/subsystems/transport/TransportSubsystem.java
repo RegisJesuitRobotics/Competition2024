@@ -95,7 +95,7 @@ public class TransportSubsystem extends SubsystemBase {
 
   public Command runTransportOutCommand() {
     return this.startEnd(
-        () -> this.runShooterTransportVoltage(TRANSPORT_VOLTAGE),
+        () -> this.runShooterTransportVoltage(TRANSPORT_LOAD_VOLTAGE),
         () -> this.runShooterTransportVoltage(0));
   }
 

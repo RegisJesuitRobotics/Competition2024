@@ -18,7 +18,7 @@ public final class Constants {
 
   public static class ScoringConstants {
     public static final double AMP_ELEVATOR_HEIGHT = Units.inchesToMeters(3.5);
-    public static final double AMP_WRIST_ANGLE = Units.degreesToRadians(105.0);
+    public static final double AMP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(105.0);
   }
 
   public static class IntakeConstants {
@@ -228,6 +228,7 @@ public final class Constants {
     public static final int FREE_MOTOR_CURRENT = 25;
 
     // TODO: TUNE PID & TRAP & FF
+    // New gains, 0.43784, 0.0383, 0.76791, 0.55677
     public static final TunableArmElevatorFFGains WRIST_FF_GAINS =
         new TunableArmElevatorFFGains(
             "/wrist/ffGains", .16624, 0.35068, 1.0512, 0.2769, MiscConstants.TUNING_MODE);
@@ -250,9 +251,9 @@ public final class Constants {
     public static final boolean INVERTED = false;
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
-    public static final double TRANSPORT_VOLTAGE = 6.0;
+    public static final double TRANSPORT_LOAD_VOLTAGE = 6.0;
 
-    public static final double TRANSPORT_SHOOTER_VOLTAVE = 12;
+    public static final double TRANSPORT_CLOSE_SPEAKER_VOLTAGE = 12;
     public static final int SHOOTER_SENSOR_ID = 8;
   }
 

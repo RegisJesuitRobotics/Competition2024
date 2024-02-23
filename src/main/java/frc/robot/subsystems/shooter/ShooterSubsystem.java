@@ -7,7 +7,6 @@ import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -129,13 +128,12 @@ public class ShooterSubsystem extends SubsystemBase {
     return this.run(() -> setVoltage(voltage));
   }
 
-  public Command runVelocityCommand(double setpointRotationsPerSecond) {
-    double radiansPerSecond = Units.rotationsToRadians(setpointRotationsPerSecond);
+  public Command runVelocityCommand(double setpointRadiansSecond) {
     return this.run(
         () ->
             setVoltage(
-                pidController.calculate(flywheelEncoder.getVelocity(), radiansPerSecond)
-                    + feedforward.calculate(radiansPerSecond)));
+                pidController.calculate(flywheelEncoder.getVelocity(), setpointRadiansSecond)
+                    + feedforward.calculate(setpointRadiansSecond)));
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {

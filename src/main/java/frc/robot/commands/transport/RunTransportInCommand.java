@@ -19,7 +19,7 @@ public class RunTransportInCommand extends Command {
 
   @Override
   public void initialize() {
-    transportSubsystem.runShooterTransportVoltage(TRANSPORT_VOLTAGE);
+    transportSubsystem.runShooterTransportVoltage(TRANSPORT_LOAD_VOLTAGE);
   }
 
   @Override

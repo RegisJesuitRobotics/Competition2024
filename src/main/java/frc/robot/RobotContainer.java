@@ -1,12 +1,9 @@
 package frc.robot;
 
-import static frc.robot.Constants.ShooterConstants.*;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,11 +13,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.TeleopConstants;
+import frc.robot.commands.MiscCommands;
+import frc.robot.commands.ScoringCommands;
 import frc.robot.commands.drive.LockModulesCommand;
 import frc.robot.commands.drive.teleop.SwerveDriveCommand;
-import frc.robot.commands.elevator.AmpPlaceCommand;
-import frc.robot.commands.shooter.ShootAtAngleCommand;
-import frc.robot.commands.wrist.IntakeToShooterCommand;
 import frc.robot.hid.CommandNintendoSwitchController;
 import frc.robot.hid.CommandXboxPlaystationController;
 import frc.robot.subsystems.climber.ClimberSubsystem;
@@ -55,6 +51,16 @@ public class RobotContainer {
   private final SlapdownSuperstructure slapdownSuperstructure = new SlapdownSuperstructure();
   private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
+  private final Autos autos =
+      new Autos(
+          driveSubsystem,
+          elevatorSubsystem,
+          shooterSubsystem,
+          wristSubsystem,
+          transportSubsystem,
+          intakeSubsystem,
+          slapdownSuperstructure);
+
   private final SendableChooser<Command> autoCommand = new SendableChooser<>();
 
   private final CommandNintendoSwitchController driverController =
@@ -76,94 +82,66 @@ public class RobotContainer {
   }
 
   private void configureAutos() {
+    autoCommand.addOption("Center Speaker One Piece", autos.centerSpeakerOnePieceAuto());
     autoCommand.addOption(
-        "Slapdown Q Forward",
+        "Center Speaker Two Piece Close Left", autos.centerSpeakerCloseLeftTwoPieceAuto());
+    autoCommand.addOption(
+        "Center Speaker Two Piece Close Right", autos.centerSpeakerCloseRightTwoPieceAuto());
+    autoCommand.addOption(
+        "Center Speaker Two Piece Close Mid", autos.centerSpeakerCloseMidTwoPieceAuto());
+    autoCommand.addOption(
+        "Center Speaker Three Piece Close Left Mid",
+        autos.centerSpeakerCloseLeftMidThreePieceAuto());
+    autoCommand.addOption(
+        "Center Speaker Three Piece Close Right Mid",
+        autos.centerSpeakerCloseRightMidThreePieceAuto());
+    autoCommand.addOption(
+        "Center Speaker Four Piece Close", autos.centerSpeakerCloseFourPieceAuto());
+    autoCommand.addOption(
+        "Slapdown SysID QF",
         slapdownSuperstructure
             .getSlapdownRotationSubsystem()
             .sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     autoCommand.addOption(
-        "Slapdown Q Back",
+        "Slapdown SysID QR",
         slapdownSuperstructure
             .getSlapdownRotationSubsystem()
             .sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     autoCommand.addOption(
-        "Slapdown D Forward",
+        "Slapdown SysID DF",
         slapdownSuperstructure
             .getSlapdownRotationSubsystem()
             .sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoCommand.addOption(
-        "Slapdown D Back",
+        "Slapdown SysID DR",
         slapdownSuperstructure
             .getSlapdownRotationSubsystem()
             .sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    autoCommand.addOption("slapdown bottom", slapdownSuperstructure.setDownAndRunCommand());
-    autoCommand.addOption("slapdown top", slapdownSuperstructure.setUpCommand());
-
     autoCommand.addOption("Probe Elevator", elevatorSubsystem.probeHomeCommand());
     autoCommand.addOption(
-        "Wrist Q Forward", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        "Wrist SysID QF", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     autoCommand.addOption(
-        "Wrist Q Back", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        "Wrist SysID QR", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     autoCommand.addOption(
-        "Wrist D Forward", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        "Wrist SysID DF", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoCommand.addOption(
-        "Wrist D Back", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        "Wrist SysID DR", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     autoCommand.addOption(
-        "Wrist 5 deg", wristSubsystem.setPositonCommand(new Rotation2d(Units.degreesToRadians(5))));
+        "Elevator SysID QF", elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     autoCommand.addOption(
-        "Elevator Quastatic Backward",
-        elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        "Elevator SysID QR", elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     autoCommand.addOption(
-        "Elevator Dynamic Forward",
-        elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        "Elevator SysID DF", elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoCommand.addOption(
-        "Elevator Dynamic Backward",
-        elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        "Elevator SysID DR", elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     autoCommand.addOption(
-        "Elevator Test Command 2 in",
-        elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(2)));
+        "Shooter SysID QF", shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     autoCommand.addOption(
-        "Elevator Test Command 4 in",
-        elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(4)));
+        "Shooter SysID QR", shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     autoCommand.addOption(
-        "Elevator Test Command 8 in",
-        elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(8)));
+        "Shooter SysID DF", shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoCommand.addOption(
-        "Intake Test Command",
-        intakeSubsystem.setIntakeVoltageCommand(Constants.IntakeConstants.INTAKE_VOLTAGE));
-    autoCommand.addOption("Shooter Test Command 4000", shooterSubsystem.runVelocityCommand(100));
-    autoCommand.addOption(
-        "Shooter Quastatic Forward Command",
-        shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption(
-        "WristElevatorZero",
-        Commands.parallel(
-            wristSubsystem.setPositonCommand(Constants.WristConstants.WRIST_MIN),
-            elevatorSubsystem.setElevatorPositionCommand(0.0)));
-    autoCommand.addOption(
-        "WristElevatorNot",
-        Commands.parallel(
-            wristSubsystem.setPositonCommand(Rotation2d.fromDegrees(40.0)),
-            elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(8.0))));
-    autoCommand.addOption("run feeder", slapdownSuperstructure.getSlapdownFeederSubsystem().setVoltageCommand(6));
-
-    autoCommand.addOption(
-        "Shooter Quastatic Backward Command",
-        shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoCommand.addOption(
-        "Shooter Dynamic Forward Command",
-        shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption(
-        "Shooter Dynamic Backward Command",
-        shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    autoCommand.addOption(
-        "Intake To Shooter",
-        new IntakeToShooterCommand(
-            elevatorSubsystem,
-            intakeSubsystem,
-            wristSubsystem,
-            transportSubsystem,
-            shooterSubsystem));
+        "Shooter SysID DR", shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     SmartDashboard.putData("Auto", autoCommand);
   }
@@ -177,16 +155,19 @@ public class RobotContainer {
                 .withName("ZeroHeading"));
     driverController
         .leftTrigger()
-        .whileTrue(transportSubsystem.setVoltageCommand(Constants.TransportConstants.TRANSPORT_SHOOTER_VOLTAVE));
+        .whileTrue(
+            transportSubsystem.setVoltageCommand(
+                Constants.TransportConstants.TRANSPORT_CLOSE_SPEAKER_VOLTAGE));
     driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
     Command intakeAndFeedUntilDone =
         Commands.parallel(
                 intakeSubsystem.setIntakeVoltageCommand(Constants.IntakeConstants.INTAKE_VOLTAGE),
                 transportSubsystem.setVoltageCommand(
-                    Constants.TransportConstants.TRANSPORT_VOLTAGE)).until(transportSubsystem::atSensor)
-                .unless(transportSubsystem::atSensor);
+                    Constants.TransportConstants.TRANSPORT_LOAD_VOLTAGE))
+            .until(transportSubsystem::atSensor)
+            .unless(transportSubsystem::atSensor);
     driverController
-            .rightStick()
+        .rightStick()
         .whileTrue(
             Commands.parallel(
                 slapdownSuperstructure.setDownAndRunCommand(),
@@ -204,46 +185,32 @@ public class RobotContainer {
   }
 
   private void configureOperatorBindings() {
-    operatorController.square().onTrue(Commands.parallel(shooterSubsystem.runVelocityCommand(1000.0/60), transportSubsystem.setVoltageCommand(12)));
+    operatorController
+        .square()
+        .onTrue(
+            Commands.parallel(
+                ScoringCommands.shootSetpointAmpCommand(shooterSubsystem),
+                transportSubsystem.setVoltageCommand(12)));
     operatorController
         .triangle()
-        .onTrue(Commands.parallel(shooterSubsystem.runVelocityCommand((10000.0 / 60)), Commands.waitUntil(shooterSubsystem::inTolerance).andThen(Commands.runEnd(() ->
-          operatorController.getHID().setRumble(GenericHID.RumbleType.kBothRumble, 1.0),
-                  () -> operatorController.getHID().setRumble(GenericHID.RumbleType.kBothRumble, 0.0)
-        ))));
-
-    operatorController.x().onTrue(shooterSubsystem.setVoltageCommand(0));
-    operatorController.povUp().onTrue(
-            Commands.parallel(elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(3)).until(elevatorSubsystem::atGoal), wristSubsystem.setPositonCommand(new Rotation2d(Units.degreesToRadians(5)))));
-    operatorController.povLeft().onTrue(Commands.parallel(elevatorSubsystem.setElevatorPositionCommand(Constants.ScoringConstants.AMP_ELEVATOR_HEIGHT), wristSubsystem.setPositonCommand(new Rotation2d(Constants.ScoringConstants.AMP_WRIST_ANGLE))));
-
-
-    //    operatorController
-    //        .rightStick()
-    //        .whileTrue(elevatorSubsystem.runElevatorCommand(operatorController.getRightY()));
-
-    operatorController
-        .rightTrigger()
         .onTrue(
-            new ShootAtAngleCommand(
-                shooterSubsystem, transportSubsystem, wristSubsystem, SHOOTING_ANGLE));
-    operatorController.leftTrigger().onTrue(Commands.parallel(elevatorSubsystem.setElevatorPositionCommand(Constants.ElevatorConstants.ELEVATOR_MIN_HEIGHT), wristSubsystem.setPositonCommand(Constants.WristConstants.WRIST_MIN)));
-//    operatorController
-//        .triangle()
-//        .onTrue(
-//            new AmpPlaceCommand(
-//                elevatorSubsystem, wristSubsystem, shooterSubsystem, transportSubsystem));
-    operatorController
-        .share()
-        .whileTrue(
             Commands.parallel(
-                elevatorSubsystem.setElevatorPositionCommand(0),
-                slapdownSuperstructure.setDownAndRunCommand(),
-                intakeSubsystem.setIntakeVoltageCommand(6),
-                transportSubsystem
-                    .setVoltageCommand(4.0)
-                    .until(transportSubsystem::atSensor)
-                    .andThen(transportSubsystem.setVoltageCommand(0.0))));
+                ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
+                Commands.waitUntil(shooterSubsystem::inTolerance)
+                    .andThen(MiscCommands.rumbleHIDCommand(operatorController.getHID()))));
+    operatorController.circle().onTrue(ScoringCommands.shootSetpointIdleCommand(shooterSubsystem));
+    operatorController.x().onTrue(ScoringCommands.shootSetpointZeroCommand(shooterSubsystem));
+
+    operatorController
+        .povUp()
+        .onTrue(
+            ScoringCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem, wristSubsystem));
+    operatorController
+        .povLeft()
+        .onTrue(ScoringCommands.elevatorWristAmpCommand(elevatorSubsystem, wristSubsystem));
+    operatorController
+        .leftTrigger()
+        .onTrue(ScoringCommands.elevatorWristZeroCommand(elevatorSubsystem, wristSubsystem));
   }
 
   private void configureDriving() {

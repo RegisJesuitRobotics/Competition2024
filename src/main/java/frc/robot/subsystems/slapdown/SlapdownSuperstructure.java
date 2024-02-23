@@ -20,7 +20,8 @@ public class SlapdownSuperstructure extends SubsystemBase {
   public SlapdownRotationSubsystem getSlapdownRotationSubsystem() {
     return rotationSubsystem;
   }
-  public SlapdownFeederSubsystem getSlapdownFeederSubsystem(){
+
+  public SlapdownFeederSubsystem getSlapdownFeederSubsystem() {
     return feederSubsystem;
   }
 
