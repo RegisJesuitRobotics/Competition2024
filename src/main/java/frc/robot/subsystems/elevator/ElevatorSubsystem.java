@@ -60,7 +60,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public ElevatorSubsystem() {
     configMotors();
-
+    controller.setTolerance(0.01);
     setDefaultCommand(setVoltageCommand(0.0));
   }
 
@@ -150,7 +150,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public Command setElevatorPositionCommand(double position) {
-    double positionClamped = MathUtil.clamp(position, ELEVATOR_MAX_HEIGHT, ELEVATOR_MIN_HEIGHT);
+    double positionClamped = MathUtil.clamp(position, ELEVATOR_MIN_HEIGHT, ELEVATOR_MAX_HEIGHT);
     return RaiderCommands.ifCondition(this::isHomed)
         .then(
             this.run(

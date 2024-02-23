@@ -18,7 +18,7 @@ public final class Constants {
 
   public static class ScoringConstants {
     public static final double AMP_ELEVATOR_HEIGHT = Units.inchesToMeters(3.5);
-    public static final double AMP_WRIST_ANGLE = Units.degreesToRadians(110.0);
+    public static final double AMP_WRIST_ANGLE = Units.degreesToRadians(105.0);
   }
 
   public static class IntakeConstants {
@@ -71,7 +71,7 @@ public final class Constants {
   public static class ElevatorConstants {
     public static final boolean INVERTED = false;
 
-    public static final double ELEVATOR_MAX_HEIGHT = Units.inchesToMeters(11.5);
+    public static final double ELEVATOR_MAX_HEIGHT = Units.inchesToMeters(10.5);
     public static final double ELEVATOR_MIN_HEIGHT = Units.inchesToMeters(0.0);
 
     // TODO: Figure these out

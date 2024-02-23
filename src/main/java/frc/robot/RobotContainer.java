@@ -170,7 +170,6 @@ public class RobotContainer {
 
   private void configureDriverBindings() {
     configureDriving();
-    driverController.y().onTrue(Commands.parallel(elevatorSubsystem.setElevatorPositionCommand(Constants.ScoringConstants.AMP_ELEVATOR_HEIGHT), wristSubsystem.setPositonCommand(new Rotation2d(Constants.ScoringConstants.AMP_WRIST_ANGLE))));
     driverController
         .home()
         .onTrue(
@@ -178,8 +177,7 @@ public class RobotContainer {
                 .withName("ZeroHeading"));
     driverController
         .leftTrigger()
-        .whileTrue(Commands.sequence(elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(3)),
-            transportSubsystem.setVoltageCommand(Constants.TransportConstants.TRANSPORT_SHOOTER_VOLTAVE)));
+        .whileTrue(transportSubsystem.setVoltageCommand(Constants.TransportConstants.TRANSPORT_SHOOTER_VOLTAVE));
     driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
     Command intakeAndFeedUntilDone =
         Commands.parallel(
@@ -206,6 +204,7 @@ public class RobotContainer {
   }
 
   private void configureOperatorBindings() {
+    operatorController.square().onTrue(Commands.parallel(shooterSubsystem.runVelocityCommand(1000.0/60), transportSubsystem.setVoltageCommand(12)));
     operatorController
         .triangle()
         .onTrue(Commands.parallel(shooterSubsystem.runVelocityCommand((10000.0 / 60)), Commands.waitUntil(shooterSubsystem::inTolerance).andThen(Commands.runEnd(() ->
@@ -214,6 +213,9 @@ public class RobotContainer {
         ))));
 
     operatorController.x().onTrue(shooterSubsystem.setVoltageCommand(0));
+    operatorController.povUp().onTrue(
+            Commands.parallel(elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(3)).until(elevatorSubsystem::atGoal), wristSubsystem.setPositonCommand(new Rotation2d(Units.degreesToRadians(5)))));
+    operatorController.povLeft().onTrue(Commands.parallel(elevatorSubsystem.setElevatorPositionCommand(Constants.ScoringConstants.AMP_ELEVATOR_HEIGHT), wristSubsystem.setPositonCommand(new Rotation2d(Constants.ScoringConstants.AMP_WRIST_ANGLE))));
 
 
     //    operatorController
@@ -242,19 +244,6 @@ public class RobotContainer {
                     .setVoltageCommand(4.0)
                     .until(transportSubsystem::atSensor)
                     .andThen(transportSubsystem.setVoltageCommand(0.0))));
-
-    //
-    // operatorController.share().onTrue(transportSubsystem.setVoltageCommand(6.0).until(transportSubsystem::atSensor));
-    double rpm = 10000;
-    operatorController
-        .options()
-        .whileTrue(
-            Commands.parallel(
-                elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(0)),
-                shooterSubsystem.runVelocityCommand(rpm / 60),
-                Commands.sequence(
-                    Commands.waitUntil(shooterSubsystem::inTolerance),
-                    transportSubsystem.setVoltageCommand(12.0))));
   }
 
   private void configureDriving() {
