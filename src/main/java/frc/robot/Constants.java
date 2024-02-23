@@ -51,7 +51,7 @@ public final class Constants {
 
     public static final int ROTATION_LIMIT_SWITCH_ID = 1;
 
-    public static final double FEEDER_VOLTAGE = 6.0;
+    public static final double FEEDER_VOLTAGE = 9.0;
 
     public static final TunablePIDGains ROTATION_GAINS =
         new TunablePIDGains("/slapdown/rotation/gains", 4.0, 0, 0, MiscConstants.TUNING_MODE);
@@ -240,8 +240,8 @@ public final class Constants {
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
         new TunableTrapezoidalProfileGains(
             "/wrist/trapGains",
-            Units.rotationsToRadians(0.5),
-            Units.rotationsToRadians(0.5),
+            Units.rotationsToRadians(1.5),
+            Units.rotationsToRadians(1.5),
             MiscConstants.TUNING_MODE);
   }
 
@@ -251,6 +251,8 @@ public final class Constants {
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
     public static final double TRANSPORT_VOLTAGE = 6.0;
+
+    public static final double TRANSPORT_SHOOTER_VOLTAVE = 12;
     public static final int SHOOTER_SENSOR_ID = 8;
   }
 
@@ -287,8 +289,8 @@ public final class Constants {
     private TeleopConstants() {}
 
     public static final boolean OPEN_LOOP_DRIVETRAIN = true;
-    public static final double TRANSLATION_RATE_LIMIT_METERS_SECOND_SQUARED = 10.0;
-    public static final double ANGULAR_RATE_LIMIT_RADIANS_SECOND_SQUARED = 5.0 * Math.PI;
+    public static final double TRANSLATION_RATE_LIMIT_METERS_SECOND_SQUARED = 15.0;
+    public static final double ANGULAR_RATE_LIMIT_RADIANS_SECOND_SQUARED = 8.0 * Math.PI;
     public static final double MINIMUM_VELOCITY_METERS_SECOND = 0.10;
     public static final double MINIMUM_ANGULAR_VELOCITY_RADIANS_SECOND = 0.10;
   }

@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.EventTelemetryEntry;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.utils.Alert;
@@ -16,7 +17,7 @@ import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
 public class SlapdownFeederSubsystem extends SubsystemBase {
   private static final Alert feederMotorAlert =
       new Alert("Slapdown feeder motor had a fault initializing", Alert.AlertType.ERROR);
-
+DoubleTelemetryEntry voltageReq = new DoubleTelemetryEntry("/slapdown/feeder/voltageReq", true);
   private final TelemetryCANSparkMax feederMotor =
       new TelemetryCANSparkMax(
           FEEDER_MOTOR_ID,
@@ -89,6 +90,7 @@ public class SlapdownFeederSubsystem extends SubsystemBase {
   }
 
   public void setFeederVoltage(double voltage) {
+    voltageReq.append(voltage);
     feederMotor.setVoltage(voltage);
   }
 

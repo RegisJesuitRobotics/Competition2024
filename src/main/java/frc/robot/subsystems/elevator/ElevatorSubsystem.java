@@ -6,6 +6,7 @@ import static frc.robot.Constants.ElevatorConstants.*;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -19,10 +20,8 @@ import frc.robot.telemetry.types.BooleanTelemetryEntry;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.EventTelemetryEntry;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
-import frc.robot.utils.Alert;
-import frc.robot.utils.ConfigurationUtils;
+import frc.robot.utils.*;
 import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
-import frc.robot.utils.RaiderCommands;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
@@ -151,7 +150,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public Command setElevatorPositionCommand(double position) {
-    // If we are not homed, then do not try to run closed loop. that will end poorly
+    double positionClamped = MathUtil.clamp(position, ELEVATOR_MAX_HEIGHT, ELEVATOR_MIN_HEIGHT);
     return RaiderCommands.ifCondition(this::isHomed)
         .then(
             this.run(
@@ -164,7 +163,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 .beforeStarting(
                     () -> {
                       controller.reset(getPosition(), elevatorEncoder.getVelocity());
-                      controller.setGoal(position);
+                      controller.setGoal(positionClamped);
                     }))
         .otherwise(Commands.none());
   }

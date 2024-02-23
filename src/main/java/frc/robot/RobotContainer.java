@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -144,6 +145,7 @@ public class RobotContainer {
         Commands.parallel(
             wristSubsystem.setPositonCommand(Rotation2d.fromDegrees(40.0)),
             elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(8.0))));
+    autoCommand.addOption("run feeder", slapdownSuperstructure.getSlapdownFeederSubsystem().setVoltageCommand(6));
 
     autoCommand.addOption(
         "Shooter Quastatic Backward Command",
@@ -168,6 +170,7 @@ public class RobotContainer {
 
   private void configureDriverBindings() {
     configureDriving();
+    driverController.y().onTrue(Commands.parallel(elevatorSubsystem.setElevatorPositionCommand(Constants.ScoringConstants.AMP_ELEVATOR_HEIGHT), wristSubsystem.setPositonCommand(new Rotation2d(Constants.ScoringConstants.AMP_WRIST_ANGLE))));
     driverController
         .home()
         .onTrue(
@@ -175,25 +178,24 @@ public class RobotContainer {
                 .withName("ZeroHeading"));
     driverController
         .leftTrigger()
-        .whileTrue(
-            transportSubsystem.setVoltageCommand(Constants.TransportConstants.TRANSPORT_VOLTAGE));
+        .whileTrue(Commands.sequence(elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(3)),
+            transportSubsystem.setVoltageCommand(Constants.TransportConstants.TRANSPORT_SHOOTER_VOLTAVE)));
     driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
     Command intakeAndFeedUntilDone =
         Commands.parallel(
                 intakeSubsystem.setIntakeVoltageCommand(Constants.IntakeConstants.INTAKE_VOLTAGE),
                 transportSubsystem.setVoltageCommand(
-                    Constants.TransportConstants.TRANSPORT_VOLTAGE))
-            .until(transportSubsystem::atSensor)
-            .unless(transportSubsystem::atSensor);
+                    Constants.TransportConstants.TRANSPORT_VOLTAGE)).until(transportSubsystem::atSensor)
+                .unless(transportSubsystem::atSensor);
     driverController
-        .leftBumper()
+            .rightStick()
         .whileTrue(
             Commands.parallel(
                 slapdownSuperstructure.setDownAndRunCommand(),
                 intakeAndFeedUntilDone.asProxy(),
-                elevatorSubsystem.setElevatorPositionCommand(0),
+                elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(1)),
                 wristSubsystem.setPositonCommand(new Rotation2d(0))));
-    driverController.leftBumper().onFalse(slapdownSuperstructure.setUpCommand());
+    driverController.rightStick().onFalse(slapdownSuperstructure.setUpCommand());
     // TODO: Speaker centric
     driverController.rightTrigger().whileTrue(Commands.none());
     // TODO: Amp auto align
@@ -206,40 +208,29 @@ public class RobotContainer {
   private void configureOperatorBindings() {
     operatorController
         .triangle()
-        .onTrue(Commands.sequence(shooterSubsystem.runVelocityCommand(10000.0 / 60)));
+        .onTrue(Commands.parallel(shooterSubsystem.runVelocityCommand((10000.0 / 60)), Commands.waitUntil(shooterSubsystem::inTolerance).andThen(Commands.runEnd(() ->
+          operatorController.getHID().setRumble(GenericHID.RumbleType.kBothRumble, 1.0),
+                  () -> operatorController.getHID().setRumble(GenericHID.RumbleType.kBothRumble, 0.0)
+        ))));
+
     operatorController.x().onTrue(shooterSubsystem.setVoltageCommand(0));
-    operatorController
-        .leftTrigger()
-        .onTrue(
-            new IntakeToShooterCommand(
-                elevatorSubsystem,
-                intakeSubsystem,
-                wristSubsystem,
-                transportSubsystem,
-                shooterSubsystem));
+
 
     //    operatorController
     //        .rightStick()
     //        .whileTrue(elevatorSubsystem.runElevatorCommand(operatorController.getRightY()));
+
     operatorController
         .rightTrigger()
         .onTrue(
             new ShootAtAngleCommand(
                 shooterSubsystem, transportSubsystem, wristSubsystem, SHOOTING_ANGLE));
-    operatorController
-        .leftTrigger()
-        .onTrue(
-            new IntakeToShooterCommand(
-                elevatorSubsystem,
-                intakeSubsystem,
-                wristSubsystem,
-                transportSubsystem,
-                shooterSubsystem));
-    operatorController
-        .triangle()
-        .onTrue(
-            new AmpPlaceCommand(
-                elevatorSubsystem, wristSubsystem, shooterSubsystem, transportSubsystem));
+    operatorController.leftTrigger().onTrue(Commands.parallel(elevatorSubsystem.setElevatorPositionCommand(Constants.ElevatorConstants.ELEVATOR_MIN_HEIGHT), wristSubsystem.setPositonCommand(Constants.WristConstants.WRIST_MIN)));
+//    operatorController
+//        .triangle()
+//        .onTrue(
+//            new AmpPlaceCommand(
+//                elevatorSubsystem, wristSubsystem, shooterSubsystem, transportSubsystem));
     operatorController
         .share()
         .whileTrue(

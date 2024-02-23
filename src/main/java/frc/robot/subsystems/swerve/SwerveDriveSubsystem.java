@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.FieldConstants;
+import frc.robot.Robot;
 import frc.robot.telemetry.types.*;
 import frc.robot.telemetry.wrappers.TelemetryPigeon2;
 import frc.robot.utils.Alert;
@@ -165,7 +166,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             kinematics, getGyroRotation(), getModulePositions(), new Pose2d());
 
     // Start odometry thread
-    //    Robot.getInstance().addPeriodic(this::updateOdometry, 1.0 / ODOMETRY_FREQUENCY);
+    Robot.getInstance().addPeriodic(this::updateOdometry, 1.0 / ODOMETRY_FREQUENCY);
 
     stopMovement();
   }
