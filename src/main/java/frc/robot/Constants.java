@@ -47,7 +47,7 @@ public final class Constants {
     public static final int ROTATION_FREE_MOTOR_CURRENT = 10;
 
     public static final double ROTATION_UP_ANGLE = -0.0648 - Units.degreesToRadians(90);
-    public static final double ROTATION_DOWN_ANGLE = 2.3 - Units.degreesToRadians(90);
+    public static final double ROTATION_DOWN_ANGLE = 2.25 - Units.degreesToRadians(90);
 
     public static final int ROTATION_LIMIT_SWITCH_ID = 1;
 
@@ -119,11 +119,12 @@ public final class Constants {
     public static final int STEER_STALL_CURRENT_LIMIT = 45;
     public static final int STEER_FREE_CURRENT_LIMIT = 25;
 
+    // 0.47
     public static final TunablePIDGains DRIVE_VELOCITY_PID_GAINS =
-        new TunablePIDGains("/gains/drive", 0.3, 0.0, 0.0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/drive", 0.2, 0.0, 0.0, MiscConstants.TUNING_MODE);
 
     public static final TunableFFGains DRIVE_VELOCITY_FF_GAINS =
-        new TunableFFGains("/gains/drive", 0.2776, 2.32302894, 0.31227, MiscConstants.TUNING_MODE);
+        new TunableFFGains("/gains/drive", 0.064022, 1.9843, 0.9255, MiscConstants.TUNING_MODE);
 
     public static final TunablePIDGains STEER_POSITION_PID_GAINS =
         new TunablePIDGains("/gains/steer", 1.0, 0.0, 0.1, MiscConstants.TUNING_MODE);
@@ -142,13 +143,12 @@ public final class Constants {
           new Translation2d(-WHEELBASE_METERS / 2.0, -TRACKWIDTH_METERS / 2.0)
         };
 
-    public static final double MAX_VELOCITY_METERS_SECOND = 4.2;
+    public static final double MAX_VELOCITY_METERS_SECOND = 4.023;
 
-    public static final double MAX_ANGULAR_VELOCITY_RADIANS_SECOND = Math.PI * 3;
-    public static final double MAX_ANGULAR_ACCELERATION_RADIANS_SECOND_SQUARED =
-        MAX_ANGULAR_VELOCITY_RADIANS_SECOND / 2.0;
+    public static final double MAX_ANGULAR_VELOCITY_RADIANS_SECOND = 10.063;
+    public static final double MAX_ANGULAR_ACCELERATION_RADIANS_SECOND_SQUARED = 52.717;
 
-    public static final int ODOMETRY_FREQUENCY = 250;
+    public static final int ODOMETRY_FREQUENCY = 200;
 
     public static final String CAN_BUS = "canivore";
     private static final SharedSwerveModuleConfiguration SHARED_SWERVE_MODULE_CONFIGURATION =
@@ -169,18 +169,18 @@ public final class Constants {
 
     public static final SwerveModuleConfiguration FRONT_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            12, 8, 17, false, true, 2.862408, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            12, 8, 17, true, true, 2.862408, false, SHARED_SWERVE_MODULE_CONFIGURATION);
     public static final SwerveModuleConfiguration FRONT_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            13, 5, 18, false, true, -1.294680, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            13, 5, 18, true, true, -1.294680, false, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            14, 10, 19, false, true, 0.368155, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            14, 10, 19, true, true, 0.368155, false, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            15, 3, 20, false, true, 2.906894, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            15, 3, 20, true, true, 2.906894, false, SHARED_SWERVE_MODULE_CONFIGURATION);
   }
 
   public static class AutoConstants {
@@ -251,7 +251,7 @@ public final class Constants {
     public static final boolean INVERTED = false;
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
-    public static final double TRANSPORT_LOAD_VOLTAGE = 6.0;
+    public static final double TRANSPORT_LOAD_VOLTAGE = 4.0;
 
     public static final double TRANSPORT_CLOSE_SPEAKER_VOLTAGE = 12;
     public static final int SHOOTER_SENSOR_ID = 8;

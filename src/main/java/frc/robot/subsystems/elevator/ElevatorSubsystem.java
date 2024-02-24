@@ -51,8 +51,10 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final DoubleTelemetryEntry voltageReq =
       new DoubleTelemetryEntry("/elevator/voltageReq", MiscConstants.TUNING_MODE);
 
+  private final BooleanTelemetryEntry isHomedEntry =
+      new BooleanTelemetryEntry("/elevator/isHomed", true);
   private final BooleanTelemetryEntry bottomLimitEntry =
-      new BooleanTelemetryEntry("/elevator/bottomLimit", true);
+      new BooleanTelemetryEntry("/elevator/bottomLimit", MiscConstants.TUNING_MODE);
   private final EventTelemetryEntry elevatorEventEntry =
       new EventTelemetryEntry("/elevator/events");
 
@@ -197,6 +199,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private void logValues() {
     elevatorMotor.logValues();
     bottomLimitEntry.append(atBottomLimit());
+    isHomedEntry.append(isHomed);
 
     if (FF_GAINS.hasChanged()) {
       feedforward = FF_GAINS.createElevatorFeedforward();

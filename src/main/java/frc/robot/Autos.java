@@ -1,9 +1,9 @@
 package frc.robot;
 
 import static frc.robot.FieldConstants.*;
-import static frc.robot.FieldConstants.Stage.*;
 
 import com.choreo.lib.Choreo;
+import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -75,77 +75,97 @@ public class Autos {
 
   private Command shootNote() {
     return Commands.parallel(
-        ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
-        ScoringCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem, wristSubsystem),
-        Commands.parallel(
-                ScoringCommands.shooterInToleranceCommand(shooterSubsystem),
-                ScoringCommands.elevatorWristInToleranceCommand(elevatorSubsystem, wristSubsystem))
-            .andThen(ScoringCommands.transportCloseSpeakerCommand(transportSubsystem)));
+            ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
+            ScoringCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem, wristSubsystem),
+            Commands.parallel(
+                    ScoringCommands.shooterInToleranceCommand(shooterSubsystem),
+                    ScoringCommands.elevatorWristInToleranceCommand(
+                        elevatorSubsystem, wristSubsystem))
+                .andThen(ScoringCommands.transportCloseSpeakerCommand(transportSubsystem)))
+        .until(() -> !transportSubsystem.atSensor())
+        .andThen(Commands.waitSeconds(0.5));
   }
 
   public Command centerSpeakerCloseFourPieceAuto() {
     return Commands.sequence(
         autoStart(),
         shootNote(),
-        centerSpeakerCloseRightNote(),
-        centerSpeakerCloseMidNote(),
-        centerSpeakerCloseLeftNote());
+        centerSpeakerCloseRightNote(true),
+        centerSpeakerCloseMidNote(false),
+        centerSpeakerCloseLeftNote(false));
   }
 
   public Command centerSpeakerCloseRightMidThreePieceAuto() {
     return Commands.sequence(
-        autoStart(), shootNote(), centerSpeakerCloseRightNote(), centerSpeakerCloseMidNote());
+        autoStart(),
+        shootNote(),
+        centerSpeakerCloseRightNote(true),
+        centerSpeakerCloseMidNote(false));
   }
 
   public Command centerSpeakerCloseLeftMidThreePieceAuto() {
     return Commands.sequence(
-        autoStart(), shootNote(), centerSpeakerCloseLeftNote(), centerSpeakerCloseMidNote());
+        autoStart(),
+        shootNote(),
+        centerSpeakerCloseLeftNote(true),
+        centerSpeakerCloseMidNote(false));
   }
 
   public Command centerSpeakerCloseRightTwoPieceAuto() {
-    return Commands.sequence(autoStart(), shootNote(), centerSpeakerCloseRightNote());
+    return Commands.sequence(autoStart(), shootNote(), centerSpeakerCloseRightNote(true));
   }
 
   public Command centerSpeakerCloseMidTwoPieceAuto() {
-    return Commands.sequence(autoStart(), shootNote(), centerSpeakerCloseMidNote());
+    return Commands.sequence(autoStart(), shootNote(), centerSpeakerCloseMidNote(true));
   }
 
   public Command centerSpeakerCloseLeftTwoPieceAuto() {
-    return Commands.sequence(autoStart(), shootNote(), centerSpeakerCloseLeftNote());
+    return Commands.sequence(autoStart(), shootNote(), centerSpeakerCloseLeftNote(true));
   }
 
   public Command centerSpeakerOnePieceAuto() {
     return Commands.sequence(autoStart(), shootNote());
   }
 
-  private Command centerSpeakerCloseMidNote() {
+  public Command testPathAuth() {
+    return Commands.sequence(autoStart(), followPathCommand("TestPath", true, driveSubsystem));
+  }
+
+  private Command centerSpeakerCloseMidNote(boolean firstPath) {
     return Commands.sequence(
         Commands.parallel(
-            followPathCommand("CenterSpeakerCloseMidNote", driveSubsystem),
+            followPathCommand("CenterSpeakerCloseMidNote", firstPath, driveSubsystem),
             IntakingCommands.intakeUntilDetected(
                 intakeSubsystem, slapdownSuperstructure, transportSubsystem)),
         shootNote());
   }
 
-  private Command centerSpeakerCloseRightNote() {
+  private Command centerSpeakerCloseRightNote(boolean firstPath) {
     return Commands.sequence(
         Commands.parallel(
-            followPathCommand("CenterSpeakerCloseRightNote", driveSubsystem),
+            followPathCommand("CenterSpeakerCloseRightNote", firstPath, driveSubsystem),
             IntakingCommands.intakeUntilDetected(
                 intakeSubsystem, slapdownSuperstructure, transportSubsystem)),
         shootNote());
   }
 
-  private Command centerSpeakerCloseLeftNote() {
+  private Command centerSpeakerCloseLeftNote(boolean firstPath) {
     return Commands.sequence(
         Commands.parallel(
-            followPathCommand("CenterSpeakerCloseLeftNote", driveSubsystem),
+            followPathCommand("CenterSpeakerCloseLeftNote", firstPath, driveSubsystem),
             IntakingCommands.intakeUntilDetected(
                 intakeSubsystem, slapdownSuperstructure, transportSubsystem)),
         shootNote());
   }
 
-  public Command followPathCommand(String path, SwerveDriveSubsystem driveSubsystem) {
-    return new FollowPathCommand(Choreo.getTrajectory(path), driveSubsystem);
+  private Command followPathCommand(
+      String path, boolean resetOdometry, SwerveDriveSubsystem driveSubsystem) {
+    ChoreoTrajectory trajectory = Choreo.getTrajectory(path);
+    Command command = new FollowPathCommand(trajectory, driveSubsystem);
+    if (resetOdometry) {
+      return command.beforeStarting(
+          () -> driveSubsystem.resetOdometry(trajectory.getInitialPose()));
+    }
+    return command;
   }
 }

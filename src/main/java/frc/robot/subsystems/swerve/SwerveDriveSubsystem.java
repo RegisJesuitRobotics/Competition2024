@@ -380,7 +380,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     return driveVelocitySysId.quasistatic(direction).beforeStarting(SignalLogger::start);
   }
 
-  public Command dyanamicSysIDCommand(SysIdRoutine.Direction direction) {
+  public Command dynamicSysIDCommand(SysIdRoutine.Direction direction) {
     return driveVelocitySysId.dynamic(direction).beforeStarting(SignalLogger::start);
   }
 

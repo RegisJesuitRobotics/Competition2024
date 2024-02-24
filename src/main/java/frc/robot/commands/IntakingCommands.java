@@ -19,6 +19,6 @@ public class IntakingCommands {
             transport.setVoltageCommand(TransportConstants.TRANSPORT_LOAD_VOLTAGE))
         .until(transport::atSensor)
         .unless(transport::atSensor)
-        .andThen(intake.setIntakeVoltageCommand(0.0), transport.setVoltageCommand(0.0));
+        .andThen(Commands.parallel(intake.setIntakeVoltageCommand(0.0), transport.setVoltageCommand(0.0)));
   }
 }

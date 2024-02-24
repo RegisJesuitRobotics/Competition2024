@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.TeleopConstants;
+import frc.robot.commands.IntakingCommands;
 import frc.robot.commands.MiscCommands;
 import frc.robot.commands.ScoringCommands;
 import frc.robot.commands.drive.LockModulesCommand;
@@ -97,6 +98,15 @@ public class RobotContainer {
         autos.centerSpeakerCloseRightMidThreePieceAuto());
     autoCommand.addOption(
         "Center Speaker Four Piece Close", autos.centerSpeakerCloseFourPieceAuto());
+    autoCommand.addOption("Test Path", autos.testPathAuth());
+    autoCommand.addOption(
+        "Drive SysID QF", driveSubsystem.quasistaticSysIDCommand(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption(
+        "Drive SysID QR", driveSubsystem.quasistaticSysIDCommand(SysIdRoutine.Direction.kReverse));
+    autoCommand.addOption(
+        "Drive SysID DF", driveSubsystem.dynamicSysIDCommand(SysIdRoutine.Direction.kForward));
+    autoCommand.addOption(
+        "Drive SysID DR", driveSubsystem.dynamicSysIDCommand(SysIdRoutine.Direction.kReverse));
     autoCommand.addOption(
         "Slapdown SysID QF",
         slapdownSuperstructure
@@ -159,19 +169,12 @@ public class RobotContainer {
             transportSubsystem.setVoltageCommand(
                 Constants.TransportConstants.TRANSPORT_CLOSE_SPEAKER_VOLTAGE));
     driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
-    Command intakeAndFeedUntilDone =
-        Commands.parallel(
-                intakeSubsystem.setIntakeVoltageCommand(Constants.IntakeConstants.INTAKE_VOLTAGE),
-                transportSubsystem.setVoltageCommand(
-                    Constants.TransportConstants.TRANSPORT_LOAD_VOLTAGE))
-            .until(transportSubsystem::atSensor)
-            .unless(transportSubsystem::atSensor);
     driverController
         .rightStick()
         .whileTrue(
             Commands.parallel(
-                slapdownSuperstructure.setDownAndRunCommand(),
-                intakeAndFeedUntilDone.asProxy(),
+                IntakingCommands.intakeUntilDetected(
+                    intakeSubsystem, slapdownSuperstructure, transportSubsystem),
                 elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(1)),
                 wristSubsystem.setPositonCommand(new Rotation2d(0))));
     driverController.rightStick().onFalse(slapdownSuperstructure.setUpCommand());
@@ -246,13 +249,13 @@ public class RobotContainer {
                     vectorRateLimiter.calculate(
                         new Translation2d(
                                 RaiderMathUtils.deadZoneAndCubeJoystick(
-                                    driverController.getLeftY()),
+                                    -driverController.getLeftY()),
                                 RaiderMathUtils.deadZoneAndCubeJoystick(
-                                    driverController.getLeftX()))
+                                    -driverController.getLeftX()))
                             .times(maxTranslationalSpeedSuppler.getAsDouble())),
                 () ->
                     rotationLimiter.calculate(
-                        RaiderMathUtils.deadZoneAndCubeJoystick(driverController.getRightX())
+                        RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getRightX())
                             * maxAngularSpeedSupplier.getAsDouble()),
                 driverController.rightBumper().negate(),
                 driveSubsystem)

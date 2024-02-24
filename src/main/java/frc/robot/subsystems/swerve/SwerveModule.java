@@ -311,8 +311,8 @@ public class SwerveModule {
         MiscConstants.CONFIGURATION_ATTEMPTS);
 
     ConfigurationUtils.applyCheckRecordRev(
-        () -> steerMotor.setIdleMode(IdleMode.kCoast),
-        () -> steerMotor.getIdleMode() == IdleMode.kCoast,
+        () -> steerMotor.setIdleMode(IdleMode.kBrake),
+        () -> steerMotor.getIdleMode() == IdleMode.kBrake,
         faultRecorder.run("Idle mode"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
 
