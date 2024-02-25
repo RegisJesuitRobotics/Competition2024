@@ -53,7 +53,6 @@ public class PhotonSubsystem extends SubsystemBase {
 
     PhotonPipelineResult result = camera.getLatestResult();
 
-
     // Remove bad tags if only one, also add to our array
     for (int j = result.targets.size() - 1; j >= 0; j--) {
       PhotonTrackedTarget target = result.targets.get(j);
@@ -64,14 +63,13 @@ public class PhotonSubsystem extends SubsystemBase {
       }
     }
 
-
     poseEstimator.setReferencePose(prevEstimatedRobotPose);
     Optional<EstimatedRobotPose> estimatedRobotPose = poseEstimator.update(result);
     if (estimatedRobotPose.isPresent()) {
       estimatedPoseEntries.append(new Pose3d[] {estimatedRobotPose.get().estimatedPose});
       updatedPoses.add(estimatedRobotPose.get());
     } else {
-      estimatedPoseEntries.append(new Pose3d[]{});
+      estimatedPoseEntries.append(new Pose3d[] {});
     }
 
     visionTargetEntries.append(targetPoses.toArray(new Pose3d[targetPoses.size()]));

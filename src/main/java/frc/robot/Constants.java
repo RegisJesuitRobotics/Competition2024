@@ -300,7 +300,8 @@ public final class Constants {
     private VisionConstants() {}
 
     public static final Transform3d ROBOT_TO_CAM =
-        new Transform3d(-8.017, 0, 27.088, new Rotation3d(0, Units.degreesToRadians(180-27.088), 0));
+        new Transform3d(
+            -8.017, 0, 27.088, new Rotation3d(0, Units.degreesToRadians(180 - 27.088), 0));
   }
 
   public static class MiscConstants {

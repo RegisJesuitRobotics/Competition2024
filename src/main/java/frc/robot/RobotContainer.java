@@ -1,6 +1,5 @@
 package frc.robot;
 
-import frc.robot.subsystems.photon.PhotonSubsystem;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -11,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.commands.IntakingCommands;
@@ -24,6 +22,7 @@ import frc.robot.hid.CommandXboxPlaystationController;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.photon.PhotonSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.slapdown.SlapdownSuperstructure;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
@@ -41,7 +40,7 @@ import java.util.function.DoubleSupplier;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-   private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
+  private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
   //  private final SwerveDriveSubsystem driveSubsystem =
   //      new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
   private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem((pose) -> List.of());
@@ -86,26 +85,28 @@ public class RobotContainer {
   private void configureAutos() {
     autoCommand.setDefaultOption("Just Probe", autos.autoStart());
     autoCommand.addOption("NOTHING", Commands.none());
-    autoCommand.addOption("Center Speaker  One Piece", autos.centerSpeakerOnePieceAuto());
+    autoCommand.addOption("Center Speaker One Piece", autos.centerSpeakerOnePieceAuto());
     autoCommand.addOption(
-        "Center Speaker Two Piece Close Left", autos.centerSpeakerCloseLeftTwoPieceAuto());
+        "Center Speaker Two Piece Close Amp", autos.centerSpeakerCloseAmpTwoPieceAuto());
     autoCommand.addOption(
-        "Center Speaker Two Piece Close Right", autos.centerSpeakerCloseRightTwoPieceAuto());
+        "Center Speaker Two Piece Close Source", autos.centerSpeakerCloseSourceTwoPieceAuto());
     autoCommand.addOption(
         "Center Speaker Two Piece Close Mid", autos.centerSpeakerCloseMidTwoPieceAuto());
     autoCommand.addOption(
-        "Center Speaker Three Piece Close Left Mid",
-        autos.centerSpeakerCloseLeftMidThreePieceAuto());
+        "Center Speaker Three Piece Close Amp Mid",
+        autos.centerSpeakerCloseAmpMidThreePieceAuto());
     autoCommand.addOption(
-        "Center Speaker Three Piece Close Right Mid",
-        autos.centerSpeakerCloseRightMidThreePieceAuto());
+        "Center Speaker Three Piece Close Source Mid",
+        autos.centerSpeakerCloseSourceMidThreePieceAuto());
     autoCommand.addOption(
         "Center Speaker Four Piece Close", autos.centerSpeakerCloseFourPieceAuto());
     // autoCommand.addOption("Test Path", autos.testPathAuth());
     // autoCommand.addOption(
-    //     "Drive SysID QF", driveSubsystem.quasistaticSysIDCommand(SysIdRoutine.Direction.kForward));
+    //     "Drive SysID QF",
+    // driveSubsystem.quasistaticSysIDCommand(SysIdRoutine.Direction.kForward));
     // autoCommand.addOption(
-    //     "Drive SysID QR", driveSubsystem.quasistaticSysIDCommand(SysIdRoutine.Direction.kReverse));
+    //     "Drive SysID QR",
+    // driveSubsystem.quasistaticSysIDCommand(SysIdRoutine.Direction.kReverse));
     // autoCommand.addOption(
     //     "Drive SysID DF", driveSubsystem.dynamicSysIDCommand(SysIdRoutine.Direction.kForward));
     // autoCommand.addOption(
@@ -140,9 +141,11 @@ public class RobotContainer {
     // autoCommand.addOption(
     //     "Wrist SysID DR", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     // autoCommand.addOption(
-    //     "Elevator SysID QF", elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    //     "Elevator SysID QF",
+    // elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     // autoCommand.addOption(
-    //     "Elevator SysID QR", elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    //     "Elevator SysID QR",
+    // elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     // autoCommand.addOption(
     //     "Elevator SysID DF", elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
     // autoCommand.addOption(
