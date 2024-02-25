@@ -6,8 +6,6 @@ import com.choreo.lib.ChoreoTrajectory;
 import com.choreo.lib.ChoreoTrajectoryState;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AutoConstants;
@@ -16,6 +14,7 @@ import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 import frc.robot.telemetry.tunable.TunableTelemetryPIDController;
 import frc.robot.telemetry.types.StructArrayTelemetryEntry;
 import frc.robot.telemetry.types.StructTelemetryEntry;
+import frc.robot.utils.RaiderUtils;
 import java.util.function.Supplier;
 
 public class FollowPathCommand extends Command {
@@ -28,6 +27,7 @@ public class FollowPathCommand extends Command {
 
   private final SwerveDriveSubsystem driveSubsystem;
   private final Supplier<ChoreoTrajectory> pathSupplier;
+  private final boolean resetOdometry;
 
   private final ChoreoControlFunction controller =
       Choreo.choreoSwerveController(
@@ -41,26 +41,27 @@ public class FollowPathCommand extends Command {
   private final Timer timer = new Timer();
   private ChoreoTrajectory currentPath;
 
-  public FollowPathCommand(ChoreoTrajectory path, SwerveDriveSubsystem driveSubsystem) {
-    this(path, true, driveSubsystem);
+  public FollowPathCommand(ChoreoTrajectory path, boolean resetOdometry, SwerveDriveSubsystem driveSubsystem) {
+    this(path, resetOdometry, true, driveSubsystem);
   }
 
   public FollowPathCommand(
-      ChoreoTrajectory path, boolean shouldFlipIfRed, SwerveDriveSubsystem driveSubsystem) {
+      ChoreoTrajectory path, boolean resetOdometry, boolean shouldFlipIfRed, SwerveDriveSubsystem driveSubsystem) {
     this(
         () -> {
-          var alliance = DriverStation.getAlliance();
-          if (shouldFlipIfRed && (alliance.isPresent() && alliance.get() == Alliance.Red)) {
+          if (shouldFlipIfRed && (RaiderUtils.shouldFlip())) {
             return path.flipped();
           }
           return path;
         },
+        resetOdometry,
         driveSubsystem);
   }
 
   public FollowPathCommand(
-      Supplier<ChoreoTrajectory> pathSupplier, SwerveDriveSubsystem driveSubsystem) {
+      Supplier<ChoreoTrajectory> pathSupplier, boolean resetOdometry, SwerveDriveSubsystem driveSubsystem) {
     this.pathSupplier = pathSupplier;
+    this.resetOdometry = resetOdometry;
     this.driveSubsystem = driveSubsystem;
 
     addRequirements(driveSubsystem);
@@ -70,8 +71,9 @@ public class FollowPathCommand extends Command {
   public void initialize() {
     currentPath = pathSupplier.get();
 
-    // TODO: Reset odometry?
-
+    if (resetOdometry) {
+      driveSubsystem.resetOdometry(currentPath.getInitialPose());
+    }
     trajectoryEntry.append(currentPath.getPoses());
     timer.reset();
     timer.start();

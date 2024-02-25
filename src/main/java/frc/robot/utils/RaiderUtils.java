@@ -5,6 +5,8 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.REVLibError;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class RaiderUtils {
   public static boolean anyTrue(boolean[] array) {
@@ -30,5 +32,10 @@ public class RaiderUtils {
 
   public static boolean isRevOk(REVLibError code) {
     return code == REVLibError.kOk;
+  }
+
+  public static boolean shouldFlip() {
+    var alliance = DriverStation.getAlliance();
+    return alliance.isPresent() && alliance.get() == Alliance.Red;
   }
 }

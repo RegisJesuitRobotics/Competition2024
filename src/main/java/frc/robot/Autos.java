@@ -6,7 +6,6 @@ import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -21,6 +20,7 @@ import frc.robot.subsystems.slapdown.SlapdownSuperstructure;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
+import frc.robot.utils.RaiderUtils;
 
 public class Autos {
   private final SwerveDriveSubsystem driveSubsystem;
@@ -128,8 +128,16 @@ public class Autos {
     return Commands.sequence(autoStart(), shootNote());
   }
 
-  public Command testPathAuth() {
-    return Commands.sequence(autoStart(), followPathCommand("TestPath", true, driveSubsystem));
+  public Command ampSpeakerCloseAmpTwoPieceAuto() {
+    return Commands.sequence(autoStart(), shootNote(), ampSpeakerCloseAmpNote(true));
+  }
+
+  public Command mobilitySourceSideAuto() {
+    return Commands.sequence(autoStart(), followPathCommand("MobilitySourceSide", true, driveSubsystem));
+  }
+
+  public Command mobilityAmpSideAuto() {
+    return Commands.sequence(autoStart(), followPathCommand("MobilityAmpSide", true, driveSubsystem));
   }
 
   private Command centerSpeakerCloseMidNote(boolean firstPath) {
@@ -159,23 +167,18 @@ public class Autos {
         shootNote());
   }
 
+  private Command ampSpeakerCloseAmpNote(boolean firstPath) {
+    return Commands.sequence(
+        Commands.parallel(
+            followPathCommand("AmpSpeakerCloseAmpNote", firstPath, driveSubsystem),
+            IntakingCommands.intakeUntilDetected(
+                intakeSubsystem, slapdownSuperstructure, transportSubsystem)),
+        shootNote());
+  }
+
   private Command followPathCommand(
       String path, boolean resetOdometry, SwerveDriveSubsystem driveSubsystem) {
     ChoreoTrajectory trajectory = Choreo.getTrajectory(path);
-    Command command = new FollowPathCommand(trajectory, driveSubsystem);
-    if (resetOdometry) {
-      return command.beforeStarting(
-          () -> {
-            Pose2d initialPose;
-            var alliance = DriverStation.getAlliance();
-            if (alliance.isPresent() && alliance.get() == Alliance.Red) {
-              initialPose = trajectory.flipped().getInitialPose();
-            } else {
-              initialPose = trajectory.getInitialPose();
-            }
-            driveSubsystem.resetOdometry(initialPose);
-          });
-    }
-    return command;
+    return new FollowPathCommand(trajectory, resetOdometry, driveSubsystem);
   }
 }

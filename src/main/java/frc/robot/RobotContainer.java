@@ -100,6 +100,8 @@ public class RobotContainer {
         autos.centerSpeakerCloseSourceMidThreePieceAuto());
     autoCommand.addOption(
         "Center Speaker Four Piece Close", autos.centerSpeakerCloseFourPieceAuto());
+    autoCommand.addOption("Mobility Source Side", autos.mobilitySourceSideAuto());
+    autoCommand.addOption("Mobility Amp Side", autos.mobilityAmpSideAuto());
     // autoCommand.addOption("Test Path", autos.testPathAuth());
     // autoCommand.addOption(
     //     "Drive SysID QF",
