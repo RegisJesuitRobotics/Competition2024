@@ -113,7 +113,7 @@ public final class Constants {
 
     public static final double STEER_GEAR_REDUCTION = 150.0 / 7.0;
 
-    public static final double DRIVE_CURRENT_LIMIT = 70.0;
+    public static final double DRIVE_CURRENT_LIMIT = 60.0;
     public static final int STEER_STALL_CURRENT_LIMIT = 45;
     public static final int STEER_FREE_CURRENT_LIMIT = 25;
 
@@ -181,11 +181,11 @@ public final class Constants {
   public static class AutoConstants {
     private AutoConstants() {}
 
-    public static final double MAX_AUTO_VELOCITY_METERS_SECOND = 2.5;
-    public static final double MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED = 2;
+    public static final double MAX_AUTO_VELOCITY_METERS_SECOND = 3.5;
+    public static final double MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED = 5.0;
 
-    public static final double MAX_AUTO_ANGULAR_VELOCITY_RADIANS_SECOND = Math.PI * 2;
-    public static final double MAX_AUTO_ANGULAR_ACCELERATION_RADIANS_SECOND_SQUARED = Math.PI;
+    public static final double MAX_AUTO_ANGULAR_VELOCITY_RADIANS_SECOND = 7.0;
+    public static final double MAX_AUTO_ANGULAR_ACCELERATION_RADIANS_SECOND_SQUARED = 20.0;
 
     public static final TunablePIDGains TRANSLATION_POSITION_GAINS =
         new TunablePIDGains("/gains/driveXY", 2.0, 0.0, 0.0, MiscConstants.TUNING_MODE);
@@ -285,8 +285,8 @@ public final class Constants {
     private TeleopConstants() {}
 
     public static final boolean OPEN_LOOP_DRIVETRAIN = true;
-    public static final double TRANSLATION_RATE_LIMIT_METERS_SECOND_SQUARED = 15.0;
-    public static final double ANGULAR_RATE_LIMIT_RADIANS_SECOND_SQUARED = 8.0 * Math.PI;
+    public static final double TRANSLATION_RATE_LIMIT_METERS_SECOND_SQUARED = 10.0;
+    public static final double ANGULAR_RATE_LIMIT_RADIANS_SECOND_SQUARED = 30;
     public static final double MINIMUM_VELOCITY_METERS_SECOND = 0.10;
     public static final double MINIMUM_ANGULAR_VELOCITY_RADIANS_SECOND = 0.10;
   }

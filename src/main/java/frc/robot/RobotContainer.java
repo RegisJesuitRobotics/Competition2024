@@ -230,8 +230,7 @@ public class RobotContainer {
     DoubleSupplier maxTranslationalSpeedSuppler =
         () ->
             maxTranslationSpeedPercent.get()
-                * SwerveConstants.MAX_VELOCITY_METERS_SECOND
-                * (driverController.leftBumper().getAsBoolean() ? 0.5 : 1);
+                * SwerveConstants.MAX_VELOCITY_METERS_SECOND;
     DoubleSupplier maxAngularSpeedSupplier =
         () -> maxMaxAngularSpeedPercent.get() * SwerveConstants.MAX_ANGULAR_VELOCITY_RADIANS_SECOND;
 
