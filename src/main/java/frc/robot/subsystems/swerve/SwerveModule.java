@@ -160,11 +160,7 @@ public class SwerveModule {
   private void configDriveMotor(SwerveModuleConfiguration config) {
     TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
     motorConfiguration.CurrentLimits.SupplyCurrentLimit =
-        config.sharedConfiguration().driveContinuousCurrentLimit();
-    motorConfiguration.CurrentLimits.SupplyCurrentThreshold =
-        config.sharedConfiguration().drivePeakCurrentLimit();
-    motorConfiguration.CurrentLimits.SupplyTimeThreshold =
-        config.sharedConfiguration().drivePeakCurrentDurationSeconds();
+        config.sharedConfiguration().driveCurrentLimit();
     motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.sharedConfiguration().driveVelocityPIDGains().setSlot(motorConfiguration.Slot0);
     motorConfiguration.MotorOutput.Inverted =

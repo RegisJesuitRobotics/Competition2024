@@ -113,9 +113,7 @@ public final class Constants {
 
     public static final double STEER_GEAR_REDUCTION = 150.0 / 7.0;
 
-    public static final double DRIVE_PEAK_CURRENT_LIMIT = 65.0;
-    public static final double DRIVE_CONTINUOUS_CURRENT_LIMIT = 35.0;
-    public static final double DRIVE_CONTINUOUS_CURRENT_LIMIT_TIME_SECONDS = 0.2;
+    public static final double DRIVE_CURRENT_LIMIT = 70.0;
     public static final int STEER_STALL_CURRENT_LIMIT = 45;
     public static final int STEER_FREE_CURRENT_LIMIT = 25;
 
@@ -150,15 +148,12 @@ public final class Constants {
 
     public static final int ODOMETRY_FREQUENCY = 200;
 
-    public static final String CAN_BUS = "canivore";
     private static final SharedSwerveModuleConfiguration SHARED_SWERVE_MODULE_CONFIGURATION =
         new SharedSwerveModuleConfiguration(
-            CAN_BUS,
+            MiscConstants.CANIVORE_NAME,
             DRIVE_GEAR_REDUCTION,
             STEER_GEAR_REDUCTION,
-            DRIVE_PEAK_CURRENT_LIMIT,
-            DRIVE_CONTINUOUS_CURRENT_LIMIT,
-            DRIVE_CONTINUOUS_CURRENT_LIMIT_TIME_SECONDS,
+            DRIVE_CURRENT_LIMIT,
             STEER_FREE_CURRENT_LIMIT,
             STEER_STALL_CURRENT_LIMIT,
             WHEEL_DIAMETER_METERS,
@@ -305,6 +300,7 @@ public final class Constants {
   }
 
   public static class MiscConstants {
+    public static final String CANIVORE_NAME = "canivore";
 
     private MiscConstants() {}
 

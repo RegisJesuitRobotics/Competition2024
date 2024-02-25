@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.BuildConstants;
 import frc.robot.Constants.MiscConstants;
-import frc.robot.Constants.SwerveConstants;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.StructTelemetryEntry;
 import frc.robot.utils.Alert;
@@ -78,7 +77,7 @@ public class MiscRobotTelemetryAndAlerts {
     highRIOCanUsageAlert.set(filtered >= 0.9);
 
     // CANivore CAN Usage
-    CANBusStatus canivoreStatus = CANBus.getStatus(SwerveConstants.CAN_BUS);
+    CANBusStatus canivoreStatus = CANBus.getStatus(MiscConstants.CANIVORE_NAME);
     canivoreStatusEntry.append(canivoreStatus);
     double percentBusUsageCanivore = canivoreStatus.BusUtilization;
     double filteredCanivore = highCANivoreCanUsageFilter.calculate(percentBusUsageCanivore);

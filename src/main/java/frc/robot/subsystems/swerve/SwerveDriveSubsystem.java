@@ -98,7 +98,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   private final Function<Pose2d, List<EstimatedRobotPose>> cameraPoseDataSupplier;
 
   private final TelemetryPigeon2 pigeon =
-      new TelemetryPigeon2(PIGEON_ID, "/drive/gyro", CAN_BUS, MiscConstants.TUNING_MODE);
+      new TelemetryPigeon2(PIGEON_ID, "/drive/gyro", MiscConstants.CANIVORE_NAME, MiscConstants.TUNING_MODE);
 
   private StatusSignal<Double> yawSignal;
 
