@@ -26,7 +26,7 @@ public class ScoringCommands {
   }
 
   public static Command shootSetpointZeroCommand(ShooterSubsystem shooterSubsystem) {
-    return shooterSubsystem.runVelocityCommand(0);
+    return shooterSubsystem.setVoltageCommand(0);
   }
 
   public static Command shootSetpointIdleCommand(ShooterSubsystem shooterSubsystem) {
@@ -50,7 +50,7 @@ public class ScoringCommands {
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(
         elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(3)),
-        wristSubsystem.setPositonCommand(Rotation2d.fromDegrees(10.0)));
+        wristSubsystem.setPositonCommand(Rotation2d.fromDegrees(5.0)));
   }
 
   public static Command elevatorWristZeroCommand(

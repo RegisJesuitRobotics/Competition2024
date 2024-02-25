@@ -53,8 +53,8 @@ public class Robot extends TimedRobot {
 
     DataLog dataLog = DataLogManager.getLog();
     if (MiscConstants.TUNING_MODE) {
-      URCL.start();
-      NetworkTableInstance.getDefault().startEntryDataLog(dataLog, "/URCL/", "URCL/");
+      // URCL.start();
+      // NetworkTableInstance.getDefault().startEntryDataLog(dataLog, "/URCL/", "URCL/");
     }
     // Log connections and FMSInfo
     NetworkTableInstance.getDefault().startConnectionDataLog(dataLog, "NTConnection");

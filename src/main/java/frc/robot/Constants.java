@@ -22,7 +22,7 @@ public final class Constants {
   }
 
   public static class IntakeConstants {
-    public static final int INTAKE_VOLTAGE = 6;
+    public static final double INTAKE_VOLTAGE = 5.5;
     public static final int INTAKE_MOTOR_ID = 6;
     public static final boolean INVERTED = false;
 
@@ -51,7 +51,7 @@ public final class Constants {
 
     public static final int ROTATION_LIMIT_SWITCH_ID = 1;
 
-    public static final double FEEDER_VOLTAGE = 9.0;
+    public static final double FEEDER_VOLTAGE = (6);
 
     public static final TunablePIDGains ROTATION_GAINS =
         new TunablePIDGains("/slapdown/rotation/gains", 4.0, 0, 0, MiscConstants.TUNING_MODE);
@@ -300,7 +300,7 @@ public final class Constants {
     private VisionConstants() {}
 
     public static final Transform3d ROBOT_TO_CAM =
-        new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0));
+        new Transform3d(-8.017, 0, 27.088, new Rotation3d(0, Units.degreesToRadians(180-27.088), 0));
   }
 
   public static class MiscConstants {

@@ -133,23 +133,6 @@ spotless {
         trimTrailingWhitespace()
         endWithNewline()
     }
-    typescript {
-        target fileTree('fwc-plugin') {
-            include '**/*.ts'
-            exclude 'node_modules/**'
-        }
-        prettier()
-    }
-    format 'xml', {
-        target fileTree('.') {
-            include '**/*.xml'
-            exclude '**/build/**', '**/build-*/**', "**/.idea/**", "**/.run/**"
-        }
-        eclipseWtp('xml')
-        trimTrailingWhitespace()
-        indentWithSpaces(2)
-        endWithNewline()
-    }
     format 'misc', {
         target fileTree('.') {
             include '**/*.md', '**/.gitignore'

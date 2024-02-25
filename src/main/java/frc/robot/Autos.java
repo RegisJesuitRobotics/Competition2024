@@ -6,6 +6,7 @@ import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -68,7 +69,7 @@ public class Autos {
     return new SimpleToPointCommand(ampLoc, swerve);
   }
 
-  private Command autoStart() {
+  public Command autoStart() {
     return Commands.parallel(
         elevatorSubsystem.probeHomeCommand(), slapdownSuperstructure.probeRotationHomeCommand());
   }
@@ -164,7 +165,17 @@ public class Autos {
     Command command = new FollowPathCommand(trajectory, driveSubsystem);
     if (resetOdometry) {
       return command.beforeStarting(
-          () -> driveSubsystem.resetOdometry(trajectory.getInitialPose()));
+          () -> {
+            Pose2d initialPose;
+            var alliance = DriverStation.getAlliance();
+            if (alliance.isPresent() && alliance.get() == Alliance.Red) {
+              initialPose = trajectory.flipped().getInitialPose();
+            } else {
+              initialPose = trajectory.getInitialPose();
+            }
+            driveSubsystem.resetOdometry(initialPose);
+          }
+            );
     }
     return command;
   }

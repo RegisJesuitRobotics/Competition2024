@@ -28,11 +28,11 @@ public class PhotonSubsystem extends SubsystemBase {
 
   private final StructArrayTelemetryEntry<Pose3d> estimatedPoseEntries =
       new StructArrayTelemetryEntry<>(
-          "/vision/estimatedPoses", Pose3d.struct, MiscConstants.TUNING_MODE);
+          "/photon/estimatedPoses", Pose3d.struct, MiscConstants.TUNING_MODE);
   private final StructArrayTelemetryEntry<Pose3d> visionTargetEntries =
       new StructArrayTelemetryEntry<>("/photon/targets", Pose3d.struct, MiscConstants.TUNING_MODE);
 
-  private final PhotonCamera camera = new PhotonCamera("Camera");
+  private final PhotonCamera camera = new PhotonCamera("MainCamera");
   private final Alert cameraNotConnectedAlert =
       new Alert("AprilTag Camera is Not Powered or Not Connected", AlertType.ERROR);
 
@@ -42,7 +42,7 @@ public class PhotonSubsystem extends SubsystemBase {
 
     poseEstimator =
         new PhotonPoseEstimator(
-            fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camera, ROBOT_TO_CAM);
+            fieldLayout, PoseStrategy.CLOSEST_TO_CAMERA_HEIGHT, camera, ROBOT_TO_CAM);
 
     estimatedPoseEntries.append(new Pose3d[0]);
   }
@@ -53,29 +53,28 @@ public class PhotonSubsystem extends SubsystemBase {
 
     PhotonPipelineResult result = camera.getLatestResult();
 
+
     // Remove bad tags if only one, also add to our array
     for (int j = result.targets.size() - 1; j >= 0; j--) {
       PhotonTrackedTarget target = result.targets.get(j);
-
       if (fieldLayout.getTagPose(target.getFiducialId()).isPresent()) {
         Pose3d tagPose = fieldLayout.getTagPose(target.getFiducialId()).get();
 
         targetPoses.add(tagPose);
       }
-
-      result.targets.remove(j);
     }
+
 
     poseEstimator.setReferencePose(prevEstimatedRobotPose);
     Optional<EstimatedRobotPose> estimatedRobotPose = poseEstimator.update(result);
     if (estimatedRobotPose.isPresent()) {
       estimatedPoseEntries.append(new Pose3d[] {estimatedRobotPose.get().estimatedPose});
       updatedPoses.add(estimatedRobotPose.get());
+    } else {
+      estimatedPoseEntries.append(new Pose3d[]{});
     }
 
-    for (Pose3d element : targetPoses) {
-      visionTargetEntries.append(new Pose3d[] {element});
-    }
+    visionTargetEntries.append(targetPoses.toArray(new Pose3d[targetPoses.size()]));
 
     return updatedPoses;
   }
@@ -83,6 +82,7 @@ public class PhotonSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     boolean allCamerasConnected = camera.isConnected();
+    getEstimatedGlobalPose(new Pose2d());
 
     cameraNotConnectedAlert.set(!allCamerasConnected);
   }

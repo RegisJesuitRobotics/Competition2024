@@ -1,5 +1,6 @@
 package frc.robot;
 
+import frc.robot.subsystems.photon.PhotonSubsystem;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -40,7 +41,7 @@ import java.util.function.DoubleSupplier;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  //  private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
+   private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
   //  private final SwerveDriveSubsystem driveSubsystem =
   //      new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
   private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem((pose) -> List.of());
@@ -83,7 +84,9 @@ public class RobotContainer {
   }
 
   private void configureAutos() {
-    autoCommand.addOption("Center Speaker One Piece", autos.centerSpeakerOnePieceAuto());
+    autoCommand.setDefaultOption("Just Probe", autos.autoStart());
+    autoCommand.addOption("NOTHING", Commands.none());
+    autoCommand.addOption("Center Speaker  One Piece", autos.centerSpeakerOnePieceAuto());
     autoCommand.addOption(
         "Center Speaker Two Piece Close Left", autos.centerSpeakerCloseLeftTwoPieceAuto());
     autoCommand.addOption(
@@ -98,60 +101,60 @@ public class RobotContainer {
         autos.centerSpeakerCloseRightMidThreePieceAuto());
     autoCommand.addOption(
         "Center Speaker Four Piece Close", autos.centerSpeakerCloseFourPieceAuto());
-    autoCommand.addOption("Test Path", autos.testPathAuth());
-    autoCommand.addOption(
-        "Drive SysID QF", driveSubsystem.quasistaticSysIDCommand(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption(
-        "Drive SysID QR", driveSubsystem.quasistaticSysIDCommand(SysIdRoutine.Direction.kReverse));
-    autoCommand.addOption(
-        "Drive SysID DF", driveSubsystem.dynamicSysIDCommand(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption(
-        "Drive SysID DR", driveSubsystem.dynamicSysIDCommand(SysIdRoutine.Direction.kReverse));
-    autoCommand.addOption(
-        "Slapdown SysID QF",
-        slapdownSuperstructure
-            .getSlapdownRotationSubsystem()
-            .sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption(
-        "Slapdown SysID QR",
-        slapdownSuperstructure
-            .getSlapdownRotationSubsystem()
-            .sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoCommand.addOption(
-        "Slapdown SysID DF",
-        slapdownSuperstructure
-            .getSlapdownRotationSubsystem()
-            .sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption(
-        "Slapdown SysID DR",
-        slapdownSuperstructure
-            .getSlapdownRotationSubsystem()
-            .sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    autoCommand.addOption("Probe Elevator", elevatorSubsystem.probeHomeCommand());
-    autoCommand.addOption(
-        "Wrist SysID QF", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption(
-        "Wrist SysID QR", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoCommand.addOption(
-        "Wrist SysID DF", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption(
-        "Wrist SysID DR", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    autoCommand.addOption(
-        "Elevator SysID QF", elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption(
-        "Elevator SysID QR", elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoCommand.addOption(
-        "Elevator SysID DF", elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption(
-        "Elevator SysID DR", elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    autoCommand.addOption(
-        "Shooter SysID QF", shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption(
-        "Shooter SysID QR", shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoCommand.addOption(
-        "Shooter SysID DF", shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoCommand.addOption(
-        "Shooter SysID DR", shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // autoCommand.addOption("Test Path", autos.testPathAuth());
+    // autoCommand.addOption(
+    //     "Drive SysID QF", driveSubsystem.quasistaticSysIDCommand(SysIdRoutine.Direction.kForward));
+    // autoCommand.addOption(
+    //     "Drive SysID QR", driveSubsystem.quasistaticSysIDCommand(SysIdRoutine.Direction.kReverse));
+    // autoCommand.addOption(
+    //     "Drive SysID DF", driveSubsystem.dynamicSysIDCommand(SysIdRoutine.Direction.kForward));
+    // autoCommand.addOption(
+    //     "Drive SysID DR", driveSubsystem.dynamicSysIDCommand(SysIdRoutine.Direction.kReverse));
+    // autoCommand.addOption(
+    //     "Slapdown SysID QF",
+    //     slapdownSuperstructure
+    //         .getSlapdownRotationSubsystem()
+    //         .sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // autoCommand.addOption(
+    //     "Slapdown SysID QR",
+    //     slapdownSuperstructure
+    //         .getSlapdownRotationSubsystem()
+    //         .sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // autoCommand.addOption(
+    //     "Slapdown SysID DF",
+    //     slapdownSuperstructure
+    //         .getSlapdownRotationSubsystem()
+    //         .sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // autoCommand.addOption(
+    //     "Slapdown SysID DR",
+    //     slapdownSuperstructure
+    //         .getSlapdownRotationSubsystem()
+    //         .sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // autoCommand.addOption("Probe Elevator", elevatorSubsystem.probeHomeCommand());
+    // autoCommand.addOption(
+    //     "Wrist SysID QF", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // autoCommand.addOption(
+    //     "Wrist SysID QR", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // autoCommand.addOption(
+    //     "Wrist SysID DF", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // autoCommand.addOption(
+    //     "Wrist SysID DR", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // autoCommand.addOption(
+    //     "Elevator SysID QF", elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // autoCommand.addOption(
+    //     "Elevator SysID QR", elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // autoCommand.addOption(
+    //     "Elevator SysID DF", elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // autoCommand.addOption(
+    //     "Elevator SysID DR", elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // autoCommand.addOption(
+    //     "Shooter SysID QF", shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // autoCommand.addOption(
+    //     "Shooter SysID QR", shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // autoCommand.addOption(
+    //     "Shooter SysID DF", shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // autoCommand.addOption(
+    //     "Shooter SysID DR", shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     SmartDashboard.putData("Auto", autoCommand);
   }
@@ -175,7 +178,7 @@ public class RobotContainer {
             Commands.parallel(
                 IntakingCommands.intakeUntilDetected(
                     intakeSubsystem, slapdownSuperstructure, transportSubsystem),
-                elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(1)),
+                elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(0)),
                 wristSubsystem.setPositonCommand(new Rotation2d(0))));
     driverController.rightStick().onFalse(slapdownSuperstructure.setUpCommand());
     // TODO: Speaker centric
