@@ -2,17 +2,23 @@ package frc.robot;
 
 import static frc.robot.FieldConstants.*;
 
-import com.choreo.lib.Choreo;
-import com.choreo.lib.ChoreoTrajectory;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PathPlannerLogging;
+import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.MiscConstants;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.commands.IntakingCommands;
 import frc.robot.commands.ScoringCommands;
-import frc.robot.commands.drive.auto.FollowPathCommand;
 import frc.robot.commands.drive.auto.SimpleToPointCommand;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -21,6 +27,10 @@ import frc.robot.subsystems.slapdown.SlapdownSuperstructure;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
+import frc.robot.telemetry.types.ProtobufTelemetryEntry;
+import frc.robot.telemetry.types.StructArrayTelemetryEntry;
+import frc.robot.telemetry.types.StructTelemetryEntry;
+import frc.robot.utils.RaiderUtils;
 
 public class Autos {
   private final SwerveDriveSubsystem driveSubsystem;
@@ -30,6 +40,13 @@ public class Autos {
   private final TransportSubsystem transportSubsystem;
   private final IntakeSubsystem intakeSubsystem;
   private final SlapdownSuperstructure slapdownSuperstructure;
+
+  private final SendableChooser<Command> autoChooser;
+
+  private final StructTelemetryEntry<Pose2d> desiredPoseTelemetryEntry = new StructTelemetryEntry<>("followPath/desiredPose", Pose2d.struct,
+      MiscConstants.TUNING_MODE);
+  private final StructArrayTelemetryEntry<Pose2d> trajectoryTelemetryEntry = new StructArrayTelemetryEntry<>("followPath/trajectory", Pose2d.struct,
+      MiscConstants.TUNING_MODE);
 
   public Autos(
       SwerveDriveSubsystem driveSubsystem,
@@ -46,6 +63,37 @@ public class Autos {
     this.transportSubsystem = transportSubsystem;
     this.intakeSubsystem = intakeSubsystem;
     this.slapdownSuperstructure = slapdownSuperstructure;
+
+    AutoBuilder.configureHolonomic(
+        driveSubsystem::getPose,
+        driveSubsystem::resetOdometry,
+        driveSubsystem::getCurrentChassisSpeeds,
+        (speeds) -> driveSubsystem.setChassisSpeeds(speeds, false),
+        new HolonomicPathFollowerConfig(
+            AutoConstants.TRANSLATION_POSITION_GAINS.createPIDConstants(),
+            AutoConstants.ANGULAR_POSITION_PID_GAINS.createPIDConstants(),
+            SwerveConstants.MAX_VELOCITY_METERS_SECOND,
+            SwerveConstants.WHEEL_RADIUS,
+            new ReplanningConfig()),
+        RaiderUtils::shouldFlip,
+        driveSubsystem);
+    NamedCommands.registerCommand("AutoStart", autoStart());
+    NamedCommands.registerCommand("ShootNote", shootNote());
+    NamedCommands.registerCommand(
+        "IntakeUntilNote",
+        IntakingCommands.intakeUntilDetected(
+            intakeSubsystem, slapdownSuperstructure, transportSubsystem));
+
+    PathPlannerLogging.setLogActivePathCallback((path) -> {
+      trajectoryTelemetryEntry.append(path.toArray(new Pose2d[0]));
+    });
+    PathPlannerLogging.setLogTargetPoseCallback(desiredPoseTelemetryEntry::append);
+
+    autoChooser = AutoBuilder.buildAutoChooser("JustProbe");
+  }
+
+  public SendableChooser<Command> getAutoChooser() {
+    return autoChooser;
   }
 
   //  public static Command nearestClimberCommand(Alliance alliance, SwerveDriveSubsystem swerve) {
@@ -70,120 +118,21 @@ public class Autos {
   }
 
   public Command autoStart() {
+    if (Robot.isSimulation()) {
+      return Commands.print("Probed!");
+    }
     return Commands.parallel(
         elevatorSubsystem.probeHomeCommand(), slapdownSuperstructure.probeRotationHomeCommand());
   }
 
-//  private Command shootNote() {
-//    return Commands.parallel(
-//            ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
-//            ScoringCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem, wristSubsystem),
-//            Commands.parallel(
-//                    ScoringCommands.shooterInToleranceCommand(shooterSubsystem),
-//                    ScoringCommands.elevatorWristInToleranceCommand(
-//                        elevatorSubsystem, wristSubsystem)))
-//                .andThen(ScoringCommands.transportCloseSpeakerCommand(transportSubsystem))
-//        .until(() -> !transportSubsystem.atSensor())
-//        .andThen(Commands.waitSeconds(0.5));
-//  }
-
-  private Command shootNote(){
+  private Command shootNote() {
+    if (Robot.isSimulation()) {
+      return Commands.print("Shooting Note!").andThen(Commands.waitSeconds(1.0));
+    }
     return Commands.parallel(
             ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
             ScoringCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem, wristSubsystem)
     ).until(shooterSubsystem::inTolerance).andThen(ScoringCommands.transportCloseSpeakerCommand(transportSubsystem)).until(() -> !transportSubsystem.atSensor())
             .andThen(elevatorSubsystem.setElevatorPositionCommand(0)).until(elevatorSubsystem::atGoal);
-  }
-
-  public Command centerSpeakerCloseFourPieceAuto() {
-    return Commands.sequence(
-        autoStart(),
-        shootNote(),
-        centerSpeakerCloseSourceNote(true),
-        centerSpeakerCloseMidNote(false),
-        centerSpeakerCloseAmpNote(false));
-  }
-
-  public Command centerSpeakerCloseSourceMidThreePieceAuto() {
-    return Commands.sequence(
-        autoStart(),
-        shootNote(),
-        centerSpeakerCloseSourceNote(true),
-        centerSpeakerCloseMidNote(false));
-  }
-
-  public Command centerSpeakerCloseAmpMidThreePieceAuto() {
-    return Commands.sequence(
-        autoStart(),
-        shootNote(),
-        centerSpeakerCloseAmpNote(true),
-        centerSpeakerCloseMidNote(false));
-  }
-
-  public Command centerSpeakerCloseSourceTwoPieceAuto() {
-    return Commands.sequence(autoStart(), shootNote(), centerSpeakerCloseSourceNote(true));
-  }
-
-  public Command centerSpeakerCloseMidTwoPieceAuto() {
-    return Commands.sequence(autoStart(), shootNote(), centerSpeakerCloseMidNote(true), shootNote());
-  }
-
-  public Command centerSpeakerCloseAmpTwoPieceAuto() {
-    return Commands.sequence(autoStart(), shootNote(), centerSpeakerCloseAmpNote(true), shootNote());
-  }
-
-  public Command centerSpeakerOnePieceAuto() {
-    return Commands.sequence(autoStart(), shootNote());
-  }
-
-  public Command testPathAuth() {
-    return Commands.sequence(autoStart(), followPathCommand("TestPath", true, driveSubsystem));
-  }
-
-  private Command centerSpeakerCloseMidNote(boolean firstPath) {
-    return Commands.sequence(
-        Commands.parallel(
-            followPathCommand("CenterSpeakerCloseMidNote", firstPath, driveSubsystem),
-            IntakingCommands.intakeUntilDetected(
-                intakeSubsystem, slapdownSuperstructure, transportSubsystem)),
-        shootNote());
-  }
-
-  private Command centerSpeakerCloseSourceNote(boolean firstPath) {
-    return Commands.sequence(
-        Commands.parallel(
-            followPathCommand("CenterSpeakerCloseRightNote", firstPath, driveSubsystem),
-            IntakingCommands.intakeUntilDetected(
-                intakeSubsystem, slapdownSuperstructure, transportSubsystem)),
-        shootNote());
-  }
-
-  private Command centerSpeakerCloseAmpNote(boolean firstPath) {
-    return Commands.sequence(
-        Commands.parallel(
-            followPathCommand("CenterSpeakerCloseLeftNote", firstPath, driveSubsystem),
-            IntakingCommands.intakeUntilDetected(
-                intakeSubsystem, slapdownSuperstructure, transportSubsystem)),
-        shootNote());
-  }
-
-  private Command followPathCommand(
-      String path, boolean resetOdometry, SwerveDriveSubsystem driveSubsystem) {
-    ChoreoTrajectory trajectory = Choreo.getTrajectory(path);
-    Command command = new FollowPathCommand(trajectory, driveSubsystem);
-    if (resetOdometry) {
-      return command.beforeStarting(
-          () -> {
-            Pose2d initialPose;
-            var alliance = DriverStation.getAlliance();
-            if (alliance.isPresent() && alliance.get() == Alliance.Red) {
-              initialPose = trajectory.flipped().getInitialPose();
-            } else {
-              initialPose = trajectory.getInitialPose();
-            }
-            driveSubsystem.resetOdometry(initialPose);
-          });
-    }
-    return command;
   }
 }

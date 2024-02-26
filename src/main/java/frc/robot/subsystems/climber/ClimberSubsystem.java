@@ -19,7 +19,10 @@ import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
 public class ClimberSubsystem extends SubsystemBase {
   private final TelemetryTalonFX climberMotor =
       new TelemetryTalonFX(
-          CLIMBER_MOTOR_ID, "/climber/motor", MiscConstants.CANIVORE_NAME, MiscConstants.TUNING_MODE);
+          CLIMBER_MOTOR_ID,
+          "/climber/motor",
+          MiscConstants.CANIVORE_NAME,
+          MiscConstants.TUNING_MODE);
   private final EventTelemetryEntry eventEntry = new EventTelemetryEntry("/climber/events");
   private final DoubleTelemetryEntry voltageReqEntry =
       new DoubleTelemetryEntry("/climber/voltageReq", MiscConstants.TUNING_MODE);
