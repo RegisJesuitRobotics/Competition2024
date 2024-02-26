@@ -133,8 +133,16 @@ public final class Constants {
 
     public static final TunablePIDGains STEER_POSITION_PID_GAINS =
         new TunablePIDGains("/gains/steer", 7.207, 0.0, 0.002, MiscConstants.TUNING_MODE);
+    // Radians per rotation
+    private static final double STEER_CONVERSION = (2 * Math.PI);
+    // Volts/(Radian/Second) to Volts/(Rotation/Second)
     public static final TunableFFGains STEER_VELOCITY_FF_GAINS =
-        new TunableFFGains("/gains/steer", 0.0, 0.0, 0.0, MiscConstants.TUNING_MODE);
+        new TunableFFGains(
+            "/gains/steer",
+            0.0 * STEER_CONVERSION,
+            0.0 * STEER_CONVERSION,
+            0.0 * STEER_CONVERSION,
+            MiscConstants.TUNING_MODE);
 
     // Left right distance between center of wheels
     public static final double TRACKWIDTH_METERS = Units.inchesToMeters(22.75);

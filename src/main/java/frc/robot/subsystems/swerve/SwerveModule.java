@@ -420,7 +420,7 @@ public class SwerveModule {
 
     if (activeSteer) {
       steerMotor.setControl(
-          steerMotionMagicExpoVoltage.withPosition(Units.radiansToRotations(targetAngleRadians)));
+          steerMotionMagicExpoVoltage.withPosition(targetAngleRadians * steerConversion));
     } else {
       steerMotor.setVoltage(0.0);
     }
