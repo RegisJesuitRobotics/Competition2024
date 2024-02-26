@@ -4,30 +4,25 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.*;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.MiscConstants;
-import frc.robot.Constants.SwerveConstants;
 import frc.robot.telemetry.tunable.gains.TunableFFGains;
 import frc.robot.telemetry.tunable.gains.TunablePIDGains;
 import frc.robot.telemetry.types.*;
 import frc.robot.telemetry.wrappers.TelemetryCANCoder;
-import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.telemetry.wrappers.TelemetryTalonFX;
 import frc.robot.utils.*;
 import frc.robot.utils.Alert.AlertType;
@@ -51,39 +46,27 @@ public class SwerveModule {
 
   private final int instanceId;
 
-  private final DoubleTelemetryEntry driveVelocitySetpointEntry,
-      steerPositionGoalEntry,
-      feedForwardOutputEntry;
-  private final BooleanTelemetryEntry activeSteerEntry, setToAbsoluteEntry, openLoopEntry;
+  private final DoubleTelemetryEntry driveVelocitySetpointEntry, steerPositionGoalEntry;
+  private final BooleanTelemetryEntry activeSteerEntry, openLoopEntry;
   private final IntegerTelemetryEntry controlModeEntry;
   private final EventTelemetryEntry moduleEventEntry;
 
-  private final Alert notSetToAbsoluteAlert,
-      steerEncoderFaultAlert,
-      steerMotorFaultAlert,
-      driveMotorFaultAlert;
+  private final Alert steerEncoderFaultAlert, steerMotorFaultAlert, driveMotorFaultAlert;
 
   private final TelemetryTalonFX driveMotor;
-  private final TelemetryCANSparkMax steerMotor;
+  private final TelemetryTalonFX steerMotor;
   private final TelemetryCANCoder absoluteSteerEncoder;
 
-  private RelativeEncoder steerRelativeEncoder;
   private StatusSignal<Double> absoluteSteerPositionSignal;
   private StatusSignal<Double> drivePositionSignal, driveVelocitySignal;
-  private final double drivePositionConversion,
-      driveVelocityConversion,
-      steerPositionConversion,
-      steerVelocityConversion;
+  private StatusSignal<Double> steerPositionSignal, steerVelocitySignal;
+  private final double driveConversion, steerConversion;
+
+  private final double maxDriveVelocityMetersPerSecond;
 
   private final TunablePIDGains driveVelocityPIDGains;
   private final TunableFFGains driveVelocityFFGains;
   private final TunablePIDGains steerPositionPIDGains;
-  private SimpleMotorFeedforward driveMotorFF;
-  private SparkPIDController steerController;
-
-  private boolean setToAbsolute = false;
-  private double lastMoveTime = 0.0;
-  private double lastAbsoluteResetTime = 0.0;
 
   /** Constructs a new Swerve Module using the given config */
   public SwerveModule(SwerveModuleConfiguration config, boolean tuningMode) {
@@ -94,17 +77,13 @@ public class SwerveModule {
     driveVelocitySetpointEntry =
         new DoubleTelemetryEntry(tableName + "driveVelocitySetpoint", true);
     openLoopEntry = new BooleanTelemetryEntry(tableName + "openLoop", tuningMode);
-    feedForwardOutputEntry = new DoubleTelemetryEntry(tableName + "feedforwardOutput", tuningMode);
     steerPositionGoalEntry = new DoubleTelemetryEntry(tableName + "steerPositionGoal", true);
     activeSteerEntry = new BooleanTelemetryEntry(tableName + "activeSteer", tuningMode);
-    setToAbsoluteEntry = new BooleanTelemetryEntry(tableName + "setToAbsolute", true);
     controlModeEntry = new IntegerTelemetryEntry(tableName + "controlMode", false);
     moduleEventEntry = new EventTelemetryEntry(tableName + "events");
 
     // Initialize all alerts
     String alertPrefix = "Module " + instanceId + ": ";
-    notSetToAbsoluteAlert =
-        new Alert(alertPrefix + "Steer is not reset to absolute position", AlertType.ERROR);
     steerEncoderFaultAlert =
         new Alert(alertPrefix + "Steer encoder had a fault initializing", AlertType.ERROR);
     steerMotorFaultAlert =
@@ -112,18 +91,17 @@ public class SwerveModule {
     driveMotorFaultAlert =
         new Alert(alertPrefix + "Drive motor had a fault initializing", AlertType.ERROR);
 
-    drivePositionConversion =
+    driveConversion =
         (config.sharedConfiguration().wheelDiameterMeters() * Math.PI)
             / (config.sharedConfiguration().driveGearRatio());
-    driveVelocityConversion = drivePositionConversion;
-    steerPositionConversion = (Math.PI * 2) / (config.sharedConfiguration().steerGearRatio());
-    steerVelocityConversion = steerPositionConversion / 60.0;
+    // Steer uses CANCoder which is one to one
+    steerConversion = (Math.PI * 2);
+
+    maxDriveVelocityMetersPerSecond = config.sharedConfiguration().freeSpeedMetersPerSecond();
 
     driveVelocityPIDGains = config.sharedConfiguration().driveVelocityPIDGains();
     driveVelocityFFGains = config.sharedConfiguration().driveVelocityFFGains();
     steerPositionPIDGains = config.sharedConfiguration().steerPositionPIDGains();
-
-    driveMotorFF = driveVelocityFFGains.createFeedforward();
 
     // Drive motor
     driveMotor =
@@ -148,13 +126,12 @@ public class SwerveModule {
 
     // Steer motor
     steerMotor =
-        new TelemetryCANSparkMax(
+        new TelemetryTalonFX(
             config.steerMotorID(),
-            CANSparkMax.MotorType.kBrushless,
             tableName + "steerMotor",
+            config.sharedConfiguration().canBus(),
             tuningMode);
     configSteerMotor(config);
-    resetSteerToAbsolute(0.25);
   }
 
   private void configDriveMotor(SwerveModuleConfiguration config) {
@@ -213,117 +190,73 @@ public class SwerveModule {
         faultRecorder.getFaultString());
     driveMotorFaultAlert.set(faultRecorder.hasFault());
 
-    driveMotor.setLoggingPositionConversionFactor(drivePositionConversion);
-    driveMotor.setLoggingVelocityConversionFactor(driveVelocityConversion);
+    driveMotor.setLoggingPositionConversionFactor(driveConversion);
+    driveMotor.setLoggingVelocityConversionFactor(driveConversion);
 
     // Clear reset as this is on startup
     driveMotor.hasResetOccurred();
   }
 
   private void configSteerMotor(SwerveModuleConfiguration config) {
-    steerRelativeEncoder = steerMotor.getEncoder();
-    steerController = steerMotor.getPIDController();
+    TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
+    motorConfiguration.CurrentLimits.SupplyCurrentLimit =
+        config.sharedConfiguration().steerCurrentLimit();
+    motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
+    motorConfiguration.MotorOutput.Inverted =
+        config.steerMotorInverted()
+            ? InvertedValue.Clockwise_Positive
+            : InvertedValue.CounterClockwise_Positive;
+    motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    motorConfiguration.Feedback.FeedbackRemoteSensorID = config.steerEncoderID();
+    motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+    motorConfiguration.Feedback.RotorToSensorRatio = config.sharedConfiguration().steerGearRatio();
+    motorConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
+
+    config.sharedConfiguration().steerPositionPIDGains().setSlot(motorConfiguration.Slot0);
+    // Came from the CTRE Swerve Module example
+    motorConfiguration.MotionMagic.MotionMagicCruiseVelocity =
+        100.0 / config.sharedConfiguration().steerGearRatio();
+    motorConfiguration.MotionMagic.MotionMagicAcceleration =
+        motorConfiguration.MotionMagic.MotionMagicCruiseVelocity / 0.100;
+    motorConfiguration.MotionMagic.MotionMagicExpo_kV =
+        0.12 * config.sharedConfiguration().steerGearRatio();
+    motorConfiguration.MotionMagic.MotionMagicExpo_kA = 0.1;
+
+    steerPositionSignal = steerMotor.getPosition();
+    steerVelocitySignal = steerMotor.getVelocity();
 
     StringFaultRecorder faultRecorder = new StringFaultRecorder();
-
-    ConfigurationUtils.applyCheckRecordRev(
-        () -> steerMotor.setCANTimeout(250),
-        () -> true,
-        faultRecorder.run("CAN timeout"),
-        MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    ConfigurationUtils.applyCheckRecordRev(
-        steerMotor::restoreFactoryDefaults,
-        () -> true,
-        faultRecorder.run("Factory default"),
-        MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    ConfigurationUtils.applyCheckRecordRev(
-        () ->
-            steerMotor.setSmartCurrentLimit(
-                config.sharedConfiguration().steerStallCurrentLimit(),
-                config.sharedConfiguration().steerFreeCurrentLimit()),
-        () -> true,
-        faultRecorder.run("Current limit"),
-        MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    ConfigurationUtils.applyCheckRecord(
+    ConfigurationUtils.applyCheckRecordCTRE(
+        () -> steerMotor.getConfigurator().apply(motorConfiguration),
         () -> {
-          steerMotor.setInverted(config.steerMotorInverted());
+          TalonFXConfiguration appliedConfig = new TalonFXConfiguration();
+          steerMotor.getConfigurator().refresh(appliedConfig);
+          return ConfigEquality.isTalonConfigurationEqual(motorConfiguration, appliedConfig);
         },
-        () -> steerMotor.getInverted() == config.steerMotorInverted(),
-        faultRecorder.run("Invert"),
+        faultRecorder.run("Motor configuration"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    ConfigurationUtils.applyCheckRecordRev(
-        () -> steerController.setP(steerPositionPIDGains.p.get()),
-        () -> ConfigurationUtils.fpEqual(steerController.getP(), steerPositionPIDGains.p.get()),
-        faultRecorder.run("P gain"),
-        MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    ConfigurationUtils.applyCheckRecordRev(
-        () -> steerController.setI(steerPositionPIDGains.i.get()),
-        () -> ConfigurationUtils.fpEqual(steerController.getI(), steerPositionPIDGains.i.get()),
-        faultRecorder.run("I gain"),
-        MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    ConfigurationUtils.applyCheckRecordRev(
-        () -> steerController.setD(steerPositionPIDGains.d.get()),
-        () -> ConfigurationUtils.fpEqual(steerController.getD(), steerPositionPIDGains.d.get()),
-        faultRecorder.run("D gain"),
-        MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    ConfigurationUtils.applyCheckRecordRev(
-        () -> steerController.setPositionPIDWrappingEnabled(true),
-        () -> steerController.getPositionPIDWrappingEnabled(),
-        faultRecorder.run("PID wrapping"),
-        MiscConstants.CONFIGURATION_ATTEMPTS);
-    ConfigurationUtils.applyCheckRecordRev(
-        () -> steerController.setPositionPIDWrappingMinInput(-Math.PI),
+    ConfigurationUtils.applyCheckRecordCTRE(
         () ->
-            ConfigurationUtils.fpEqual(steerController.getPositionPIDWrappingMinInput(), -Math.PI),
-        faultRecorder.run("PID wrapping min input"),
-        MiscConstants.CONFIGURATION_ATTEMPTS);
-    ConfigurationUtils.applyCheckRecordRev(
-        () -> steerController.setPositionPIDWrappingMaxInput(Math.PI),
-        () -> ConfigurationUtils.fpEqual(steerController.getPositionPIDWrappingMaxInput(), Math.PI),
-        faultRecorder.run("PID wrapping max input"),
-        MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    ConfigurationUtils.applyCheckRecordRev(
-        () -> steerRelativeEncoder.setPositionConversionFactor(steerPositionConversion),
+            steerPositionSignal.setUpdateFrequency(
+                config.sharedConfiguration().odometryFrequency()),
         () ->
-            ConfigurationUtils.fpEqual(
-                steerRelativeEncoder.getPositionConversionFactor(), steerPositionConversion),
-        faultRecorder.run("Position conversion factor"),
+            steerPositionSignal.getAppliedUpdateFrequency()
+                == config.sharedConfiguration().odometryFrequency(),
+        faultRecorder.run("Position signal update frequency"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    ConfigurationUtils.applyCheckRecordRev(
-        () -> steerRelativeEncoder.setVelocityConversionFactor(steerVelocityConversion),
+    ConfigurationUtils.applyCheckRecordCTRE(
         () ->
-            ConfigurationUtils.fpEqual(
-                steerRelativeEncoder.getVelocityConversionFactor(), steerVelocityConversion),
-        faultRecorder.run("Velocity conversion factor"),
-        MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    ConfigurationUtils.applyCheckRecordRev(
-        () -> steerMotor.setIdleMode(IdleMode.kBrake),
-        () -> steerMotor.getIdleMode() == IdleMode.kBrake,
-        faultRecorder.run("Idle mode"),
-        MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    ConfigurationUtils.applyCheckRecordRev(
+            steerVelocitySignal.setUpdateFrequency(
+                config.sharedConfiguration().odometryFrequency()),
         () ->
-            steerMotor.setPeriodicFramePeriod(
-                PeriodicFrame.kStatus2, 1000 / SwerveConstants.ODOMETRY_FREQUENCY),
+            steerVelocitySignal.getAppliedUpdateFrequency()
+                == config.sharedConfiguration().odometryFrequency(),
+        faultRecorder.run("Velocity signal update frequency"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordCTRE(
+        steerMotor::optimizeBusUtilization,
         () -> true,
-        faultRecorder.run("Status 2 frame period"),
-        MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    ConfigurationUtils.applyCheckRecordRev(
-        steerMotor::burnFlashWithDelay,
-        () -> true,
-        faultRecorder.run("Burn flash"),
+        faultRecorder.run("Optimize bus utilization"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
 
     ConfigurationUtils.postDeviceConfig(
@@ -332,6 +265,9 @@ public class SwerveModule {
         "Steer motor module " + instanceId,
         faultRecorder.getFaultString());
     steerMotorFaultAlert.set(faultRecorder.hasFault());
+
+    steerMotor.setLoggingPositionConversionFactor(steerConversion);
+    steerMotor.setLoggingVelocityConversionFactor(steerConversion);
   }
 
   private void configSteerEncoder(SwerveModuleConfiguration config) {
@@ -378,10 +314,8 @@ public class SwerveModule {
 
   private void checkForSteerMotorReset() {
     // Steer motor lost power
-    if (RobotBase.isReal() && steerMotor.getFault(CANSparkBase.FaultID.kHasReset)) {
+    if (RobotBase.isReal() && steerMotor.hasResetOccurred()) {
       reportError("Steer motor reset occurred");
-      setToAbsolute = false;
-      resetSteerToAbsolute();
     }
   }
 
@@ -392,58 +326,24 @@ public class SwerveModule {
   }
 
   /**
-   * Resets the integrated encoder on the Steer motor to the absolute position of the CANCoder. Trys
-   * only once, and if it fails, it will not try again until
-   */
-  public void resetSteerToAbsolute() {
-    resetSteerToAbsolute(0.0);
-  }
-
-  /**
-   * Resets the integrated encoder on the Steer motor to the absolute position of the CANCoder
-   *
-   * @param timeout The timeout in seconds to wait.
-   */
-  public void resetSteerToAbsolute(double timeout) {
-    double absolutePosition =
-        Units.rotationsToRadians(absoluteSteerPositionSignal.waitForUpdate(timeout).getValue());
-    if (absoluteSteerPositionSignal.getStatus().isOK()) {
-      REVLibError settingPositionError = steerRelativeEncoder.setPosition(absolutePosition);
-      if (RaiderUtils.isRevOk(settingPositionError)) {
-        setToAbsolute = true;
-        lastAbsoluteResetTime = Timer.getFPGATimestamp();
-        moduleEventEntry.append("Reset steer motor encoder to position: " + absolutePosition);
-      } else {
-        reportError("Failed to set SparkMax to absolute position: " + settingPositionError);
-      }
-    } else {
-      reportError("Failed to get absolute position: " + absoluteSteerPositionSignal.getStatus());
-    }
-  }
-
-  public boolean isSetToAbsolute() {
-    return setToAbsolute;
-  }
-
-  private double getSteerAngleRadiansNoWrap() {
-    return steerRelativeEncoder.getPosition();
-  }
-
-  /**
    * @return the rotation of the wheel
    */
   private Rotation2d getSteerAngle() {
-    return Rotation2d.fromRadians(MathUtil.angleModulus(getSteerAngleRadiansNoWrap()));
+    StatusSignal.refreshAll(steerPositionSignal, steerVelocitySignal);
+    return Rotation2d.fromRadians(
+        MathUtil.angleModulus(
+            StatusSignal.getLatencyCompensatedValue(steerPositionSignal, steerVelocitySignal)
+                * steerConversion));
   }
 
   private double getDriveVelocityMetersPerSecond() {
-    return driveVelocitySignal.refresh().getValue() * driveVelocityConversion;
+    return driveVelocitySignal.refresh().getValue() * driveConversion;
   }
 
   private double getDriveMotorPositionMeters() {
     StatusSignal.refreshAll(drivePositionSignal, driveVelocitySignal);
     return StatusSignal.getLatencyCompensatedValue(drivePositionSignal, driveVelocitySignal)
-        * drivePositionConversion;
+        * driveConversion;
   }
 
   /**
@@ -479,70 +379,67 @@ public class SwerveModule {
 
     controlModeEntry.append(SwerveModuleControlMode.NORMAL.logValue);
 
-    if (state.speedMetersPerSecond != 0.0 || activeSteer) {
-      lastMoveTime = Timer.getFPGATimestamp();
-    }
-
     state = SwerveModuleState.optimize(state, getSteerAngle());
+
+    // Account for steer error to reduce skew
+    double steerErrorRadians = state.angle.getRadians() - getSteerAngle().getRadians();
+    double cosineScalar = Math.cos(steerErrorRadians);
+    if (cosineScalar < 0.0) {
+      cosineScalar = 0.0;
+    }
+    state.speedMetersPerSecond *= cosineScalar;
 
     setDriveReference(state.speedMetersPerSecond, openLoop);
     setSteerReference(state.angle.getRadians(), activeSteer);
-
-    if (shouldResetToAbsolute()) {
-      resetSteerToAbsolute();
-    }
   }
 
-  private boolean shouldResetToAbsolute() {
-    double currentTime = Timer.getFPGATimestamp();
-    // If we have not reset in 5 seconds, been still for 1.5 seconds and our steer
-    // velocity is less than half a degree per second (could happen if we are being
-    // pushed), reset to absolute
-    return DriverStation.isDisabled()
-        && currentTime - lastAbsoluteResetTime > 5.0
-        && currentTime - lastMoveTime > 1.5
-        && Math.abs(Units.rotationsToRadians(absoluteSteerEncoder.getVelocity().getValue()))
-            < Units.degreesToRadians(0.5);
-  }
+  private final VoltageOut driveVoltageOut = new VoltageOut(0.0);
 
-  public void setCharacterizationVoltage(double voltage) {
+  public void setDriveCharacterizationVoltage(double voltage) {
     controlModeEntry.append(SwerveModuleControlMode.CHARACTERIZATION.logValue);
 
-    driveMotor.setControl(new VoltageOut(voltage));
+    driveMotor.setControl(driveVoltageOut.withOutput(voltage));
     setSteerReference(0.0, true);
   }
+
+  private final VoltageOut steerVoltageOut = new VoltageOut(0.0);
 
   public void setRawVoltage(double driveVolts, double steerVolts) {
     controlModeEntry.append(SwerveModuleControlMode.RAW_VOLTAGE.logValue);
 
-    driveMotor.setControl(new VoltageOut(driveVolts));
-    steerMotor.setVoltage(steerVolts);
+    driveMotor.setControl(driveVoltageOut.withOutput(driveVolts));
+    steerMotor.setControl(steerVoltageOut.withOutput(steerVolts));
   }
+
+  private final MotionMagicExpoVoltage steerMotionMagicExpoVoltage =
+      new MotionMagicExpoVoltage(0.0).withUpdateFreqHz(0.0);
 
   private void setSteerReference(double targetAngleRadians, boolean activeSteer) {
     activeSteerEntry.append(activeSteer);
     steerPositionGoalEntry.append(targetAngleRadians);
 
     if (activeSteer) {
-      steerController.setReference(targetAngleRadians, CANSparkMax.ControlType.kPosition);
+      steerMotor.setControl(
+          steerMotionMagicExpoVoltage.withPosition(Units.radiansToRotations(targetAngleRadians)));
     } else {
       steerMotor.setVoltage(0.0);
     }
   }
 
+  private final VelocityVoltage driveVelocityVoltage =
+      new VelocityVoltage(0.0).withUpdateFreqHz(0.0);
+
   private void setDriveReference(double targetVelocityMetersPerSecond, boolean openLoop) {
     driveVelocitySetpointEntry.append(targetVelocityMetersPerSecond);
     openLoopEntry.append(openLoop);
 
-    double feedforwardValueVoltage = driveMotorFF.calculate(targetVelocityMetersPerSecond);
-    feedForwardOutputEntry.append(feedforwardValueVoltage);
-
     if (openLoop) {
-      driveMotor.setControl(new VoltageOut(feedforwardValueVoltage));
+      driveMotor.setControl(
+          driveVoltageOut.withOutput(
+              targetVelocityMetersPerSecond / maxDriveVelocityMetersPerSecond * 12.0));
     } else {
       driveMotor.setControl(
-          new VelocityVoltage(targetVelocityMetersPerSecond / driveVelocityConversion)
-              .withFeedForward(feedforwardValueVoltage));
+          driveVelocityVoltage.withVelocity(targetVelocityMetersPerSecond / driveConversion));
     }
   }
 
@@ -550,16 +447,16 @@ public class SwerveModule {
     if (driveVelocityPIDGains.hasChanged() || driveVelocityFFGains.hasChanged()) {
       Slot0Configs newSlotConfig = new Slot0Configs();
       driveVelocityPIDGains.setSlot(newSlotConfig);
+      driveVelocityFFGains.setSlot(newSlotConfig);
       driveMotor.getConfigurator().apply(newSlotConfig);
-      driveMotorFF = driveVelocityFFGains.createFeedforward();
 
       moduleEventEntry.append("Updated drive gains due to value change");
     }
 
     if (steerPositionPIDGains.hasChanged()) {
-      steerController.setP(steerPositionPIDGains.p.get());
-      steerController.setD(steerPositionPIDGains.d.get());
-      steerController.setI(steerPositionPIDGains.i.get());
+      Slot0Configs newSlotConfig = new Slot0Configs();
+      steerPositionPIDGains.setSlot(newSlotConfig);
+      steerMotor.getConfigurator().apply(newSlotConfig);
 
       moduleEventEntry.append("Updated steer gains due to value change");
     }
@@ -580,8 +477,5 @@ public class SwerveModule {
     driveMotor.logValues();
     steerMotor.logValues();
     absoluteSteerEncoder.logValues();
-
-    notSetToAbsoluteAlert.set(!setToAbsolute);
-    setToAbsoluteEntry.append(setToAbsolute);
   }
 }

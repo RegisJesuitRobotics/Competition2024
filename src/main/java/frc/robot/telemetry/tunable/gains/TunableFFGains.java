@@ -1,5 +1,6 @@
 package frc.robot.telemetry.tunable.gains;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 
 public class TunableFFGains {
@@ -20,6 +21,12 @@ public class TunableFFGains {
     this.sFF = new TunableDouble(networkName + "sFF", sFF, tuningMode);
     this.vFF = new TunableDouble(networkName + "vFF", vFF, tuningMode);
     this.aFF = new TunableDouble(networkName + "aFF", aFF, tuningMode);
+  }
+
+  public void setSlot(Slot0Configs slot) {
+    slot.kS = sFF.get();
+    slot.kV = vFF.get();
+    slot.kA = aFF.get();
   }
 
   public boolean hasChanged() {

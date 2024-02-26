@@ -114,18 +114,27 @@ public final class Constants {
     public static final double STEER_GEAR_REDUCTION = 150.0 / 7.0;
 
     public static final double DRIVE_CURRENT_LIMIT = 60.0;
-    public static final int STEER_STALL_CURRENT_LIMIT = 45;
-    public static final int STEER_FREE_CURRENT_LIMIT = 25;
+    public static final double STEER_CURRENT_LIMIT = 35.0;
 
     // 0.47
     public static final TunablePIDGains DRIVE_VELOCITY_PID_GAINS =
         new TunablePIDGains("/gains/drive", 0.2, 0.0, 0.0, MiscConstants.TUNING_MODE);
-
+    // Meters per rotation
+    private static final double DRIVE_CONVERSION =
+        (Math.PI * WHEEL_DIAMETER_METERS) / DRIVE_GEAR_REDUCTION;
+    // Volts/(Meter/Second) to Volts/(Rotation/Second)
     public static final TunableFFGains DRIVE_VELOCITY_FF_GAINS =
-        new TunableFFGains("/gains/drive", 0.064022, 1.9843, 0.9255, MiscConstants.TUNING_MODE);
+        new TunableFFGains(
+            "/gains/drive",
+            0.064022 * DRIVE_CONVERSION,
+            1.9843 * DRIVE_CONVERSION,
+            0.9255 * DRIVE_CONVERSION,
+            MiscConstants.TUNING_MODE);
 
     public static final TunablePIDGains STEER_POSITION_PID_GAINS =
-        new TunablePIDGains("/gains/steer", 1.0, 0.0, 0.1, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/steer", 7.207, 0.0, 0.002, MiscConstants.TUNING_MODE);
+    public static final TunableFFGains STEER_VELOCITY_FF_GAINS =
+        new TunableFFGains("/gains/steer", 0.0, 0.0, 0.0, MiscConstants.TUNING_MODE);
 
     // Left right distance between center of wheels
     public static final double TRACKWIDTH_METERS = Units.inchesToMeters(22.75);
@@ -154,9 +163,9 @@ public final class Constants {
             DRIVE_GEAR_REDUCTION,
             STEER_GEAR_REDUCTION,
             DRIVE_CURRENT_LIMIT,
-            STEER_FREE_CURRENT_LIMIT,
-            STEER_STALL_CURRENT_LIMIT,
+            STEER_CURRENT_LIMIT,
             WHEEL_DIAMETER_METERS,
+            MAX_VELOCITY_METERS_SECOND,
             ODOMETRY_FREQUENCY,
             DRIVE_VELOCITY_PID_GAINS,
             DRIVE_VELOCITY_FF_GAINS,

@@ -98,7 +98,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   private final Function<Pose2d, List<EstimatedRobotPose>> cameraPoseDataSupplier;
 
   private final TelemetryPigeon2 pigeon =
-      new TelemetryPigeon2(PIGEON_ID, "/drive/gyro", MiscConstants.CANIVORE_NAME, MiscConstants.TUNING_MODE);
+      new TelemetryPigeon2(
+          PIGEON_ID, "/drive/gyro", MiscConstants.CANIVORE_NAME, MiscConstants.TUNING_MODE);
 
   private StatusSignal<Double> yawSignal;
 
@@ -113,11 +114,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
               null,
               this));
 
+  private final SysIdRoutine steerPositionSysId =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(
+              null, null, null, (state) -> SignalLogger.writeString("State", state.toString())),
+          new SysIdRoutine.Mechanism(
+              (Measure<Voltage> voltage) -> setRawVolts(0.0, voltage.in(Volts)), null, this));
+
   private final Alert pigeonConfigurationAlert =
       new Alert("Pigeon failed to initialize", Alert.AlertType.ERROR);
-  private final BooleanTelemetryEntry allModulesAtAbsoluteZeroEntry =
-      new BooleanTelemetryEntry("/drive/allModulesAtAbsoluteZero", true);
-
   private final DoubleTelemetryEntry gyroEntry =
       new DoubleTelemetryEntry("/drive/gyroRadians", true);
 
@@ -327,20 +332,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     return voltages;
   }
 
-  public void setAllModulesToAbsolute() {
-    for (SwerveModule module : modules) {
-      module.resetSteerToAbsolute();
-    }
-  }
-
-  private boolean allModulesAtAbsolute() {
-    boolean allSet = true;
-    for (SwerveModule module : modules) {
-      allSet &= module.isSetToAbsolute();
-    }
-    return allSet;
-  }
-
   /**
    * Should only be used for characterization
    *
@@ -376,12 +367,20 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     return actualPositions;
   }
 
-  public Command quasistaticSysIDCommand(SysIdRoutine.Direction direction) {
+  public Command driveQuasistaticSysIDCommand(SysIdRoutine.Direction direction) {
     return driveVelocitySysId.quasistatic(direction).beforeStarting(SignalLogger::start);
   }
 
-  public Command dynamicSysIDCommand(SysIdRoutine.Direction direction) {
+  public Command driveDynamicSysIDCommand(SysIdRoutine.Direction direction) {
     return driveVelocitySysId.dynamic(direction).beforeStarting(SignalLogger::start);
+  }
+
+  public Command steerQuasistaticSysIDCommand(SysIdRoutine.Direction direction) {
+    return steerPositionSysId.quasistatic(direction).beforeStarting(SignalLogger::start);
+  }
+
+  public Command steerDynamicSysIDCommand(SysIdRoutine.Direction direction) {
+    return steerPositionSysId.dynamic(direction).beforeStarting(SignalLogger::start);
   }
 
   @Override
@@ -401,7 +400,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
       }
       case CHARACTERIZATION -> {
         for (SwerveModule module : modules) {
-          module.setCharacterizationVoltage(rawDriveVolts);
+          module.setDriveCharacterizationVoltage(rawDriveVolts);
         }
       }
     }
@@ -418,7 +417,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   }
 
   private void logValues() {
-    allModulesAtAbsoluteZeroEntry.append(allModulesAtAbsolute());
     gyroEntry.append(getGyroRotation().getRadians());
     chassisSpeedsEntry.append(getCurrentChassisSpeeds());
     actualSwerveStatesEntry.append(getActualStates());

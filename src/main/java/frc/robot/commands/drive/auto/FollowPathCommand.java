@@ -41,12 +41,16 @@ public class FollowPathCommand extends Command {
   private final Timer timer = new Timer();
   private ChoreoTrajectory currentPath;
 
-  public FollowPathCommand(ChoreoTrajectory path, boolean resetOdometry, SwerveDriveSubsystem driveSubsystem) {
+  public FollowPathCommand(
+      ChoreoTrajectory path, boolean resetOdometry, SwerveDriveSubsystem driveSubsystem) {
     this(path, resetOdometry, true, driveSubsystem);
   }
 
   public FollowPathCommand(
-      ChoreoTrajectory path, boolean resetOdometry, boolean shouldFlipIfRed, SwerveDriveSubsystem driveSubsystem) {
+      ChoreoTrajectory path,
+      boolean resetOdometry,
+      boolean shouldFlipIfRed,
+      SwerveDriveSubsystem driveSubsystem) {
     this(
         () -> {
           if (shouldFlipIfRed && (RaiderUtils.shouldFlip())) {
@@ -59,7 +63,9 @@ public class FollowPathCommand extends Command {
   }
 
   public FollowPathCommand(
-      Supplier<ChoreoTrajectory> pathSupplier, boolean resetOdometry, SwerveDriveSubsystem driveSubsystem) {
+      Supplier<ChoreoTrajectory> pathSupplier,
+      boolean resetOdometry,
+      SwerveDriveSubsystem driveSubsystem) {
     this.pathSupplier = pathSupplier;
     this.resetOdometry = resetOdometry;
     this.driveSubsystem = driveSubsystem;

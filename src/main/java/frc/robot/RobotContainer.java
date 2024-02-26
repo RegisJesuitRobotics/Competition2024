@@ -93,8 +93,7 @@ public class RobotContainer {
     autoCommand.addOption(
         "Center Speaker Two Piece Close Mid", autos.centerSpeakerCloseMidTwoPieceAuto());
     autoCommand.addOption(
-        "Center Speaker Three Piece Close Amp Mid",
-        autos.centerSpeakerCloseAmpMidThreePieceAuto());
+        "Center Speaker Three Piece Close Amp Mid", autos.centerSpeakerCloseAmpMidThreePieceAuto());
     autoCommand.addOption(
         "Center Speaker Three Piece Close Source Mid",
         autos.centerSpeakerCloseSourceMidThreePieceAuto());
@@ -230,9 +229,7 @@ public class RobotContainer {
     TunableDouble maxMaxAngularSpeedPercent = new TunableDouble("/speed/maxAngular", 0.6, true);
 
     DoubleSupplier maxTranslationalSpeedSuppler =
-        () ->
-            maxTranslationSpeedPercent.get()
-                * SwerveConstants.MAX_VELOCITY_METERS_SECOND;
+        () -> maxTranslationSpeedPercent.get() * SwerveConstants.MAX_VELOCITY_METERS_SECOND;
     DoubleSupplier maxAngularSpeedSupplier =
         () -> maxMaxAngularSpeedPercent.get() * SwerveConstants.MAX_ANGULAR_VELOCITY_RADIANS_SECOND;
 

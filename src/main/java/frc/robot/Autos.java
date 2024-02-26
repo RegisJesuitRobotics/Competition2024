@@ -20,7 +20,6 @@ import frc.robot.subsystems.slapdown.SlapdownSuperstructure;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
-import frc.robot.utils.RaiderUtils;
 
 public class Autos {
   private final SwerveDriveSubsystem driveSubsystem;
@@ -133,11 +132,13 @@ public class Autos {
   }
 
   public Command mobilitySourceSideAuto() {
-    return Commands.sequence(autoStart(), followPathCommand("MobilitySourceSide", true, driveSubsystem));
+    return Commands.sequence(
+        autoStart(), followPathCommand("MobilitySourceSide", true, driveSubsystem));
   }
 
   public Command mobilityAmpSideAuto() {
-    return Commands.sequence(autoStart(), followPathCommand("MobilityAmpSide", true, driveSubsystem));
+    return Commands.sequence(
+        autoStart(), followPathCommand("MobilityAmpSide", true, driveSubsystem));
   }
 
   private Command centerSpeakerCloseMidNote(boolean firstPath) {
