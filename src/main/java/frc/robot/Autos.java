@@ -74,17 +74,25 @@ public class Autos {
         elevatorSubsystem.probeHomeCommand(), slapdownSuperstructure.probeRotationHomeCommand());
   }
 
-  private Command shootNote() {
+//  private Command shootNote() {
+//    return Commands.parallel(
+//            ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
+//            ScoringCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem, wristSubsystem),
+//            Commands.parallel(
+//                    ScoringCommands.shooterInToleranceCommand(shooterSubsystem),
+//                    ScoringCommands.elevatorWristInToleranceCommand(
+//                        elevatorSubsystem, wristSubsystem)))
+//                .andThen(ScoringCommands.transportCloseSpeakerCommand(transportSubsystem))
+//        .until(() -> !transportSubsystem.atSensor())
+//        .andThen(Commands.waitSeconds(0.5));
+//  }
+
+  private Command shootNote(){
     return Commands.parallel(
             ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
-            ScoringCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem, wristSubsystem),
-            Commands.parallel(
-                    ScoringCommands.shooterInToleranceCommand(shooterSubsystem),
-                    ScoringCommands.elevatorWristInToleranceCommand(
-                        elevatorSubsystem, wristSubsystem))
-                .andThen(ScoringCommands.transportCloseSpeakerCommand(transportSubsystem)))
-        .until(() -> !transportSubsystem.atSensor())
-        .andThen(Commands.waitSeconds(0.5));
+            ScoringCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem, wristSubsystem)
+    ).until(shooterSubsystem::inTolerance).andThen(ScoringCommands.transportCloseSpeakerCommand(transportSubsystem)).until(() -> !transportSubsystem.atSensor())
+            .andThen(elevatorSubsystem.setElevatorPositionCommand(0)).until(elevatorSubsystem::atGoal);
   }
 
   public Command centerSpeakerCloseFourPieceAuto() {
@@ -117,11 +125,11 @@ public class Autos {
   }
 
   public Command centerSpeakerCloseMidTwoPieceAuto() {
-    return Commands.sequence(autoStart(), shootNote(), centerSpeakerCloseMidNote(true));
+    return Commands.sequence(autoStart(), shootNote(), centerSpeakerCloseMidNote(true), shootNote());
   }
 
   public Command centerSpeakerCloseAmpTwoPieceAuto() {
-    return Commands.sequence(autoStart(), shootNote(), centerSpeakerCloseAmpNote(true));
+    return Commands.sequence(autoStart(), shootNote(), centerSpeakerCloseAmpNote(true), shootNote());
   }
 
   public Command centerSpeakerOnePieceAuto() {

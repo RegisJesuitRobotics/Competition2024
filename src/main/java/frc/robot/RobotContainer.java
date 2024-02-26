@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.commands.IntakingCommands;
@@ -132,8 +133,8 @@ public class RobotContainer {
     //         .getSlapdownRotationSubsystem()
     //         .sysIdDynamic(SysIdRoutine.Direction.kReverse));
     // autoCommand.addOption("Probe Elevator", elevatorSubsystem.probeHomeCommand());
-    // autoCommand.addOption(
-    //     "Wrist SysID QF", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+     autoCommand.addOption(
+         "Wrist SysID QF", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     // autoCommand.addOption(
     //     "Wrist SysID QR", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     // autoCommand.addOption(
@@ -176,16 +177,16 @@ public class RobotContainer {
                 Constants.TransportConstants.TRANSPORT_CLOSE_SPEAKER_VOLTAGE));
     driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
     driverController
-        .rightStick()
+        .rightTrigger()
         .whileTrue(
             Commands.parallel(
                 IntakingCommands.intakeUntilDetected(
                     intakeSubsystem, slapdownSuperstructure, transportSubsystem),
                 elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(0)),
                 wristSubsystem.setPositonCommand(new Rotation2d(0))));
-    driverController.rightStick().onFalse(slapdownSuperstructure.setUpCommand());
+    driverController.rightTrigger().onFalse(slapdownSuperstructure.setUpCommand());
     // TODO: Speaker centric
-    driverController.rightTrigger().whileTrue(Commands.none());
+//    driverController.rightTrigger().whileTrue(Commands.none());
     // TODO: Amp auto align
     driverController.x().whileTrue(Commands.none());
     // TODO: Climb auto align

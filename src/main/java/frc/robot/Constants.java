@@ -22,7 +22,7 @@ public final class Constants {
   }
 
   public static class IntakeConstants {
-    public static final double INTAKE_VOLTAGE = 5.5;
+    public static final double INTAKE_VOLTAGE = 9;
     public static final int INTAKE_MOTOR_ID = 6;
     public static final boolean INVERTED = false;
 
@@ -181,14 +181,14 @@ public final class Constants {
   public static class AutoConstants {
     private AutoConstants() {}
 
-    public static final double MAX_AUTO_VELOCITY_METERS_SECOND = 2.5;
-    public static final double MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED = 2;
+    public static final double MAX_AUTO_VELOCITY_METERS_SECOND = 3.0;
+    public static final double MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED = 2.75;
 
     public static final double MAX_AUTO_ANGULAR_VELOCITY_RADIANS_SECOND = Math.PI * 2;
     public static final double MAX_AUTO_ANGULAR_ACCELERATION_RADIANS_SECOND_SQUARED = Math.PI;
 
     public static final TunablePIDGains TRANSLATION_POSITION_GAINS =
-        new TunablePIDGains("/gains/driveXY", 2.0, 0.0, 0.0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/driveXY", 4.0, 0.0, 0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains TRANSLATION_POSITION_TRAPEZOIDAL_GAINS =
         new TunableTrapezoidalProfileGains(
             "/gains/driveXY",
@@ -196,7 +196,7 @@ public final class Constants {
             MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED,
             MiscConstants.TUNING_MODE);
     public static final TunablePIDGains ANGULAR_POSITION_PID_GAINS =
-        new TunablePIDGains("/gains/driveAngular", 1.1, 0.0, 0.0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/driveAngular", 0.9,0, 0.0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains ANGULAR_POSITION_TRAPEZOIDAL_GAINS =
         new TunableTrapezoidalProfileGains(
             "/gains/driveAngular",
