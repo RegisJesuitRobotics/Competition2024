@@ -133,6 +133,9 @@ public final class Constants {
     // Front back distance between center of wheels
     public static final double WHEELBASE_METERS = Units.inchesToMeters(21.75);
 
+    public static final double WHEEL_RADIUS =
+        Math.sqrt(Math.pow(WHEELBASE_METERS, 2) + Math.pow(TRACKWIDTH_METERS, 2));
+
     public static final Translation2d[] MODULE_TRANSLATIONS =
         new Translation2d[] {
           new Translation2d(WHEELBASE_METERS / 2.0, TRACKWIDTH_METERS / 2.0),

@@ -62,8 +62,6 @@ public class RobotContainer {
           intakeSubsystem,
           slapdownSuperstructure);
 
-  private final SendableChooser<Command> autoCommand = new SendableChooser<>();
-
   private final CommandNintendoSwitchController driverController =
       new CommandNintendoSwitchController(0);
   private final CommandXboxPlaystationController operatorController =
@@ -83,25 +81,6 @@ public class RobotContainer {
   }
 
   private void configureAutos() {
-    autoCommand.setDefaultOption("Just Probe", autos.autoStart());
-    autoCommand.addOption("NOTHING", Commands.none());
-    autoCommand.addOption("Center Speaker One Piece", autos.centerSpeakerOnePieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Two Piece Close Amp", autos.centerSpeakerCloseAmpTwoPieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Two Piece Close Source", autos.centerSpeakerCloseSourceTwoPieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Two Piece Close Mid", autos.centerSpeakerCloseMidTwoPieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Three Piece Close Amp Mid",
-        autos.centerSpeakerCloseAmpMidThreePieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Three Piece Close Source Mid",
-        autos.centerSpeakerCloseSourceMidThreePieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Four Piece Close", autos.centerSpeakerCloseFourPieceAuto());
-    autoCommand.addOption("Mobility Source Side", autos.mobilitySourceSideAuto());
-    autoCommand.addOption("Mobility Amp Side", autos.mobilityAmpSideAuto());
     // autoCommand.addOption("Test Path", autos.testPathAuth());
     // autoCommand.addOption(
     //     "Drive SysID QF",
@@ -161,7 +140,7 @@ public class RobotContainer {
     // autoCommand.addOption(
     //     "Shooter SysID DR", shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-    SmartDashboard.putData("Auto", autoCommand);
+    SmartDashboard.putData("Auto", autos.getAutoChooser());
   }
 
   private void configureDriverBindings() {
@@ -230,9 +209,7 @@ public class RobotContainer {
     TunableDouble maxMaxAngularSpeedPercent = new TunableDouble("/speed/maxAngular", 0.6, true);
 
     DoubleSupplier maxTranslationalSpeedSuppler =
-        () ->
-            maxTranslationSpeedPercent.get()
-                * SwerveConstants.MAX_VELOCITY_METERS_SECOND;
+        () -> maxTranslationSpeedPercent.get() * SwerveConstants.MAX_VELOCITY_METERS_SECOND;
     DoubleSupplier maxAngularSpeedSupplier =
         () -> maxMaxAngularSpeedPercent.get() * SwerveConstants.MAX_ANGULAR_VELOCITY_RADIANS_SECOND;
 
@@ -313,6 +290,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return autoCommand.getSelected();
+    return autos.getAutoChooser().getSelected();
   }
 }
