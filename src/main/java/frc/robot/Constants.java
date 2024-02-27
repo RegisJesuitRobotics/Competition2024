@@ -184,8 +184,8 @@ public final class Constants {
   public static class AutoConstants {
     private AutoConstants() {}
 
-    public static final double MAX_AUTO_VELOCITY_METERS_SECOND = 3.5;
-    public static final double MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED = 5.0;
+    public static final double MAX_AUTO_VELOCITY_METERS_SECOND = 3;
+    public static final double MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED = 2.75;
 
     public static final double MAX_AUTO_ANGULAR_VELOCITY_RADIANS_SECOND = 7.0;
     public static final double MAX_AUTO_ANGULAR_ACCELERATION_RADIANS_SECOND_SQUARED = 20.0;

@@ -114,8 +114,8 @@ public class RobotContainer {
     //         .getSlapdownRotationSubsystem()
     //         .sysIdDynamic(SysIdRoutine.Direction.kReverse));
     // autoCommand.addOption("Probe Elevator", elevatorSubsystem.probeHomeCommand());
-     autoCommand.addOption(
-         "Wrist SysID QF", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+//     autoCommand.addOption(
+//         "Wrist SysID QF", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     // autoCommand.addOption(
     //     "Wrist SysID QR", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     // autoCommand.addOption(

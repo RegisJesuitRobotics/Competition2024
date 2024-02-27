@@ -56,7 +56,7 @@ public class WristSubsystem extends SubsystemBase {
   public WristSubsystem() {
     configMotor();
     absoluteEncoder.setDutyCycleRange(1.0 / 1025.0, 1024.0 / 1025.0);
-    wristMotor.getEncoder().setPosition(getPosition());
+    controller.setTolerance(Units.degreesToRadians(5));
     // Default command is safe state
     setDefaultCommand(setVotageCommand(0.0));
   }

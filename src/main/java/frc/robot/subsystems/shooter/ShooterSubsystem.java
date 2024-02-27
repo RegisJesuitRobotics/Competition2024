@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.telemetry.tunable.TunableTelemetryPIDController;
+import frc.robot.telemetry.types.BooleanTelemetryEntry;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.EventTelemetryEntry;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkFlex;
@@ -44,6 +45,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private final DoubleTelemetryEntry flyVoltageReq =
       new DoubleTelemetryEntry("/shooter/voltageReq", true);
+  private final BooleanTelemetryEntry atToleranceEntry = new BooleanTelemetryEntry("/shooter/inTolerance", Constants.MiscConstants.TUNING_MODE);
   private final EventTelemetryEntry shooterEventEntry = new EventTelemetryEntry("/shooter/events");
 
   public ShooterSubsystem() {
@@ -121,7 +123,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public boolean inTolerance() {
     return Math.abs(getVelocity() - pidController.getSetpoint()) / (pidController.getSetpoint())
-        < 0.01;
+        < 0.05;
   }
 
   public Command setVoltageCommand(double voltage) {
@@ -154,5 +156,6 @@ public class ShooterSubsystem extends SubsystemBase {
       feedforward = SHOOTER_FF_GAINS.createFeedforward();
     }
     flywheelMotor.logValues();
+    atToleranceEntry.append(inTolerance());
   }
 }
