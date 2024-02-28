@@ -74,7 +74,7 @@ public class RobotContainer {
     configureOperatorBindings();
     configureAutos();
 
-    SmartDashboard.putData("Music", OrchestraInstance.playCommand("song1.chrp"));
+    SmartDashboard.putData("Music", OrchestraInstance.playCommand("song10.chrp"));
     SmartDashboard.putData("Alerts", Alert.getDefaultGroup());
     SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
   }
@@ -161,15 +161,9 @@ public class RobotContainer {
             Commands.parallel(
                 IntakingCommands.intakeUntilDetected(
                     intakeSubsystem, slapdownSuperstructure, transportSubsystem),
-                elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(1.5)),
+                elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(2.5)),
                 wristSubsystem.setPositonCommand(new Rotation2d(0))));
     driverController.rightTrigger().onFalse(slapdownSuperstructure.setUpCommand());
-    // TODO: Speaker centric
-    //    driverController.rightTrigger().whileTrue(Commands.none());
-    // TODO: Amp auto align
-    driverController.x().whileTrue(Commands.none());
-    // TODO: Climb auto align
-    driverController.a().whileTrue(Commands.none());
     driverController.circle().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
   }
 
@@ -195,7 +189,7 @@ public class RobotContainer {
         .onTrue(
             ScoringCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem, wristSubsystem));
     operatorController
-        .povLeft()
+        .povDown()
         .onTrue(ScoringCommands.elevatorWristAmpCommand(elevatorSubsystem, wristSubsystem));
     operatorController
         .leftTrigger()
