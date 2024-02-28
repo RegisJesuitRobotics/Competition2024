@@ -45,7 +45,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private final DoubleTelemetryEntry flyVoltageReq =
       new DoubleTelemetryEntry("/shooter/voltageReq", true);
-  private final BooleanTelemetryEntry atToleranceEntry = new BooleanTelemetryEntry("/shooter/inTolerance", Constants.MiscConstants.TUNING_MODE);
+  private final BooleanTelemetryEntry atToleranceEntry =
+      new BooleanTelemetryEntry("/shooter/inTolerance", Constants.MiscConstants.TUNING_MODE);
   private final EventTelemetryEntry shooterEventEntry = new EventTelemetryEntry("/shooter/events");
 
   public ShooterSubsystem() {

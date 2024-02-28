@@ -4,13 +4,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.commands.IntakingCommands;
@@ -114,8 +112,8 @@ public class RobotContainer {
     //         .getSlapdownRotationSubsystem()
     //         .sysIdDynamic(SysIdRoutine.Direction.kReverse));
     // autoCommand.addOption("Probe Elevator", elevatorSubsystem.probeHomeCommand());
-//     autoCommand.addOption(
-//         "Wrist SysID QF", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    //     autoCommand.addOption(
+    //         "Wrist SysID QF", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     // autoCommand.addOption(
     //     "Wrist SysID QR", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     // autoCommand.addOption(
@@ -167,7 +165,7 @@ public class RobotContainer {
                 wristSubsystem.setPositonCommand(new Rotation2d(0))));
     driverController.rightTrigger().onFalse(slapdownSuperstructure.setUpCommand());
     // TODO: Speaker centric
-//    driverController.rightTrigger().whileTrue(Commands.none());
+    //    driverController.rightTrigger().whileTrue(Commands.none());
     // TODO: Amp auto align
     driverController.x().whileTrue(Commands.none());
     // TODO: Climb auto align
@@ -202,6 +200,16 @@ public class RobotContainer {
     operatorController
         .leftTrigger()
         .onTrue(ScoringCommands.elevatorWristZeroCommand(elevatorSubsystem, wristSubsystem));
+
+    operatorController
+        .rightBumper()
+        .whileTrue(
+            Commands.runEnd(
+                () -> {
+                  climberSubsystem.setVoltage(operatorController.getLeftX() * 10);
+                },
+                () -> climberSubsystem.setVoltage(0.0),
+                climberSubsystem));
   }
 
   private void configureDriving() {

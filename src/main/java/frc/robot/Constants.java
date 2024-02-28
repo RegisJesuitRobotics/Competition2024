@@ -199,7 +199,7 @@ public final class Constants {
             MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED,
             MiscConstants.TUNING_MODE);
     public static final TunablePIDGains ANGULAR_POSITION_PID_GAINS =
-        new TunablePIDGains("/gains/driveAngular", 0.9,0, 0.0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/driveAngular", 0.9, 0, 0.0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains ANGULAR_POSITION_TRAPEZOIDAL_GAINS =
         new TunableTrapezoidalProfileGains(
             "/gains/driveAngular",

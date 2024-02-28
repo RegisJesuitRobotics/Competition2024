@@ -1,9 +1,10 @@
 package frc.robot;
 
+import static frc.robot.FieldConstants.ampCenterBlue;
+import static frc.robot.FieldConstants.ampCenterRed;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -30,9 +31,6 @@ import frc.robot.telemetry.types.StructArrayTelemetryEntry;
 import frc.robot.telemetry.types.StructTelemetryEntry;
 import frc.robot.utils.RaiderUtils;
 
-import static frc.robot.FieldConstants.ampCenterBlue;
-import static frc.robot.FieldConstants.ampCenterRed;
-
 public class Autos {
   private final SwerveDriveSubsystem driveSubsystem;
   private final ElevatorSubsystem elevatorSubsystem;
@@ -44,10 +42,12 @@ public class Autos {
 
   private final SendableChooser<Command> autoChooser;
 
-  private final StructTelemetryEntry<Pose2d> desiredPoseTelemetryEntry = new StructTelemetryEntry<>("followPath/desiredPose", Pose2d.struct,
-      MiscConstants.TUNING_MODE);
-  private final StructArrayTelemetryEntry<Pose2d> trajectoryTelemetryEntry = new StructArrayTelemetryEntry<>("followPath/trajectory", Pose2d.struct,
-      MiscConstants.TUNING_MODE);
+  private final StructTelemetryEntry<Pose2d> desiredPoseTelemetryEntry =
+      new StructTelemetryEntry<>(
+          "followPath/desiredPose", Pose2d.struct, MiscConstants.TUNING_MODE);
+  private final StructArrayTelemetryEntry<Pose2d> trajectoryTelemetryEntry =
+      new StructArrayTelemetryEntry<>(
+          "followPath/trajectory", Pose2d.struct, MiscConstants.TUNING_MODE);
 
   public Autos(
       SwerveDriveSubsystem driveSubsystem,
@@ -85,14 +85,14 @@ public class Autos {
         IntakingCommands.intakeUntilDetected(
             intakeSubsystem, slapdownSuperstructure, transportSubsystem));
 
-    PathPlannerLogging.setLogActivePathCallback((path) -> {
-      trajectoryTelemetryEntry.append(path.toArray(new Pose2d[0]));
-    });
+    PathPlannerLogging.setLogActivePathCallback(
+        (path) -> {
+          trajectoryTelemetryEntry.append(path.toArray(new Pose2d[0]));
+        });
     PathPlannerLogging.setLogTargetPoseCallback(desiredPoseTelemetryEntry::append);
 
     autoChooser = AutoBuilder.buildAutoChooser("JustProbe");
   }
-
 
   public SendableChooser<Command> getAutoChooser() {
     return autoChooser;
@@ -137,13 +137,17 @@ public class Autos {
             Commands.parallel(
                     ScoringCommands.shooterInToleranceCommand(shooterSubsystem),
                     ScoringCommands.elevatorWristInToleranceCommand(
-                        elevatorSubsystem, wristSubsystem)).andThen(ScoringCommands.transportCloseSpeakerCommand(transportSubsystem)))
+                        elevatorSubsystem, wristSubsystem))
+                .andThen(ScoringCommands.transportCloseSpeakerCommand(transportSubsystem)))
         .until(() -> !transportSubsystem.atSensor())
         .andThen(Commands.waitSeconds(0.5));
-//    return Commands.parallel(
-//            ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
-//            ScoringCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem, wristSubsystem)
-//    ).until(shooterSubsystem::inTolerance).andThen(ScoringCommands.transportCloseSpeakerCommand(transportSubsystem)).until(() -> !transportSubsystem.atSensor())
-//            .andThen(elevatorSubsystem.setElevatorPositionCommand(0)).until(elevatorSubsystem::atGoal).withName("SHOOTING");
+    //    return Commands.parallel(
+    //            ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
+    //            ScoringCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem,
+    // wristSubsystem)
+    //
+    // ).until(shooterSubsystem::inTolerance).andThen(ScoringCommands.transportCloseSpeakerCommand(transportSubsystem)).until(() -> !transportSubsystem.atSensor())
+    //
+    // .andThen(elevatorSubsystem.setElevatorPositionCommand(0)).until(elevatorSubsystem::atGoal).withName("SHOOTING");
   }
 }
