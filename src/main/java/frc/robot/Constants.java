@@ -69,7 +69,7 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    public static final boolean INVERTED = false;
+    public static final boolean INVERTED = true;
 
     public static final double ELEVATOR_MAX_HEIGHT = Units.inchesToMeters(10.5);
     public static final double ELEVATOR_MIN_HEIGHT = Units.inchesToMeters(0.0);

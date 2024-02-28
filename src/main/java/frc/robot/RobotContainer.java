@@ -40,9 +40,9 @@ import java.util.function.DoubleSupplier;
  */
 public class RobotContainer {
   private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
-  //  private final SwerveDriveSubsystem driveSubsystem =
-  //      new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
-  private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem((pose) -> List.of());
+    private final SwerveDriveSubsystem driveSubsystem =
+        new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
+//  private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem((pose) -> List.of());
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final WristSubsystem wristSubsystem = new WristSubsystem();
@@ -161,7 +161,7 @@ public class RobotContainer {
             Commands.parallel(
                 IntakingCommands.intakeUntilDetected(
                     intakeSubsystem, slapdownSuperstructure, transportSubsystem),
-                elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(0)),
+                elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(1.5)),
                 wristSubsystem.setPositonCommand(new Rotation2d(0))));
     driverController.rightTrigger().onFalse(slapdownSuperstructure.setUpCommand());
     // TODO: Speaker centric
@@ -214,7 +214,7 @@ public class RobotContainer {
 
   private void configureDriving() {
     TunableDouble maxTranslationSpeedPercent =
-        new TunableDouble("/speed/maxTranslation", 0.9, true);
+        new TunableDouble("/speed/maxTranslation", 0.95, true);
     TunableDouble maxMaxAngularSpeedPercent = new TunableDouble("/speed/maxAngular", 0.6, true);
 
     DoubleSupplier maxTranslationalSpeedSuppler =

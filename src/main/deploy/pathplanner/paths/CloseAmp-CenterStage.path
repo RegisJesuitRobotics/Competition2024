@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.8454091762083276,
-        "y": 6.901304002153922
+        "x": 2.888084083575573,
+        "y": 7.010931546863093
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0881856763713524,
-        "y": 6.167021834043669
+        "x": 2.069614248282964,
+        "y": 6.240648885455556
       },
       "isLocked": false,
       "linkedName": "CloseAmpNote"
@@ -41,7 +41,7 @@
     },
     {
       "waypointRelativePos": 0,
-      "rotationDegrees": 60.0,
+      "rotationDegrees": 0.0,
       "rotateFast": false
     }
   ],
@@ -61,7 +61,7 @@
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": 60.0,
+    "rotation": 0.0,
     "velocity": 0
   },
   "useDefaultConstraints": true
