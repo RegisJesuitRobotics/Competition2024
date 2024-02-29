@@ -4,7 +4,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -41,9 +40,9 @@ import java.util.function.DoubleSupplier;
  */
 public class RobotContainer {
   private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
-  //  private final SwerveDriveSubsystem driveSubsystem =
-  //      new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
-  private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem((pose) -> List.of());
+    private final SwerveDriveSubsystem driveSubsystem =
+        new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
+//  private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem((pose) -> List.of());
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final WristSubsystem wristSubsystem = new WristSubsystem();
@@ -62,8 +61,6 @@ public class RobotContainer {
           intakeSubsystem,
           slapdownSuperstructure);
 
-  private final SendableChooser<Command> autoCommand = new SendableChooser<>();
-
   private final CommandNintendoSwitchController driverController =
       new CommandNintendoSwitchController(0);
   private final CommandXboxPlaystationController operatorController =
@@ -77,30 +74,12 @@ public class RobotContainer {
     configureOperatorBindings();
     configureAutos();
 
-    SmartDashboard.putData("Music", OrchestraInstance.playCommand("song1.chrp"));
+    SmartDashboard.putData("Music", OrchestraInstance.playCommand("song10.chrp"));
     SmartDashboard.putData("Alerts", Alert.getDefaultGroup());
     SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
   }
 
   private void configureAutos() {
-    autoCommand.setDefaultOption("Just Probe", autos.autoStart());
-    autoCommand.addOption("NOTHING", Commands.none());
-    autoCommand.addOption("Center Speaker One Piece", autos.centerSpeakerOnePieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Two Piece Close Amp", autos.centerSpeakerCloseAmpTwoPieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Two Piece Close Source", autos.centerSpeakerCloseSourceTwoPieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Two Piece Close Mid", autos.centerSpeakerCloseMidTwoPieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Three Piece Close Amp Mid", autos.centerSpeakerCloseAmpMidThreePieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Three Piece Close Source Mid",
-        autos.centerSpeakerCloseSourceMidThreePieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Four Piece Close", autos.centerSpeakerCloseFourPieceAuto());
-    autoCommand.addOption("Mobility Source Side", autos.mobilitySourceSideAuto());
-    autoCommand.addOption("Mobility Amp Side", autos.mobilityAmpSideAuto());
     // autoCommand.addOption("Test Path", autos.testPathAuth());
     // autoCommand.addOption(
     //     "Drive SysID QF",
@@ -133,8 +112,8 @@ public class RobotContainer {
     //         .getSlapdownRotationSubsystem()
     //         .sysIdDynamic(SysIdRoutine.Direction.kReverse));
     // autoCommand.addOption("Probe Elevator", elevatorSubsystem.probeHomeCommand());
-    // autoCommand.addOption(
-    //     "Wrist SysID QF", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    //     autoCommand.addOption(
+    //         "Wrist SysID QF", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     // autoCommand.addOption(
     //     "Wrist SysID QR", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     // autoCommand.addOption(
@@ -160,7 +139,7 @@ public class RobotContainer {
     // autoCommand.addOption(
     //     "Shooter SysID DR", shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-    SmartDashboard.putData("Auto", autoCommand);
+    SmartDashboard.putData("Auto", autos.getAutoChooser());
   }
 
   private void configureDriverBindings() {
@@ -177,20 +156,14 @@ public class RobotContainer {
                 Constants.TransportConstants.TRANSPORT_CLOSE_SPEAKER_VOLTAGE));
     driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
     driverController
-        .rightStick()
+        .rightTrigger()
         .whileTrue(
             Commands.parallel(
                 IntakingCommands.intakeUntilDetected(
                     intakeSubsystem, slapdownSuperstructure, transportSubsystem),
-                elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(0)),
+                elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(1.5)),
                 wristSubsystem.setPositonCommand(new Rotation2d(0))));
-    driverController.rightStick().onFalse(slapdownSuperstructure.setUpCommand());
-    // TODO: Speaker centric
-    driverController.rightTrigger().whileTrue(Commands.none());
-    // TODO: Amp auto align
-    driverController.x().whileTrue(Commands.none());
-    // TODO: Climb auto align
-    driverController.a().whileTrue(Commands.none());
+    driverController.rightTrigger().onFalse(slapdownSuperstructure.setUpCommand());
     driverController.circle().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
   }
 
@@ -216,16 +189,26 @@ public class RobotContainer {
         .onTrue(
             ScoringCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem, wristSubsystem));
     operatorController
-        .povLeft()
+        .povDown()
         .onTrue(ScoringCommands.elevatorWristAmpCommand(elevatorSubsystem, wristSubsystem));
     operatorController
         .leftTrigger()
         .onTrue(ScoringCommands.elevatorWristZeroCommand(elevatorSubsystem, wristSubsystem));
+
+    operatorController
+        .rightBumper()
+        .whileTrue(
+            Commands.runEnd(
+                () -> {
+                  climberSubsystem.setVoltage(operatorController.getLeftX() * 10);
+                },
+                () -> climberSubsystem.setVoltage(0.0),
+                climberSubsystem));
   }
 
   private void configureDriving() {
     TunableDouble maxTranslationSpeedPercent =
-        new TunableDouble("/speed/maxTranslation", 0.9, true);
+        new TunableDouble("/speed/maxTranslation", 0.95, true);
     TunableDouble maxMaxAngularSpeedPercent = new TunableDouble("/speed/maxAngular", 0.6, true);
 
     DoubleSupplier maxTranslationalSpeedSuppler =
@@ -310,6 +293,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return autoCommand.getSelected();
+    return autos.getAutoChooser().getSelected();
   }
 }

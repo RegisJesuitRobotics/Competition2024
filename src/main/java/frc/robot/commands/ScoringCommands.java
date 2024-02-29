@@ -50,7 +50,7 @@ public class ScoringCommands {
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(
         elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(3)),
-        wristSubsystem.setPositonCommand(Rotation2d.fromDegrees(5.0)));
+        wristSubsystem.setPositonCommand(Rotation2d.fromDegrees(7.5)));
   }
 
   public static Command elevatorWristZeroCommand(

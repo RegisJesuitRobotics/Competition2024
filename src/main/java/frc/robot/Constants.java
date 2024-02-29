@@ -22,7 +22,7 @@ public final class Constants {
   }
 
   public static class IntakeConstants {
-    public static final double INTAKE_VOLTAGE = 5.5;
+    public static final double INTAKE_VOLTAGE = 11;
     public static final int INTAKE_MOTOR_ID = 6;
     public static final boolean INVERTED = false;
 
@@ -47,17 +47,17 @@ public final class Constants {
     public static final int ROTATION_FREE_MOTOR_CURRENT = 10;
 
     public static final double ROTATION_UP_ANGLE = -0.0648 - Units.degreesToRadians(90);
-    public static final double ROTATION_DOWN_ANGLE = 2.25 - Units.degreesToRadians(90);
+    public static final double ROTATION_DOWN_ANGLE = 0.75;
 
     public static final int ROTATION_LIMIT_SWITCH_ID = 1;
 
-    public static final double FEEDER_VOLTAGE = (6);
+    public static final double FEEDER_VOLTAGE = (7);
 
     public static final TunablePIDGains ROTATION_GAINS =
-        new TunablePIDGains("/slapdown/rotation/gains", 4.0, 0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/slapdown/rotation/gains", 2.5, 0, 0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains ROTATION_TRAP_GAINS =
         new TunableTrapezoidalProfileGains(
-            "/slapdown/rotation/trapGains", 25, 40, MiscConstants.TUNING_MODE);
+            "/slapdown/rotation/trapGains", 25, 30, MiscConstants.TUNING_MODE);
     public static final TunableArmElevatorFFGains ROTATION_FF_GAINS =
         new TunableArmElevatorFFGains(
             "/slapdown/rotation/FFGains",
@@ -69,7 +69,7 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    public static final boolean INVERTED = false;
+    public static final boolean INVERTED = true;
 
     public static final double ELEVATOR_MAX_HEIGHT = Units.inchesToMeters(10.5);
     public static final double ELEVATOR_MIN_HEIGHT = Units.inchesToMeters(0.0);
@@ -150,6 +150,9 @@ public final class Constants {
     // Front back distance between center of wheels
     public static final double WHEELBASE_METERS = Units.inchesToMeters(21.75);
 
+    public static final double WHEEL_RADIUS =
+        Math.sqrt(Math.pow(WHEELBASE_METERS, 2) + Math.pow(TRACKWIDTH_METERS, 2));
+
     public static final Translation2d[] MODULE_TRANSLATIONS =
         new Translation2d[] {
           new Translation2d(WHEELBASE_METERS / 2.0, TRACKWIDTH_METERS / 2.0),
@@ -198,14 +201,14 @@ public final class Constants {
   public static class AutoConstants {
     private AutoConstants() {}
 
-    public static final double MAX_AUTO_VELOCITY_METERS_SECOND = 3.5;
-    public static final double MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED = 5.0;
+    public static final double MAX_AUTO_VELOCITY_METERS_SECOND = 3;
+    public static final double MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED = 2.75;
 
     public static final double MAX_AUTO_ANGULAR_VELOCITY_RADIANS_SECOND = 7.0;
     public static final double MAX_AUTO_ANGULAR_ACCELERATION_RADIANS_SECOND_SQUARED = 20.0;
 
     public static final TunablePIDGains TRANSLATION_POSITION_GAINS =
-        new TunablePIDGains("/gains/driveXY", 2.0, 0.0, 0.0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/driveXY", 4.0, 0.0, 0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains TRANSLATION_POSITION_TRAPEZOIDAL_GAINS =
         new TunableTrapezoidalProfileGains(
             "/gains/driveXY",
@@ -213,7 +216,7 @@ public final class Constants {
             MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED,
             MiscConstants.TUNING_MODE);
     public static final TunablePIDGains ANGULAR_POSITION_PID_GAINS =
-        new TunablePIDGains("/gains/driveAngular", 1.1, 0.0, 0.0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/driveAngular", 0.9, 0, 0.0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains ANGULAR_POSITION_TRAPEZOIDAL_GAINS =
         new TunableTrapezoidalProfileGains(
             "/gains/driveAngular",
@@ -284,7 +287,7 @@ public final class Constants {
     public static final double SHOOTER_GEAR_RATIO = 1.0 / 2.0;
 
     public static TunablePIDGains SHOOTER_PID_GAINS =
-        new TunablePIDGains("/shooter/pid", 0.005, 0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/shooter/pid", 0.0001, 0, 0.0005, MiscConstants.TUNING_MODE);
     public static TunableFFGains SHOOTER_FF_GAINS =
         new TunableFFGains("/shooter/FF", 0.39383, 0.0089833, 0.0010833, MiscConstants.TUNING_MODE);
   }

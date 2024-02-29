@@ -145,6 +145,7 @@ public class SwerveModule {
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
     motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    motorConfiguration.Audio.AllowMusicDurDisable = true;
 
     drivePositionSignal = driveMotor.getPosition();
     driveVelocitySignal = driveMotor.getVelocity();

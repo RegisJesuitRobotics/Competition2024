@@ -58,6 +58,7 @@ public class Robot extends TimedRobot {
     // Log connections and FMSInfo
     NetworkTableInstance.getDefault().startConnectionDataLog(dataLog, "NTConnection");
     NetworkTableInstance.getDefault().startEntryDataLog(dataLog, "/FMSInfo/", "FMSInfo/");
+    NetworkTableInstance.getDefault().startEntryDataLog(dataLog, "/PathPlanner/", "PathPlanner/");
     DriverStation.startDataLog(dataLog);
 
     DriverStation.silenceJoystickConnectionWarning(true);
