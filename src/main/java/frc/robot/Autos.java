@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.commands.ElevatorWristCommands;
 import frc.robot.commands.IntakingCommands;
 import frc.robot.commands.ScoringCommands;
 import frc.robot.commands.drive.auto.SimpleToPointCommand;
@@ -80,10 +81,7 @@ public class Autos {
         driveSubsystem);
     NamedCommands.registerCommand("AutoStart", autoStart());
     NamedCommands.registerCommand("ShootNote", shootNote());
-    NamedCommands.registerCommand(
-        "IntakeUntilNote",
-        IntakingCommands.intakeUntilDetected(
-            intakeSubsystem, slapdownSuperstructure, transportSubsystem));
+    NamedCommands.registerCommand("IntakeUntilNote", betterIntake());
 
     PathPlannerLogging.setLogActivePathCallback(
         (path) -> {
@@ -92,6 +90,7 @@ public class Autos {
     PathPlannerLogging.setLogTargetPoseCallback(desiredPoseTelemetryEntry::append);
 
     autoChooser = AutoBuilder.buildAutoChooser("JustProbe");
+    autoChooser.addOption("slowFeed", intakeSubsystem.setIntakeVoltageCommand(1));
   }
 
   public SendableChooser<Command> getAutoChooser() {
@@ -119,6 +118,13 @@ public class Autos {
     return new SimpleToPointCommand(ampLoc, swerve);
   }
 
+  private Command betterIntake() {
+    return Commands.parallel(
+        IntakingCommands.intakeUntilDetected(
+            intakeSubsystem, slapdownSuperstructure, transportSubsystem),
+        ElevatorWristCommands.elevatorWristIntakePosition(elevatorSubsystem, wristSubsystem));
+  }
+
   public Command autoStart() {
     if (Robot.isSimulation()) {
       return Commands.print("Probed!");
@@ -133,21 +139,14 @@ public class Autos {
     }
     return Commands.parallel(
             ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
-            ScoringCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem, wristSubsystem),
+            ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
+                elevatorSubsystem, wristSubsystem),
             Commands.parallel(
                     ScoringCommands.shooterInToleranceCommand(shooterSubsystem),
-                    ScoringCommands.elevatorWristInToleranceCommand(
+                    ElevatorWristCommands.elevatorWristInToleranceCommand(
                         elevatorSubsystem, wristSubsystem))
                 .andThen(ScoringCommands.transportCloseSpeakerCommand(transportSubsystem)))
         .until(() -> !transportSubsystem.atSensor())
         .andThen(Commands.waitSeconds(0.5));
-    //    return Commands.parallel(
-    //            ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
-    //            ScoringCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem,
-    // wristSubsystem)
-    //
-    // ).until(shooterSubsystem::inTolerance).andThen(ScoringCommands.transportCloseSpeakerCommand(transportSubsystem)).until(() -> !transportSubsystem.atSensor())
-    //
-    // .andThen(elevatorSubsystem.setElevatorPositionCommand(0)).until(elevatorSubsystem::atGoal).withName("SHOOTING");
   }
 }
