@@ -1,9 +1,7 @@
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -11,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.TeleopConstants;
+import frc.robot.commands.ElevatorWristCommands;
 import frc.robot.commands.IntakingCommands;
 import frc.robot.commands.MiscCommands;
 import frc.robot.commands.ScoringCommands;
@@ -18,7 +17,6 @@ import frc.robot.commands.drive.LockModulesCommand;
 import frc.robot.commands.drive.teleop.SwerveDriveCommand;
 import frc.robot.hid.CommandNintendoSwitchController;
 import frc.robot.hid.CommandXboxPlaystationController;
-import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.photon.PhotonSubsystem;
@@ -29,7 +27,6 @@ import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.telemetry.tunable.gains.TunableDouble;
 import frc.robot.utils.*;
-import java.util.List;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -40,16 +37,16 @@ import java.util.function.DoubleSupplier;
  */
 public class RobotContainer {
   private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
-    private final SwerveDriveSubsystem driveSubsystem =
-        new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
-//  private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem((pose) -> List.of());
+  private final SwerveDriveSubsystem driveSubsystem =
+      new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
+  //  private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem((pose) ->
+  // List.of());
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final WristSubsystem wristSubsystem = new WristSubsystem();
   private final TransportSubsystem transportSubsystem = new TransportSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final SlapdownSuperstructure slapdownSuperstructure = new SlapdownSuperstructure();
-  private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
   private final Autos autos =
       new Autos(
@@ -160,9 +157,7 @@ public class RobotContainer {
         .whileTrue(
             Commands.parallel(
                 IntakingCommands.intakeUntilDetected(
-                    intakeSubsystem, slapdownSuperstructure, transportSubsystem),
-                elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(1.5)),
-                wristSubsystem.setPositonCommand(new Rotation2d(0))));
+                    intakeSubsystem, slapdownSuperstructure, transportSubsystem)));
     driverController.rightTrigger().onFalse(slapdownSuperstructure.setUpCommand());
     driverController.circle().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
   }
@@ -187,23 +182,14 @@ public class RobotContainer {
     operatorController
         .povUp()
         .onTrue(
-            ScoringCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem, wristSubsystem));
+            ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
+                elevatorSubsystem, wristSubsystem));
     operatorController
         .povDown()
-        .onTrue(ScoringCommands.elevatorWristAmpCommand(elevatorSubsystem, wristSubsystem));
+        .onTrue(ElevatorWristCommands.elevatorWristAmpCommand(elevatorSubsystem, wristSubsystem));
     operatorController
         .leftTrigger()
-        .onTrue(ScoringCommands.elevatorWristZeroCommand(elevatorSubsystem, wristSubsystem));
-
-    operatorController
-        .rightBumper()
-        .whileTrue(
-            Commands.runEnd(
-                () -> {
-                  climberSubsystem.setVoltage(operatorController.getLeftX() * 10);
-                },
-                () -> climberSubsystem.setVoltage(0.0),
-                climberSubsystem));
+        .onTrue(ElevatorWristCommands.elevatorWristZeroCommand(elevatorSubsystem, wristSubsystem));
   }
 
   private void configureDriving() {

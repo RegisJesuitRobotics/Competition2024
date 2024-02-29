@@ -16,9 +16,15 @@ import frc.robot.utils.SwerveModuleConfiguration.SharedSwerveModuleConfiguration
 public final class Constants {
   private Constants() {}
 
-  public static class ScoringConstants {
+  public static class SetpointConstants {
     public static final double AMP_ELEVATOR_HEIGHT = Units.inchesToMeters(3.5);
     public static final double AMP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(105.0);
+
+    public static final double INTAKE_ELEVATOR_HEIGHT = Units.inchesToMeters(1.5);
+    public static final double INTAKE_WRIST_ANGLE_RADIANS = Units.degreesToRadians(0.0);
+
+    public static final double CLOSE_SPEAKER_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
+    public static final double CLOSE_SPEAKER_WRIST_ANGLE_RADIANS = Units.degreesToRadians(7.5);
   }
 
   public static class IntakeConstants {
@@ -264,24 +270,12 @@ public final class Constants {
 
     public static final double SHOOTING_RPM = 3000.0;
 
-    public static final Rotation2d SHOOTING_ANGLE =
-        new Rotation2d(Units.degreesToRadians(10)); // TODO: Implement Ollies stuff
-
     public static final double SHOOTER_GEAR_RATIO = 1.0 / 2.0;
 
     public static TunablePIDGains SHOOTER_PID_GAINS =
         new TunablePIDGains("/shooter/pid", 0.0001, 0, 0.0005, MiscConstants.TUNING_MODE);
     public static TunableFFGains SHOOTER_FF_GAINS =
         new TunableFFGains("/shooter/FF", 0.39383, 0.0089833, 0.0010833, MiscConstants.TUNING_MODE);
-  }
-
-  public static class ClimberConstants {
-    public static final int CLIMBER_MOTOR_ID = 16;
-    public static final boolean INVERTED = false;
-
-    public static final double SUPPLY_CURRENT_LIMIT = 65;
-    public static final double SUPPLY_CURRENT_THRESHOLD = 40;
-    public static final double SUPPLY_TIME_THRESHOLD = 0.0;
   }
 
   public static class TeleopConstants {
