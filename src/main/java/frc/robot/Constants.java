@@ -47,7 +47,7 @@ public final class Constants {
     public static final int ROTATION_FREE_MOTOR_CURRENT = 10;
 
     public static final double ROTATION_UP_ANGLE = -0.0648 - Units.degreesToRadians(90);
-    public static final double ROTATION_DOWN_ANGLE = 0.55;
+    public static final double ROTATION_DOWN_ANGLE = 0.75;
 
     public static final int ROTATION_LIMIT_SWITCH_ID = 1;
 
