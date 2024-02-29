@@ -178,18 +178,18 @@ public final class Constants {
 
     public static final SwerveModuleConfiguration FRONT_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            12, 8, 17, true, true, 2.862408, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            12, 8, 17, true, true, 0.0, false, SHARED_SWERVE_MODULE_CONFIGURATION);
     public static final SwerveModuleConfiguration FRONT_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            13, 5, 18, true, true, -1.294680, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            13, 5, 18, true, true, 0.0, false, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            14, 10, 19, true, true, 0.368155, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            14, 10, 19, true, true, 0.0, false, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            15, 3, 20, true, true, 2.906894, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            15, 3, 20, true, true, 0.0, false, SHARED_SWERVE_MODULE_CONFIGURATION);
   }
 
   public static class AutoConstants {
