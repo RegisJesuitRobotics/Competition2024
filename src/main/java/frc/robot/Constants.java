@@ -75,7 +75,8 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    public static final boolean INVERTED = true;
+    public static final boolean MAIN_INVERTED = true;
+    public static final boolean FOLLOWER_INVERTED = true;
 
     public static final double ELEVATOR_MAX_HEIGHT = Units.inchesToMeters(10.5);
     public static final double ELEVATOR_MIN_HEIGHT = Units.inchesToMeters(0.0);
@@ -85,10 +86,11 @@ public final class Constants {
     public static final int FREE_MOTOR_CURRENT = 25;
 
     public static final int ELEVATOR_MOTOR_ID = 4;
+    public static final int ELEVATOR_FOLLOWER_MOTOR_ID = 22;
 
     public static final int ELEVATOR_LIMIT_SWITCH = 0;
 
-    public static final double ELEVATOR_GEAR_RATIO = 5.0 * 3.0;
+    public static final double ELEVATOR_GEAR_RATIO = 5.0 * 4.0;
     public static final double METERS_PER_REV =
         Units.inchesToMeters((Math.PI * 1.75) / (ELEVATOR_GEAR_RATIO));
 
@@ -266,7 +268,9 @@ public final class Constants {
     public static final int STALL_MOTOR_CURRENT = 80;
 
     public static final boolean INVERTED = false;
+    public static final boolean INVERTED_FOLLOWER = false;
     public static final int SHOOTER_ID = 11;
+    public static final int SHOOTER_FOLLOWER_ID = 23;
 
     public static final double SHOOTING_RPM = 3000.0;
 

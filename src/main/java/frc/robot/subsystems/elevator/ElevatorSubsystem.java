@@ -35,10 +35,13 @@ public class ElevatorSubsystem extends SubsystemBase {
               this));
 
   private static final Alert elevatorAlert =
-      new Alert("Elevator motor had a fault initializing", Alert.AlertType.ERROR);
+      new Alert("Elevator main motor had a fault initializing", Alert.AlertType.ERROR);
+  private static final Alert elevatorFollowerAlert = new Alert("Elevator follower motor had a fault initializing", Alert.AlertType.ERROR);
 
   private final TelemetryCANSparkMax elevatorMotor =
       new TelemetryCANSparkMax(ELEVATOR_MOTOR_ID, MotorType.kBrushless, "/elevator/motor", true);
+  private final TelemetryCANSparkMax elevatorMotorFollower = new TelemetryCANSparkMax(ELEVATOR_FOLLOWER_MOTOR_ID, MotorType.kBrushless, "/elevator/followerMotor", false);
+
 
   private final TunableTelemetryProfiledPIDController controller =
       new TunableTelemetryProfiledPIDController(
@@ -57,7 +60,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final BooleanTelemetryEntry bottomLimitEntry =
       new BooleanTelemetryEntry("/elevator/bottomLimit", MiscConstants.TUNING_MODE);
   private final EventTelemetryEntry elevatorEventEntry =
-      new EventTelemetryEntry("/elevator/events");
+      new EventTelemetryEntry("/elevator/main/events");
+  private final EventTelemetryEntry elevatorFollowerEventEntry = new EventTelemetryEntry("elevator/follower/events");
 
   private boolean isHomed = false;
 
@@ -69,6 +73,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   private void configMotors() {
     StringFaultRecorder faultRecorder = new StringFaultRecorder();
+    StringFaultRecorder followerFaultRecorder = new StringFaultRecorder();
+
 
     ConfigurationUtils.applyCheckRecordRev(
         () -> elevatorMotor.setCANTimeout(250),
@@ -81,8 +87,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         faultRecorder.run("Factory default"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecord(
-        () -> elevatorMotor.setInverted(INVERTED),
-        () -> elevatorMotor.getInverted() == INVERTED,
+        () -> elevatorMotor.setInverted(MAIN_INVERTED),
+        () -> elevatorMotor.getInverted() == MAIN_INVERTED,
         () -> elevatorEventEntry.append("Motor invert"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
@@ -121,6 +127,48 @@ public class ElevatorSubsystem extends SubsystemBase {
         "Elevator motor",
         faultRecorder.getFaultString());
     elevatorAlert.set(faultRecorder.hasFault());
+
+
+    ConfigurationUtils.applyCheckRecordRev(
+            () -> elevatorMotorFollower.setCANTimeout(250),
+            () -> true,
+            followerFaultRecorder.run("CAN timeout"),
+            MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+            elevatorMotorFollower::restoreFactoryDefaults,
+            () -> true,
+            followerFaultRecorder.run("Factory default"),
+            MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecord(
+            () -> elevatorMotorFollower.setInverted(FOLLOWER_INVERTED),
+            () -> elevatorMotorFollower.getInverted() == FOLLOWER_INVERTED,
+            () -> elevatorFollowerEventEntry.append("Motor invert"),
+            MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+            () -> elevatorMotorFollower.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
+            () -> true,
+            followerFaultRecorder.run("Current limit"),
+            MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+            () -> elevatorMotorFollower.setIdleMode(IdleMode.kBrake),
+            () -> true,
+            followerFaultRecorder.run("Idle mode"),
+            MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+            elevatorMotorFollower::burnFlashWithDelay,
+            () -> true,
+            followerFaultRecorder.run("Burn flash"),
+            MiscConstants.CONFIGURATION_ATTEMPTS);
+
+
+    elevatorMotorFollower.follow(elevatorMotor);
+    ConfigurationUtils.postDeviceConfig(
+            followerFaultRecorder.hasFault(),
+            elevatorEventEntry::append,
+            "Elevator follower motor",
+            faultRecorder.getFaultString());
+    elevatorAlert.set(faultRecorder.hasFault());
+
   }
 
   public boolean atBottomLimit() {
