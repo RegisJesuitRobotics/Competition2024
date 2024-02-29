@@ -22,7 +22,7 @@ public final class Constants {
   }
 
   public static class IntakeConstants {
-    public static final double INTAKE_VOLTAGE = 9;
+    public static final double INTAKE_VOLTAGE = 11;
     public static final int INTAKE_MOTOR_ID = 6;
     public static final boolean INVERTED = false;
 
@@ -47,17 +47,17 @@ public final class Constants {
     public static final int ROTATION_FREE_MOTOR_CURRENT = 10;
 
     public static final double ROTATION_UP_ANGLE = -0.0648 - Units.degreesToRadians(90);
-    public static final double ROTATION_DOWN_ANGLE = 2.25 - Units.degreesToRadians(90);
+    public static final double ROTATION_DOWN_ANGLE = 0.55;
 
     public static final int ROTATION_LIMIT_SWITCH_ID = 1;
 
-    public static final double FEEDER_VOLTAGE = (6);
+    public static final double FEEDER_VOLTAGE = (7);
 
     public static final TunablePIDGains ROTATION_GAINS =
-        new TunablePIDGains("/slapdown/rotation/gains", 4.0, 0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/slapdown/rotation/gains", 2.5, 0, 0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains ROTATION_TRAP_GAINS =
         new TunableTrapezoidalProfileGains(
-            "/slapdown/rotation/trapGains", 25, 40, MiscConstants.TUNING_MODE);
+            "/slapdown/rotation/trapGains", 25, 30, MiscConstants.TUNING_MODE);
     public static final TunableArmElevatorFFGains ROTATION_FF_GAINS =
         new TunableArmElevatorFFGains(
             "/slapdown/rotation/FFGains",
@@ -270,7 +270,7 @@ public final class Constants {
     public static final double SHOOTER_GEAR_RATIO = 1.0 / 2.0;
 
     public static TunablePIDGains SHOOTER_PID_GAINS =
-        new TunablePIDGains("/shooter/pid", 0.005, 0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/shooter/pid", 0.0001, 0, 0.0005, MiscConstants.TUNING_MODE);
     public static TunableFFGains SHOOTER_FF_GAINS =
         new TunableFFGains("/shooter/FF", 0.39383, 0.0089833, 0.0010833, MiscConstants.TUNING_MODE);
   }

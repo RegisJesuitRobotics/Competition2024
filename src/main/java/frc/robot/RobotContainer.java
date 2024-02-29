@@ -161,7 +161,7 @@ public class RobotContainer {
             Commands.parallel(
                 IntakingCommands.intakeUntilDetected(
                     intakeSubsystem, slapdownSuperstructure, transportSubsystem),
-                elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(2.5)),
+                elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(1.5)),
                 wristSubsystem.setPositonCommand(new Rotation2d(0))));
     driverController.rightTrigger().onFalse(slapdownSuperstructure.setUpCommand());
     driverController.circle().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());

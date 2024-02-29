@@ -10,6 +10,7 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -81,9 +82,7 @@ public class Autos {
     NamedCommands.registerCommand("AutoStart", autoStart());
     NamedCommands.registerCommand("ShootNote", shootNote());
     NamedCommands.registerCommand(
-        "IntakeUntilNote",
-        IntakingCommands.intakeUntilDetected(
-            intakeSubsystem, slapdownSuperstructure, transportSubsystem));
+        "IntakeUntilNote", betterIntake());
 
     PathPlannerLogging.setLogActivePathCallback(
         (path) -> {
@@ -92,6 +91,7 @@ public class Autos {
     PathPlannerLogging.setLogTargetPoseCallback(desiredPoseTelemetryEntry::append);
 
     autoChooser = AutoBuilder.buildAutoChooser("JustProbe");
+    autoChooser.addOption("slowFeed", intakeSubsystem.setIntakeVoltageCommand(1));
   }
 
   public SendableChooser<Command> getAutoChooser() {
@@ -117,6 +117,14 @@ public class Autos {
       ampLoc = new Pose2d(ampCenterBlue, new Rotation2d(0, 0));
     }
     return new SimpleToPointCommand(ampLoc, swerve);
+  }
+
+  private Command betterIntake() {
+    return Commands.parallel(
+        IntakingCommands.intakeUntilDetected(
+            intakeSubsystem, slapdownSuperstructure, transportSubsystem),
+        elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(2.5)),
+        wristSubsystem.setPositonCommand(new Rotation2d(0))).until(transportSubsystem::atSensor);
   }
 
   public Command autoStart() {

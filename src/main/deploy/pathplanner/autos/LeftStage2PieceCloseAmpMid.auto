@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.29,
-      "y": 5.45
+      "x": 0.46,
+      "y": 7.37
     },
     "rotation": 0
   },
@@ -18,6 +18,12 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "Amp-CenterStage"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "ShootNote"
@@ -27,6 +33,12 @@
           "type": "parallel",
           "data": {
             "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeUntilNote"
+                }
+              },
               {
                 "type": "sequential",
                 "data": {
@@ -50,12 +62,6 @@
                       }
                     }
                   ]
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "IntakeUntilNote"
                 }
               }
             ]
