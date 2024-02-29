@@ -1,6 +1,6 @@
 package frc.robot.commands.elevator;
 
-import static frc.robot.Constants.ScoringConstants.*;
+import static frc.robot.Constants.SetpointConstants.*;
 import static frc.robot.Constants.WristConstants.*;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
