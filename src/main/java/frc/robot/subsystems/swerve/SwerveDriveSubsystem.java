@@ -41,65 +41,13 @@ import org.photonvision.EstimatedRobotPose;
 
 /** The subsystem containing all the swerve modules */
 public class SwerveDriveSubsystem extends SubsystemBase {
-
-  public static BooleanSupplier getDistanceToStaging(
-      DriverStation.Alliance alliance, SwerveDriveSubsystem swerve) {
-    BooleanSupplier inThreshold;
-    if (alliance == DriverStation.Alliance.Red)
-      return inThreshold =
-          () -> {
-            return swerve
-                    .getPose()
-                    .nearest(redStagingLocations)
-                    .getTranslation()
-                    .getDistance(swerve.getPose().getTranslation())
-                < stagingThreshold;
-          };
-    else {
-      return inThreshold =
-          () -> {
-            return swerve
-                    .getPose()
-                    .nearest(blueStagingLocations)
-                    .getTranslation()
-                    .getDistance(swerve.getPose().getTranslation())
-                < stagingThreshold;
-          };
-    }
-  }
-
-  public BooleanSupplier getDistanceToAmp(
-      DriverStation.Alliance alliance, SwerveDriveSubsystem swerve) {
-    BooleanSupplier inThreshold;
-    if (alliance == DriverStation.Alliance.Red)
-      return inThreshold =
-          () -> {
-            return swerve.getPose().getTranslation().getDistance(FieldConstants.ampCenterRed)
-                < ampThreshold;
-          };
-    else {
-      return inThreshold =
-          () -> {
-            return swerve.getPose().getTranslation().getDistance(FieldConstants.ampCenterBlue)
-                < ampThreshold;
-          };
-    }
-  }
-
-  enum DriveMode {
-    OPEN_LOOP,
-    CLOSE_LOOP,
-    CHARACTERIZATION,
-    RAW_VOLTAGE
-  }
-
   private final SwerveModule[] modules = new SwerveModule[NUM_MODULES];
 
   private final Function<Pose2d, List<EstimatedRobotPose>> cameraPoseDataSupplier;
 
   private final TelemetryPigeon2 pigeon =
       new TelemetryPigeon2(
-          PIGEON_ID, "/drive/gyro", MiscConstants.CANIVORE_NAME, MiscConstants.TUNING_MODE);
+          PIGEON_ID, "/drive/pigeon", MiscConstants.CANIVORE_NAME, MiscConstants.TUNING_MODE);
 
   private StatusSignal<Double> yawSignal;
 
@@ -112,14 +60,14 @@ public class SwerveDriveSubsystem extends SubsystemBase {
           new SysIdRoutine.Mechanism(
               (Measure<Voltage> voltage) -> setCharacterizationVoltage(voltage.in(Volts)),
               null,
-              this));
+              this, "SwerveDrive"));
 
   private final SysIdRoutine steerPositionSysId =
       new SysIdRoutine(
           new SysIdRoutine.Config(
               null, null, null, (state) -> SignalLogger.writeString("State", state.toString())),
           new SysIdRoutine.Mechanism(
-              (Measure<Voltage> voltage) -> setRawVolts(0.0, voltage.in(Volts)), null, this));
+              (Measure<Voltage> voltage) -> setRawVolts(0.0, voltage.in(Volts)), null, this, "SwerveSteer"));
 
   private final Alert pigeonConfigurationAlert =
       new Alert("Pigeon failed to initialize", Alert.AlertType.ERROR);
@@ -149,12 +97,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   private final Field2d field2d = new Field2d();
 
   private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(MODULE_TRANSLATIONS);
-
-  private SwerveModuleState[] desiredStates = new SwerveModuleState[NUM_MODULES];
-  private boolean activeSteer = true;
-  private DriveMode driveMode = DriveMode.OPEN_LOOP;
-  private double rawDriveVolts = 0.0;
-  private double rawSteerVolts = 0.0;
 
   public SwerveDriveSubsystem(Function<Pose2d, List<EstimatedRobotPose>> cameraPoseDataSupplier) {
     modules[0] = new SwerveModule(FRONT_LEFT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
@@ -285,11 +227,13 @@ public class SwerveDriveSubsystem extends SubsystemBase {
       throw new IllegalArgumentException("You must provide desiredStates for all modules");
     }
 
-    driveMode = openLoop ? DriveMode.OPEN_LOOP : DriveMode.CLOSE_LOOP;
-    this.activeSteer = activeSteer;
+    desiredSwerveStatesEntry.append(desiredStates);
 
-    this.desiredStates = RaiderMathUtils.copySwerveStateArray(desiredStates);
-    desiredSwerveStatesEntry.append(this.desiredStates);
+    SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_VELOCITY_METERS_SECOND);
+    for (int i = 0; i < modules.length; i++) {
+      modules[i].setDesiredState(
+          desiredStates[i], activeSteer, openLoop);
+    }
   }
 
   /**
@@ -299,10 +243,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
    * @param steerVolts the desired steer voltage
    */
   public void setRawVolts(double driveVolts, double steerVolts) {
-    driveMode = DriveMode.RAW_VOLTAGE;
-
-    this.rawDriveVolts = driveVolts;
-    this.rawSteerVolts = steerVolts;
+    for (SwerveModule module : modules) {
+      module.setRawVoltage(driveVolts, steerVolts);
+    }
   }
 
   /** Sets each module velocity to zero and desired angle to what it currently is */
@@ -319,35 +262,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
    *
    * @param voltage the voltage to apply to the drive motor
    */
-  public void setCharacterizationVoltage(double voltage) {
-    driveMode = DriveMode.CHARACTERIZATION;
-    rawDriveVolts = voltage;
-  }
-
-  public double[] getActualDriveVoltages() {
-    double[] voltages = new double[modules.length];
-    for (int i = 0; i < modules.length; i++) {
-      voltages[i] = modules[i].getActualDriveVoltage();
+  private void setCharacterizationVoltage(double voltage) {
+    for (SwerveModule module : modules) {
+      module.setDriveCharacterizationVoltage(voltage);
     }
-    return voltages;
-  }
-
-  /**
-   * Should only be used for characterization
-   *
-   * @return the angle in radians
-   */
-  public double getRawGyroAngle() {
-    return Units.degreesToRadians(pigeon.getAngle());
-  }
-
-  /**
-   * Should only be used for characterization
-   *
-   * @return the angle rate in radians/second
-   */
-  public double getRawGyroRate() {
-    return Units.degreesToRadians(pigeon.getRate());
   }
 
   public SwerveModuleState[] getActualStates() {
@@ -385,28 +303,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    switch (driveMode) {
-      case OPEN_LOOP, CLOSE_LOOP -> {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_VELOCITY_METERS_SECOND);
-        for (int i = 0; i < modules.length; i++) {
-          modules[i].setDesiredState(
-              desiredStates[i], activeSteer, driveMode == DriveMode.OPEN_LOOP);
-        }
-      }
-      case RAW_VOLTAGE -> {
-        for (SwerveModule module : modules) {
-          module.setRawVoltage(rawDriveVolts, rawSteerVolts);
-        }
-      }
-      case CHARACTERIZATION -> {
-        for (SwerveModule module : modules) {
-          module.setDriveCharacterizationVoltage(rawDriveVolts);
-        }
-      }
-    }
-
-    // validate timeStamp
     logValues();
+
     List<EstimatedRobotPose> estimatedRobotPoses = cameraPoseDataSupplier.apply(getPose());
     for (EstimatedRobotPose estimatedRobotPose : estimatedRobotPoses) {
       if (!DriverStation.isAutonomousEnabled()) {

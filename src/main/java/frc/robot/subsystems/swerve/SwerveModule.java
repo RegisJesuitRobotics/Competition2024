@@ -67,6 +67,7 @@ public class SwerveModule {
   private final TunablePIDGains driveVelocityPIDGains;
   private final TunableFFGains driveVelocityFFGains;
   private final TunablePIDGains steerPositionPIDGains;
+  private final TunableFFGains steerVelocityFFGains;
 
   /** Constructs a new Swerve Module using the given config */
   public SwerveModule(SwerveModuleConfiguration config, boolean tuningMode) {
@@ -102,6 +103,7 @@ public class SwerveModule {
     driveVelocityPIDGains = config.sharedConfiguration().driveVelocityPIDGains();
     driveVelocityFFGains = config.sharedConfiguration().driveVelocityFFGains();
     steerPositionPIDGains = config.sharedConfiguration().steerPositionPIDGains();
+    steerVelocityFFGains = config.sharedConfiguration().steerVelocityFFGains();
 
     // Drive motor
     driveMotor =
@@ -211,9 +213,11 @@ public class SwerveModule {
     motorConfiguration.Feedback.FeedbackRemoteSensorID = config.steerEncoderID();
     motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
     motorConfiguration.Feedback.RotorToSensorRatio = config.sharedConfiguration().steerGearRatio();
+    motorConfiguration.Feedback.SensorToMechanismRatio = config.sharedConfiguration().steerGearRatio();
     motorConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
 
     config.sharedConfiguration().steerPositionPIDGains().setSlot(motorConfiguration.Slot0);
+    config.sharedConfiguration().steerVelocityFFGains().setSlot(motorConfiguration.Slot0);
     // Came from the CTRE Swerve Module example
     motorConfiguration.MotionMagic.MotionMagicCruiseVelocity =
         100.0 / config.sharedConfiguration().steerGearRatio();
@@ -292,6 +296,16 @@ public class SwerveModule {
         faultRecorder.run("Encoder configuration"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordCTRE(
+        () -> absoluteSteerEncoder.getPosition().setUpdateFrequency(config.sharedConfiguration().odometryFrequency()),
+        () -> absoluteSteerEncoder.getPosition().getAppliedUpdateFrequency() == config.sharedConfiguration().odometryFrequency(),
+        faultRecorder.run("Position signal update frequency"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordCTRE(
+        () -> absoluteSteerEncoder.getVelocity().setUpdateFrequency(config.sharedConfiguration().odometryFrequency()),
+        () -> absoluteSteerEncoder.getVelocity().getAppliedUpdateFrequency() == config.sharedConfiguration().odometryFrequency(),
+        faultRecorder.run("Velocity signal update frequency"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordCTRE(
         () -> ConfigurationUtils.explicitlySetSignalFrequency(absoluteSteerPositionSignal),
         () -> true,
         faultRecorder.run("Absolute signal update frequency"),
@@ -356,13 +370,6 @@ public class SwerveModule {
 
   public SwerveModulePosition getActualPosition() {
     return new SwerveModulePosition(getDriveMotorPositionMeters(), getSteerAngle());
-  }
-
-  /**
-   * @return The output voltage of the drive motor. Used for characterization
-   */
-  public double getActualDriveVoltage() {
-    return driveMotor.getDutyCycle().getValue() * driveMotor.getSupplyVoltage().getValue();
   }
 
   /**
@@ -457,6 +464,7 @@ public class SwerveModule {
     if (steerPositionPIDGains.hasChanged()) {
       Slot0Configs newSlotConfig = new Slot0Configs();
       steerPositionPIDGains.setSlot(newSlotConfig);
+      steerVelocityFFGains.setSlot(newSlotConfig);
       steerMotor.getConfigurator().apply(newSlotConfig);
 
       moduleEventEntry.append("Updated steer gains due to value change");

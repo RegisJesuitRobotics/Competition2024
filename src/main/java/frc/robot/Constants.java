@@ -109,7 +109,7 @@ public final class Constants {
 
     public static final int NUM_MODULES = 4;
     public static final double WHEEL_DIAMETER_METERS = Units.inchesToMeters(3.875);
-    public static final double DRIVE_GEAR_REDUCTION = (50.0 / 14) * (17.0 / 27) * (45.0 / 15);
+    public static final double DRIVE_GEAR_REDUCTION = (50.0 / 16) * (17.0 / 27) * (45.0 / 15);
 
     public static final double STEER_GEAR_REDUCTION = 150.0 / 7.0;
 
@@ -118,30 +118,23 @@ public final class Constants {
 
     // 0.47
     public static final TunablePIDGains DRIVE_VELOCITY_PID_GAINS =
-        new TunablePIDGains("/gains/drive", 0.2, 0.0, 0.0, MiscConstants.TUNING_MODE);
-    // Meters per rotation
-    private static final double DRIVE_CONVERSION =
-        (Math.PI * WHEEL_DIAMETER_METERS) / DRIVE_GEAR_REDUCTION;
-    // Volts/(Meter/Second) to Volts/(Rotation/Second)
+        new TunablePIDGains("/gains/drive", 0.0, 0.0, 0.0, MiscConstants.TUNING_MODE);
     public static final TunableFFGains DRIVE_VELOCITY_FF_GAINS =
         new TunableFFGains(
             "/gains/drive",
-            0.064022 * DRIVE_CONVERSION,
-            1.9843 * DRIVE_CONVERSION,
-            0.9255 * DRIVE_CONVERSION,
+            0.0,
+            0.0,
+            0.0,
             MiscConstants.TUNING_MODE);
 
     public static final TunablePIDGains STEER_POSITION_PID_GAINS =
-        new TunablePIDGains("/gains/steer", 7.207, 0.0, 0.002, MiscConstants.TUNING_MODE);
-    // Radians per rotation
-    private static final double STEER_CONVERSION = (2 * Math.PI);
-    // Volts/(Radian/Second) to Volts/(Rotation/Second)
+        new TunablePIDGains("/gains/steer", 0.0, 0.0, 0.0, MiscConstants.TUNING_MODE);
     public static final TunableFFGains STEER_VELOCITY_FF_GAINS =
         new TunableFFGains(
             "/gains/steer",
-            0.0 * STEER_CONVERSION,
-            0.0 * STEER_CONVERSION,
-            0.0 * STEER_CONVERSION,
+            0.0,
+            0.0,
+            0.0,
             MiscConstants.TUNING_MODE);
 
     // Left right distance between center of wheels
@@ -180,7 +173,8 @@ public final class Constants {
             ODOMETRY_FREQUENCY,
             DRIVE_VELOCITY_PID_GAINS,
             DRIVE_VELOCITY_FF_GAINS,
-            STEER_POSITION_PID_GAINS);
+            STEER_POSITION_PID_GAINS,
+            STEER_VELOCITY_FF_GAINS);
 
     public static final SwerveModuleConfiguration FRONT_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(

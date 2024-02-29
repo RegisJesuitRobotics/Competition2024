@@ -24,5 +24,6 @@ public record SwerveModuleConfiguration(
       int odometryFrequency,
       TunablePIDGains driveVelocityPIDGains,
       TunableFFGains driveVelocityFFGains,
-      TunablePIDGains steerPositionPIDGains) {}
+      TunablePIDGains steerPositionPIDGains,
+      TunableFFGains steerVelocityFFGains) {}
 }
