@@ -138,7 +138,7 @@ private final TelemetryCANSparkFlex flywheelMotorFollower = new TelemetryCANSpar
             faultRecorder.run("Burn flash"),
             Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    flywheelMotorFollower.follow(flywheelMotor);
+    flywheelMotorFollower.follow(flywheelMotor, INVERTED_FOLLOWER);
     ConfigurationUtils.postDeviceConfig(
         faultRecorder.hasFault(),
         shooterEventEntry::append,

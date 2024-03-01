@@ -161,7 +161,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             MiscConstants.CONFIGURATION_ATTEMPTS);
 
 
-    elevatorMotorFollower.follow(elevatorMotor);
+    elevatorMotorFollower.follow(elevatorMotor, FOLLOWER_INVERTED);
     ConfigurationUtils.postDeviceConfig(
             followerFaultRecorder.hasFault(),
             elevatorEventEntry::append,

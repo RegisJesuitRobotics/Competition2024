@@ -265,10 +265,10 @@ public final class Constants {
 
   public static class TransportConstants {
     public static final int TRANSPORT_MOTOR_ID = 1;
-    public static final boolean INVERTED = false;
+    public static final boolean INVERTED = true;
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
-    public static final double TRANSPORT_LOAD_VOLTAGE = 4.0;
+    public static final double TRANSPORT_LOAD_VOLTAGE = 3.0;
 
     public static final double TRANSPORT_CLOSE_SPEAKER_VOLTAGE = 12;
     public static final int SHOOTER_SENSOR_ID = 8;
@@ -279,11 +279,11 @@ public final class Constants {
     public static final int STALL_MOTOR_CURRENT = 80;
 
     public static final boolean INVERTED = false;
-    public static final boolean INVERTED_FOLLOWER = false;
+    public static final boolean INVERTED_FOLLOWER = true;
     public static final int SHOOTER_ID = 11;
     public static final int SHOOTER_FOLLOWER_ID = 23;
 
-    public static final double SHOOTING_RPM = 3000.0;
+    public static final double SHOOTING_RPM = 30;
 
     public static final double SHOOTER_GEAR_RATIO = 1.0 / 2.0;
 
