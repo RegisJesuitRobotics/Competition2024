@@ -55,7 +55,7 @@ public final class Constants {
     public static final double ROTATION_UP_ANGLE = -0.0648 - Units.degreesToRadians(90);
     public static final double ROTATION_DOWN_ANGLE = 0.75;
 
-    public static final int ROTATION_LIMIT_SWITCH_ID = 1;
+    public static final int ROTATION_LIMIT_SWITCH_ID = 5;
 
     public static final double FEEDER_VOLTAGE = (7);
 
@@ -75,8 +75,8 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    public static final boolean MAIN_INVERTED = true;
-    public static final boolean FOLLOWER_INVERTED = true;
+    public static final boolean MAIN_INVERTED = false;
+    public static final boolean FOLLOWER_INVERTED = false;
 
     public static final double ELEVATOR_MAX_HEIGHT = Units.inchesToMeters(10.5);
     public static final double ELEVATOR_MIN_HEIGHT = Units.inchesToMeters(0.0);
@@ -88,7 +88,7 @@ public final class Constants {
     public static final int ELEVATOR_MOTOR_ID = 4;
     public static final int ELEVATOR_FOLLOWER_MOTOR_ID = 22;
 
-    public static final int ELEVATOR_LIMIT_SWITCH = 0;
+    public static final int ELEVATOR_LIMIT_SWITCH = 6;
 
     public static final double ELEVATOR_GEAR_RATIO = 5.0 * 4.0;
     public static final double METERS_PER_REV =
@@ -96,7 +96,7 @@ public final class Constants {
 
     // TODO: Do These PID GAINS
     public static final TunablePIDGains PID_GAINS =
-        new TunablePIDGains("gains/elevator", 20.0, 0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("gains/elevator", 62, 0, 0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
         new TunableTrapezoidalProfileGains(
             "/gains/extension",
@@ -107,7 +107,7 @@ public final class Constants {
     // TODO: TUNE FF GAINS
     public static final TunableArmElevatorFFGains FF_GAINS =
         new TunableArmElevatorFFGains(
-            "gains/elevator", 0.22339, 0.041616, 13.1, 1.2556, MiscConstants.TUNING_MODE);
+            "gains/elevator", 0.11277, 0.055066, 18.193, 2.8124, MiscConstants.TUNING_MODE);
   }
 
   public static class SwerveConstants {
@@ -126,23 +126,23 @@ public final class Constants {
 
     // 0.47
     public static final TunablePIDGains DRIVE_VELOCITY_PID_GAINS =
-        new TunablePIDGains("/gains/drive", 0.0, 0.0, 0.0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/drive", 0.1581, 0.0, 0.0, MiscConstants.TUNING_MODE);
     public static final TunableFFGains DRIVE_VELOCITY_FF_GAINS =
         new TunableFFGains(
             "/gains/drive",
-            0.0,
-            0.0,
-            0.0,
+            0.12798,
+            0.12061,
+            0.0018667,
             MiscConstants.TUNING_MODE);
 
     public static final TunablePIDGains STEER_POSITION_PID_GAINS =
-        new TunablePIDGains("/gains/steer", 0.0, 0.0, 0.0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/steer", 40, 0.0, 0, MiscConstants.TUNING_MODE);
     public static final TunableFFGains STEER_VELOCITY_FF_GAINS =
         new TunableFFGains(
             "/gains/steer",
-            0.0,
-            0.0,
-            0.0,
+            0.25096,
+            2.4255,
+            0.029622,
             MiscConstants.TUNING_MODE);
 
     // Left right distance between center of wheels
@@ -186,18 +186,18 @@ public final class Constants {
 
     public static final SwerveModuleConfiguration FRONT_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            12, 8, 17, true, true, 0.0, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            12, 8, 17, true, false, 2.43, true, SHARED_SWERVE_MODULE_CONFIGURATION);
     public static final SwerveModuleConfiguration FRONT_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            13, 5, 18, true, true, 0.0, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            13, 5, 18, true, false, 0.34, true, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            14, 10, 19, true, true, 0.0, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            14, 10, 19, true, false, 0.54, true, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            15, 3, 20, true, true, 0.0, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            15, 3, 20, true, false, 0.73, true, SHARED_SWERVE_MODULE_CONFIGURATION);
   }
 
   public static class AutoConstants {
@@ -237,7 +237,7 @@ public final class Constants {
     public static final Rotation2d WRIST_MIN = Rotation2d.fromRadians(-0.027);
 
     public static final double WRIST_OFFSET = -0.288 + Units.degreesToRadians(90.0);
-    public static final int WRIST_ENCODER_PORT = 2;
+    public static final int WRIST_ENCODER_PORT = 7;
 
     public static final int WRIST_MOTOR_ID = 2;
     public static final boolean INVERTED = true;
@@ -268,7 +268,7 @@ public final class Constants {
     public static final boolean INVERTED = true;
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
-    public static final double TRANSPORT_LOAD_VOLTAGE = 3.0;
+    public static final double TRANSPORT_LOAD_VOLTAGE = 2.0;
 
     public static final double TRANSPORT_CLOSE_SPEAKER_VOLTAGE = 12;
     public static final int SHOOTER_SENSOR_ID = 8;

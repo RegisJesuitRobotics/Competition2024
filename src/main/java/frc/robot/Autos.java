@@ -10,10 +10,12 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.Constants.SwerveConstants;
@@ -90,7 +92,19 @@ public class Autos {
     PathPlannerLogging.setLogTargetPoseCallback(desiredPoseTelemetryEntry::append);
 
     autoChooser = AutoBuilder.buildAutoChooser("JustProbe");
+    autoChooser.addOption("elevator 4 in", elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(4)));
     autoChooser.addOption("slowFeed", intakeSubsystem.setIntakeVoltageCommand(1));
+    autoChooser.addOption("transport voltage", transportSubsystem.setVoltageCommand(4));
+    // autoChooser.addOption("elevator", elevatorSubsystem.setFollowerMotor(3));
+    autoChooser.addOption("elevater qf", elevatorSubsystem.sysIdQuasistatic(Direction.kForward));
+    autoChooser.addOption("elevator qr", elevatorSubsystem.sysIdQuasistatic(Direction.kReverse));
+    autoChooser.addOption("elevator df", elevatorSubsystem.sysIdDynamic(Direction.kForward));
+    autoChooser.addOption("elevator dr", elevatorSubsystem.sysIdDynamic(Direction.kReverse));
+    autoChooser.addOption("elevator fol", elevatorSubsystem.setFollowerCommand(3));
+    autoChooser.addOption("drive qf", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kForward));
+    autoChooser.addOption("drive qr", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kReverse));
+    autoChooser.addOption("drive df", driveSubsystem.driveDynamicSysIDCommand(Direction.kForward));
+    autoChooser.addOption("drive dr", driveSubsystem.driveDynamicSysIDCommand(Direction.kReverse));
   }
 
   public SendableChooser<Command> getAutoChooser() {

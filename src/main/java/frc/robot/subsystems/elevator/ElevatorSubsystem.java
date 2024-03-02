@@ -40,7 +40,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   private final TelemetryCANSparkMax elevatorMotor =
       new TelemetryCANSparkMax(ELEVATOR_MOTOR_ID, MotorType.kBrushless, "/elevator/motor", true);
-  private final TelemetryCANSparkMax elevatorMotorFollower = new TelemetryCANSparkMax(ELEVATOR_FOLLOWER_MOTOR_ID, MotorType.kBrushless, "/elevator/followerMotor", false);
+  private final TelemetryCANSparkMax elevatorMotorFollower = new TelemetryCANSparkMax(ELEVATOR_FOLLOWER_MOTOR_ID, MotorType.kBrushless, "/elevator/followerMotor", true);
 
 
   private final TunableTelemetryProfiledPIDController controller =
@@ -50,10 +50,12 @@ public class ElevatorSubsystem extends SubsystemBase {
   private ElevatorFeedforward feedforward = FF_GAINS.createElevatorFeedforward();
 
   private final RelativeEncoder elevatorEncoder = elevatorMotor.getEncoder();
+  private final RelativeEncoder elevatorFollowerEncoder = elevatorMotorFollower.getEncoder();
   private final DigitalInput bottomLimit = new DigitalInput(ELEVATOR_LIMIT_SWITCH);
 
   private final DoubleTelemetryEntry voltageReq =
       new DoubleTelemetryEntry("/elevator/voltageReq", MiscConstants.TUNING_MODE);
+    
 
   private final BooleanTelemetryEntry isHomedEntry =
       new BooleanTelemetryEntry("/elevator/isHomed", true);
@@ -62,6 +64,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final EventTelemetryEntry elevatorEventEntry =
       new EventTelemetryEntry("/elevator/main/events");
   private final EventTelemetryEntry elevatorFollowerEventEntry = new EventTelemetryEntry("elevator/follower/events");
+  private final DoubleTelemetryEntry followerVoltageReq = new DoubleTelemetryEntry("/elevator/followerReq", true);
 
   private boolean isHomed = false;
 
@@ -69,6 +72,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     configMotors();
     controller.setTolerance(Units.inchesToMeters(0.5));
     setDefaultCommand(setVoltageCommand(0.0));
+    // elevatorMotorFollower.follow(elevatorMotor);
   }
 
   private void configMotors() {
@@ -130,38 +134,55 @@ public class ElevatorSubsystem extends SubsystemBase {
 
 
     ConfigurationUtils.applyCheckRecordRev(
-            () -> elevatorMotorFollower.setCANTimeout(250),
-            () -> true,
-            followerFaultRecorder.run("CAN timeout"),
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+        () -> elevatorMotorFollower.setCANTimeout(250),
+        () -> true,
+        faultRecorder.run("CAN timeout"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
-            elevatorMotorFollower::restoreFactoryDefaults,
-            () -> true,
-            followerFaultRecorder.run("Factory default"),
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+        elevatorMotorFollower::restoreFactoryDefaults,
+        () -> true,
+        faultRecorder.run("Factory default"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecord(
-            () -> elevatorMotorFollower.setInverted(FOLLOWER_INVERTED),
-            () -> elevatorMotorFollower.getInverted() == FOLLOWER_INVERTED,
-            () -> elevatorFollowerEventEntry.append("Motor invert"),
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+        () -> elevatorMotorFollower.setInverted(MAIN_INVERTED),
+        () -> elevatorMotorFollower.getInverted() == MAIN_INVERTED,
+        () -> elevatorEventEntry.append("Motor invert"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
-            () -> elevatorMotorFollower.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
-            () -> true,
-            followerFaultRecorder.run("Current limit"),
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+        () -> elevatorMotorFollower.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
+        () -> true,
+        faultRecorder.run("Current limit"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
-            () -> elevatorMotorFollower.setIdleMode(IdleMode.kBrake),
-            () -> true,
-            followerFaultRecorder.run("Idle mode"),
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+        () -> elevatorMotorFollower.setIdleMode(IdleMode.kBrake),
+        () -> true,
+        faultRecorder.run("Idle mode"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
-            elevatorMotorFollower::burnFlashWithDelay,
-            () -> true,
-            followerFaultRecorder.run("Burn flash"),
-            MiscConstants.CONFIGURATION_ATTEMPTS);
+        () -> elevatorFollowerEncoder.setPositionConversionFactor(METERS_PER_REV),
+        () ->
+            ConfigurationUtils.fpEqual(
+                elevatorFollowerEncoder.getPositionConversionFactor(), METERS_PER_REV),
+        faultRecorder.run("Position conversion factor"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> elevatorFollowerEncoder.setVelocityConversionFactor(METERS_PER_REV / 60),
+        () ->
+            ConfigurationUtils.fpEqual(
+                elevatorFollowerEncoder.getVelocityConversionFactor(), METERS_PER_REV / 60),
+        faultRecorder.run("Velocity conversion factor"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        elevatorMotorFollower::burnFlashWithDelay,
+        () -> true,
+        faultRecorder.run("Burn flash"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+
+    
 
 
-    elevatorMotorFollower.follow(elevatorMotor, FOLLOWER_INVERTED);
+
+    // elevatorMotorFollower.follow(elevatorMotor, FOLLOWER_INVERTED);
     ConfigurationUtils.postDeviceConfig(
             followerFaultRecorder.hasFault(),
             elevatorEventEntry::append,
@@ -178,13 +199,20 @@ public class ElevatorSubsystem extends SubsystemBase {
   public boolean atGoal() {
     return controller.atGoal();
   }
+  public Command setFollowerCommand(double voltage){
+    return this.run(() -> elevatorMotorFollower.setVoltage(voltage));
+  }
 
   public void setEncoderPosition(double position) {
     elevatorEncoder.setPosition(position);
+    elevatorFollowerEncoder.setPosition(position);
+
   }
 
   public void setVoltage(double voltage) {
     elevatorMotor.setVoltage(voltage);
+    elevatorMotorFollower.setVoltage(voltage);
+    followerVoltageReq.append(voltage);
     voltageReq.append(voltage);
   }
 
@@ -194,11 +222,14 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public void stopMove() {
     elevatorMotor.setVoltage(0);
+    elevatorMotorFollower.setVoltage(0);
   }
 
   public boolean isHomed() {
     return isHomed;
   }
+
+  
 
   public Command setElevatorPositionCommand(double position) {
     double positionClamped = MathUtil.clamp(position, ELEVATOR_MIN_HEIGHT, ELEVATOR_MAX_HEIGHT);
@@ -220,7 +251,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public Command probeHomeCommand() {
-    return setVoltageCommand(-0.5).unless(this::isHomed).until(this::isHomed);
+    return setVoltageCommand(-0.75).unless(this::isHomed).until(this::isHomed);
   }
 
   public Command setVoltageCommand(double voltage) {

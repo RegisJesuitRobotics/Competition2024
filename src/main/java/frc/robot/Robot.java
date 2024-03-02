@@ -1,5 +1,7 @@
 package frc.robot;
 
+import org.littletonrobotics.urcl.URCL;
+
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -52,8 +54,8 @@ public class Robot extends TimedRobot {
 
     DataLog dataLog = DataLogManager.getLog();
     if (MiscConstants.TUNING_MODE) {
-      // URCL.start();
-      // NetworkTableInstance.getDefault().startEntryDataLog(dataLog, "/URCL/", "URCL/");
+      URCL.start();
+      NetworkTableInstance.getDefault().startEntryDataLog(dataLog, "/URCL/", "URCL/");
     }
     // Log connections and FMSInfo
     NetworkTableInstance.getDefault().startConnectionDataLog(dataLog, "NTConnection");

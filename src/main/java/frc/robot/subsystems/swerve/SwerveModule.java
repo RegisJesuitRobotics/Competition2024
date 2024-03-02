@@ -214,8 +214,7 @@ public class SwerveModule {
     motorConfiguration.Feedback.FeedbackRemoteSensorID = config.steerEncoderID();
     motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
     motorConfiguration.Feedback.RotorToSensorRatio = config.sharedConfiguration().steerGearRatio();
-    motorConfiguration.Feedback.SensorToMechanismRatio = config.sharedConfiguration().steerGearRatio();
-    motorConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
+        motorConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
 
     config.sharedConfiguration().steerPositionPIDGains().setSlot(motorConfiguration.Slot0);
     config.sharedConfiguration().steerVelocityFFGains().setSlot(motorConfiguration.Slot0);
@@ -423,7 +422,7 @@ public class SwerveModule {
   }
 
   private final MotionMagicExpoVoltage steerMotionMagicExpoVoltage =
-      new MotionMagicExpoVoltage(0.0).withUpdateFreqHz(0.0);
+      new MotionMagicExpoVoltage(0.0).withUpdateFreqHz(0);
 
   private void setSteerReference(double targetAngleRadians, boolean activeSteer) {
     activeSteerEntry.append(activeSteer);
