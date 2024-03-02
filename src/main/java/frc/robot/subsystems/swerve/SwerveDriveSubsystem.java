@@ -303,8 +303,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    logValues();
-
     List<EstimatedRobotPose> estimatedRobotPoses = cameraPoseDataSupplier.apply(getPose());
     for (EstimatedRobotPose estimatedRobotPose : estimatedRobotPoses) {
       if (!DriverStation.isAutonomousEnabled()) {
@@ -312,6 +310,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             estimatedRobotPose.estimatedPose.toPose2d(), estimatedRobotPose.timestampSeconds);
       }
     }
+
+    logValues();
   }
 
   private void logValues() {

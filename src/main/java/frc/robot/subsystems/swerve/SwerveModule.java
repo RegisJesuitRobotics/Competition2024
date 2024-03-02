@@ -389,10 +389,11 @@ public class SwerveModule {
 
     controlModeEntry.append(SwerveModuleControlMode.NORMAL.logValue);
 
-    state = SwerveModuleState.optimize(state, getSteerAngle());
+    Rotation2d steerAngle = getSteerAngle();
+    state = SwerveModuleState.optimize(state, steerAngle);
 
     // Account for steer error to reduce skew
-    double steerErrorRadians = state.angle.getRadians() - getSteerAngle().getRadians();
+    double steerErrorRadians = state.angle.getRadians() - steerAngle.getRadians();
     double cosineScalar = Math.cos(steerErrorRadians);
     if (cosineScalar < 0.0) {
       cosineScalar = 0.0;
@@ -430,7 +431,7 @@ public class SwerveModule {
 
     if (activeSteer) {
       steerMotor.setControl(
-          steerMotionMagicExpoVoltage.withPosition(targetAngleRadians * steerConversion));
+          steerMotionMagicExpoVoltage.withPosition(targetAngleRadians / steerConversion));
     } else {
       steerMotor.setVoltage(0.0);
     }
