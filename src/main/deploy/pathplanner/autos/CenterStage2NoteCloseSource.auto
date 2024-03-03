@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.29,
-      "y": 5.45
+      "x": 0.74,
+      "y": 4.48
     },
-    "rotation": 0
+    "rotation": -60.0
   },
   "command": {
     "type": "sequential",
@@ -40,7 +40,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.25
+                        "waitTime": 0.1
                       }
                     },
                     {
@@ -70,6 +70,6 @@
       ]
     }
   },
-  "folder": null,
+  "folder": "Center Stage",
   "choreoAuto": false
 }

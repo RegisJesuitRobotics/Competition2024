@@ -3,9 +3,9 @@
   "startingPose": {
     "position": {
       "x": 0.74,
-      "y": 6.596235535725297
+      "y": 4.48
     },
-    "rotation": 57.68778662786143
+    "rotation": -60.0
   },
   "command": {
     "type": "sequential",
@@ -24,15 +24,9 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "IntakeUntilNote"
-                }
-              },
               {
                 "type": "sequential",
                 "data": {
@@ -40,16 +34,28 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "LeftStage-FarLeft"
+                        "pathName": "SourceStage-FarSource"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.25
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "FarLeft-LeftStage"
+                        "pathName": "FarSource-SourceStage"
                       }
                     }
                   ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeUntilNote"
                 }
               }
             ]
@@ -62,15 +68,9 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "IntakeUntilNote"
-                }
-              },
               {
                 "type": "sequential",
                 "data": {
@@ -78,16 +78,28 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "LeftStage-CloseAmp"
+                        "pathName": "SourceStage-FarMidSource"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.25
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CloseAmp-LeftStage"
+                        "pathName": "FarMidSource-SourceStage"
                       }
                     }
                   ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeUntilNote"
                 }
               }
             ]
@@ -102,6 +114,6 @@
       ]
     }
   },
-  "folder": null,
+  "folder": "Source Stage",
   "choreoAuto": false
 }

@@ -40,13 +40,51 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "LeftStage-CloseAmp"
+                        "pathName": "AmpStage-FarAmp"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CloseAmp-LeftStage"
+                        "pathName": "FarAmp-AmpStage"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeUntilNote"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "AmpStage-CloseAmp"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "CloseAmp-AmpStage"
                       }
                     }
                   ]
@@ -64,6 +102,6 @@
       ]
     }
   },
-  "folder": null,
+  "folder": "Amp Stage",
   "choreoAuto": false
 }

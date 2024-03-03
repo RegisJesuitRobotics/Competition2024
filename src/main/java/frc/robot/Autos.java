@@ -86,10 +86,11 @@ public class Autos {
     NamedCommands.registerCommand("IntakeUntilNote", betterIntake());
 
     PathPlannerLogging.setLogActivePathCallback(
-        (path) -> {
-          trajectoryTelemetryEntry.append(path.toArray(new Pose2d[0]));
-        });
-    PathPlannerLogging.setLogTargetPoseCallback(desiredPoseTelemetryEntry::append);
+        (path) -> trajectoryTelemetryEntry.append(path.toArray(new Pose2d[0])));
+    PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
+      driveSubsystem.resetOdometry(pose);
+      desiredPoseTelemetryEntry.append(pose);
+    });
 
     autoChooser = AutoBuilder.buildAutoChooser("JustProbe");
     autoChooser.addOption("elevator 4 in", elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(4)));
@@ -142,6 +143,9 @@ public class Autos {
   }
 
   private Command betterIntake() {
+    if (Robot.isSimulation()) {
+      return Commands.print("Intaking");
+    }
     return Commands.parallel(
         IntakingCommands.intakeUntilDetected(
             intakeSubsystem, slapdownSuperstructure, transportSubsystem),
@@ -158,7 +162,7 @@ public class Autos {
 
   private Command shootNote() {
     if (Robot.isSimulation()) {
-      return Commands.print("Shooting Note!").andThen(Commands.waitSeconds(1.0));
+      return Commands.print("Shooting Note!").andThen(Commands.waitSeconds(0.5));
     }
     return Commands.parallel(
             ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),

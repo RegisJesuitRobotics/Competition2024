@@ -63,18 +63,18 @@
       "maxWaypointRelativePos": 2.0,
       "constraints": {
         "maxVelocity": 1.375,
-        "maxAcceleration": 9.658,
-        "maxAngularVelocity": 576.5674,
-        "maxAngularAcceleration": 3020.462
+        "maxAcceleration": 6.0,
+        "maxAngularVelocity": 500.0,
+        "maxAngularAcceleration": 2000.0
       }
     }
   ],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.5,
-    "maxAcceleration": 4.0,
-    "maxAngularVelocity": 576.57,
-    "maxAngularAcceleration": 3020.46
+    "maxVelocity": 4.0,
+    "maxAcceleration": 6.0,
+    "maxAngularVelocity": 500.0,
+    "maxAngularAcceleration": 2000.0
   },
   "goalEndState": {
     "velocity": 0,

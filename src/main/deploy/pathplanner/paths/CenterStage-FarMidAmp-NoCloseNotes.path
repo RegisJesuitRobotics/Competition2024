@@ -3,66 +3,71 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.87,
-        "y": 5.8
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 6.869999999999999,
-        "y": 5.8
-      },
-      "isLocked": false,
-      "linkedName": "FarMiddleLeftNote"
-    },
-    {
-      "anchor": {
-        "x": 5.603838582677165,
-        "y": 6.336966363747543
-      },
-      "prevControl": {
-        "x": 6.753341307424617,
-        "y": 6.336966363747543
-      },
-      "nextControl": {
-        "x": 4.405349163937297,
-        "y": 6.336966363747543
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.9045216794137296,
-        "y": 6.27
-      },
-      "prevControl": {
-        "x": 3.555849676514168,
-        "y": 6.274964408771409
-      },
-      "nextControl": {
-        "x": 2.253193682313291,
-        "y": 6.26503559122859
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
         "x": 1.2850623701247395,
         "y": 5.453516007032013
       },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.2850623701247397,
+        "y": 5.453516007032013
+      },
+      "isLocked": false,
+      "linkedName": "CenterStage"
+    },
+    {
+      "anchor": {
+        "x": 5.657051569387574,
+        "y": 6.227974218780084
+      },
       "prevControl": {
-        "x": 1.839143640944374,
-        "y": 6.2853922429318
+        "x": 4.149611502585436,
+        "y": 6.245087746886545
+      },
+      "nextControl": {
+        "x": 6.33691527859793,
+        "y": 6.220255924068165
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.146068876439438,
+        "y": 5.8
+      },
+      "prevControl": {
+        "x": 6.626068876439438,
+        "y": 5.8
+      },
+      "nextControl": {
+        "x": 7.325504791693155,
+        "y": 5.8
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.87,
+        "y": 5.8
+      },
+      "prevControl": {
+        "x": 7.636059988459955,
+        "y": 5.8
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "CenterStage"
+      "linkedName": "FarMidAmpNote"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 3,
+      "waypointRelativePos": 2,
+      "rotationDegrees": 0,
+      "rotateFast": false
+    },
+    {
+      "waypointRelativePos": 1,
       "rotationDegrees": 0,
       "rotateFast": false
     }
@@ -70,10 +75,10 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.5,
-    "maxAcceleration": 4.0,
-    "maxAngularVelocity": 576.57,
-    "maxAngularAcceleration": 3020.46
+    "maxVelocity": 4.0,
+    "maxAcceleration": 6.0,
+    "maxAngularVelocity": 500.0,
+    "maxAngularAcceleration": 2000.0
   },
   "goalEndState": {
     "velocity": 0,

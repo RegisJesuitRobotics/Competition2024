@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.759934064032166,
-        "y": 6.810513317398875
+        "x": 1.771999719492165,
+        "y": 6.860870143510674
       },
       "isLocked": false,
       "linkedName": "CloseAmpNote"
@@ -20,28 +20,22 @@
         "y": 6.605658518079129
       },
       "prevControl": {
-        "x": 1.7435968034396636,
-        "y": 6.814711436993853
+        "x": 1.7575893284454136,
+        "y": 6.851713725864447
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "LeftStage"
+      "linkedName": "AmpStage"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 1,
-      "rotationDegrees": 60.0,
-      "rotateFast": false
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.5,
-    "maxAcceleration": 4.0,
-    "maxAngularVelocity": 576.57,
-    "maxAngularAcceleration": 3020.46
+    "maxVelocity": 4.0,
+    "maxAcceleration": 6.0,
+    "maxAngularVelocity": 500.0,
+    "maxAngularAcceleration": 2000.0
   },
   "goalEndState": {
     "velocity": 0,
@@ -49,7 +43,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Left Stage",
+  "folder": "Amp Stage",
   "previewStartingState": {
     "rotation": 60.0,
     "velocity": 0

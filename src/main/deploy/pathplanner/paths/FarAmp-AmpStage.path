@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.777783073786267,
-        "y": 6.795836627993889
+        "x": 5.802776249071017,
+        "y": 6.928731690796715
       },
       "isLocked": false,
-      "linkedName": "FarLeftNote"
+      "linkedName": "FarAmpNote"
     },
     {
       "anchor": {
-        "x": 2.882598670998993,
-        "y": 6.269449848104506
+        "x": 2.88415283775012,
+        "y": 6.274078307415875
       },
       "prevControl": {
-        "x": 4.988867661857213,
-        "y": 6.552996163438531
+        "x": 3.8902429703007555,
+        "y": 6.318438437802802
       },
       "nextControl": {
-        "x": 2.4132168415472854,
-        "y": 6.206261580697337
+        "x": 2.234740376633301,
+        "y": 6.245444668621503
       },
       "isLocked": false,
       "linkedName": null
@@ -36,12 +36,12 @@
         "y": 6.605658518079129
       },
       "prevControl": {
-        "x": 1.5468844546993328,
-        "y": 6.3386883471762605
+        "x": 1.4708640250613838,
+        "y": 6.495700806216428
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "LeftStage"
+      "linkedName": "AmpStage"
     }
   ],
   "rotationTargets": [
@@ -54,10 +54,10 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.5,
-    "maxAcceleration": 4.0,
-    "maxAngularVelocity": 576.57,
-    "maxAngularAcceleration": 3020.46
+    "maxVelocity": 4.0,
+    "maxAcceleration": 6.0,
+    "maxAngularVelocity": 500.0,
+    "maxAngularAcceleration": 2000.0
   },
   "goalEndState": {
     "velocity": 0,
@@ -65,7 +65,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Left Stage",
+  "folder": "Amp Stage",
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0

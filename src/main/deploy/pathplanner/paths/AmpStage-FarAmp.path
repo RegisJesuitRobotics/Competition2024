@@ -12,7 +12,7 @@
         "y": 6.332736959637958
       },
       "isLocked": false,
-      "linkedName": "LeftStage"
+      "linkedName": "AmpStage"
     },
     {
       "anchor": {
@@ -57,7 +57,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "FarLeftNote"
+      "linkedName": "FarAmpNote"
     }
   ],
   "rotationTargets": [
@@ -87,10 +87,10 @@
   ],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.5,
-    "maxAcceleration": 4.0,
-    "maxAngularVelocity": 576.57,
-    "maxAngularAcceleration": 3020.46
+    "maxVelocity": 4.0,
+    "maxAcceleration": 6.0,
+    "maxAngularVelocity": 500.0,
+    "maxAngularAcceleration": 2000.0
   },
   "goalEndState": {
     "velocity": 0,
@@ -98,7 +98,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Left Stage",
+  "folder": "Amp Stage",
   "previewStartingState": {
     "rotation": 60.0,
     "velocity": 0

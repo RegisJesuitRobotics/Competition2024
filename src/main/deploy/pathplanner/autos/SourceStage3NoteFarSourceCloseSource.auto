@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.29,
-      "y": 5.45
+      "x": 0.74,
+      "y": 4.48
     },
-    "rotation": 0
+    "rotation": -60.0
   },
   "command": {
     "type": "sequential",
@@ -15,6 +15,50 @@
           "type": "named",
           "data": {
             "name": "AutoStart"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "SourceStage-FarSource"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.25
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "FarSource-SourceStage"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeUntilNote"
+                }
+              }
+            ]
           }
         },
         {
@@ -34,7 +78,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CenterStage-CloseMid"
+                        "pathName": "SourceStage-CloseSource"
                       }
                     },
                     {
@@ -46,7 +90,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CloseMid-CenterStage"
+                        "pathName": "CloseSource-SourceStage"
                       }
                     }
                   ]
@@ -70,6 +114,6 @@
       ]
     }
   },
-  "folder": "Center Stage",
+  "folder": "Source Stage",
   "choreoAuto": false
 }

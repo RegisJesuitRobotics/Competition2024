@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.29,
-      "y": 5.45
+      "x": 0.74,
+      "y": 6.596235535725297
     },
-    "rotation": 0
+    "rotation": 57.68778662786143
   },
   "command": {
     "type": "sequential",
@@ -28,34 +28,28 @@
           "data": {
             "commands": [
               {
+                "type": "named",
+                "data": {
+                  "name": "IntakeUntilNote"
+                }
+              },
+              {
                 "type": "sequential",
                 "data": {
                   "commands": [
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CenterStage-CloseMid"
-                      }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.1
+                        "pathName": "AmpStage-CloseAmp"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CloseMid-CenterStage"
+                        "pathName": "CloseAmp-AmpStage"
                       }
                     }
                   ]
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "IntakeUntilNote"
                 }
               }
             ]
@@ -70,6 +64,6 @@
       ]
     }
   },
-  "folder": "Center Stage",
+  "folder": "Amp Stage",
   "choreoAuto": false
 }

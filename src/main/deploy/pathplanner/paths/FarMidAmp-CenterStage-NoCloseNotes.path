@@ -3,32 +3,53 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.45,
-        "y": 7.34
+        "x": 7.87,
+        "y": 5.8
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.35065504462228,
-        "y": 7.797078210590309
+        "x": 6.575070085330886,
+        "y": 6.116115861862884
       },
       "isLocked": false,
-      "linkedName": "AmpMobility"
+      "linkedName": "FarMidAmpNote"
     },
     {
       "anchor": {
-        "x": 4.0633730554453535,
-        "y": 7.696780706115104
+        "x": 5.53567866368496,
+        "y": 6.25164280049141
       },
       "prevControl": {
-        "x": 3.0633730554453535,
-        "y": 7.696780706115104
+        "x": 6.231709611572901,
+        "y": 6.2379726055763705
+      },
+      "nextControl": {
+        "x": 4.137193300293189,
+        "y": 6.279109348582996
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.2850623701247395,
+        "y": 5.453516007032013
+      },
+      "prevControl": {
+        "x": 2.0507524765104828,
+        "y": 5.447091458999263
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "CenterStage"
     }
   ],
   "rotationTargets": [
+    {
+      "waypointRelativePos": 2.0,
+      "rotationDegrees": 0,
+      "rotateFast": false
+    },
     {
       "waypointRelativePos": 1,
       "rotationDegrees": 0,
@@ -49,7 +70,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Center Stage",
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0
