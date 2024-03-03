@@ -6,6 +6,8 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.MagnetHealthValue;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.IntegerTelemetryEntry;
+import frc.robot.utils.ConfigurationUtils;
+import java.util.List;
 
 public class TelemetryCANCoder extends CANcoder {
   private final StatusSignal<Double> positionSignal;
@@ -41,6 +43,16 @@ public class TelemetryCANCoder extends CANcoder {
     magnetHealthSignal = super.getMagnetHealth();
     faultSignal = super.getFaultField();
     stickyFaultSignal = super.getStickyFaultField();
+
+    List.of(
+            positionSignal,
+            velocitySignal,
+            absolutePositionSignal,
+            supplyVoltageSignal,
+            magnetHealthSignal,
+            faultSignal,
+            stickyFaultSignal)
+        .forEach(ConfigurationUtils::explicitlySetSignalFrequency);
 
     telemetryPath += "/";
     positionEntry = new DoubleTelemetryEntry(telemetryPath + "position", tuningMode);
