@@ -105,6 +105,15 @@ public class Autos {
     autoChooser.addOption("drive qr", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kReverse));
     autoChooser.addOption("drive df", driveSubsystem.driveDynamicSysIDCommand(Direction.kForward));
     autoChooser.addOption("drive dr", driveSubsystem.driveDynamicSysIDCommand(Direction.kReverse));
+
+    autoChooser.addOption("Shooter qf", shooterSubsystem.sysIdQuasistatic(Direction.kForward));
+        autoChooser.addOption("Shooter qr", shooterSubsystem.sysIdQuasistatic(Direction.kReverse));
+            autoChooser.addOption("Shooter df", shooterSubsystem.sysIdDynamic(Direction.kForward));
+                        autoChooser.addOption("Shooter dr", shooterSubsystem.sysIdDynamic(Direction.kReverse));
+
+
+
+
   }
 
   public SendableChooser<Command> getAutoChooser() {

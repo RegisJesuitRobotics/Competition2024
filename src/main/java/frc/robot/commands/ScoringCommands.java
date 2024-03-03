@@ -16,7 +16,7 @@ public class ScoringCommands {
 
   public static Command shootSetpointCloseSpeakerCommand(ShooterSubsystem shooterSubsystem) {
 //    return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(10000.0));
-    return shooterSubsystem.setVoltageCommand(10);
+    return shooterSubsystem.runVelocityCommand(1000.0);
   }
 
 

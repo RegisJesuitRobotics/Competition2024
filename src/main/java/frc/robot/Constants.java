@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Unit;
 import frc.robot.telemetry.tunable.gains.TunableArmElevatorFFGains;
 import frc.robot.telemetry.tunable.gains.TunableFFGains;
 import frc.robot.telemetry.tunable.gains.TunablePIDGains;
@@ -184,20 +185,20 @@ public final class Constants {
             STEER_POSITION_PID_GAINS,
             STEER_VELOCITY_FF_GAINS);
 
-    public static final SwerveModuleConfiguration FRONT_LEFT_MODULE_CONFIGURATION =
-        new SwerveModuleConfiguration(
-            12, 8, 17, true, false, 2.43, true, SHARED_SWERVE_MODULE_CONFIGURATION);
     public static final SwerveModuleConfiguration FRONT_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            13, 5, 18, true, false, 0.34, true, SHARED_SWERVE_MODULE_CONFIGURATION);
-
-    public static final SwerveModuleConfiguration BACK_LEFT_MODULE_CONFIGURATION =
+            12, 8, 17, true, false, 2.462, true, SHARED_SWERVE_MODULE_CONFIGURATION);
+    public static final SwerveModuleConfiguration FRONT_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            14, 10, 19, true, false, 0.54, true, SHARED_SWERVE_MODULE_CONFIGURATION);
+            13, 5, 18, false, false, 0.3497+Units.degreesToRadians(180), true, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            15, 3, 20, true, false, 0.73, true, SHARED_SWERVE_MODULE_CONFIGURATION);
+            14, 10, 19, true, false, 0.486, true, SHARED_SWERVE_MODULE_CONFIGURATION);
+
+    public static final SwerveModuleConfiguration BACK_LEFT_MODULE_CONFIGURATION =
+        new SwerveModuleConfiguration(
+            15, 3, 20, true,false, 0.712, true, SHARED_SWERVE_MODULE_CONFIGURATION);
   }
 
   public static class AutoConstants {
