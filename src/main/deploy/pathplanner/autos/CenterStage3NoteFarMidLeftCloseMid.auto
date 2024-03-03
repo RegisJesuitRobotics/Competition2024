@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.74,
-      "y": 6.596235535725297
+      "x": 1.29,
+      "y": 5.45
     },
-    "rotation": 57.68778662786143
+    "rotation": 0
   },
   "command": {
     "type": "sequential",
@@ -28,28 +28,34 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "IntakeUntilNote"
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "LeftStage-FarLeft"
+                        "pathName": "CenterStage-FarMidLeft"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.25
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "FarLeft-LeftStage"
+                        "pathName": "FarMidLeft-CenterStage"
                       }
                     }
                   ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeUntilNote"
                 }
               }
             ]
@@ -66,28 +72,34 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "IntakeUntilNote"
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "LeftStage-CloseAmp"
+                        "pathName": "CenterStage-CloseMid"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.25
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CloseAmp-LeftStage"
+                        "pathName": "CloseMid-CenterStage"
                       }
                     }
                   ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeUntilNote"
                 }
               }
             ]
