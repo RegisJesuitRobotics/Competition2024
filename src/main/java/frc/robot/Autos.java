@@ -87,13 +87,15 @@ public class Autos {
 
     PathPlannerLogging.setLogActivePathCallback(
         (path) -> trajectoryTelemetryEntry.append(path.toArray(new Pose2d[0])));
-    PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
-      driveSubsystem.resetOdometry(pose);
-      desiredPoseTelemetryEntry.append(pose);
-    });
+    PathPlannerLogging.setLogTargetPoseCallback(
+        (pose) -> {
+          driveSubsystem.resetOdometry(pose);
+          desiredPoseTelemetryEntry.append(pose);
+        });
 
     autoChooser = AutoBuilder.buildAutoChooser("JustProbe");
-    autoChooser.addOption("elevator 4 in", elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(4)));
+    autoChooser.addOption(
+        "elevator 4 in", elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(4)));
     autoChooser.addOption("slowFeed", intakeSubsystem.setIntakeVoltageCommand(1));
     autoChooser.addOption("transport voltage", transportSubsystem.setVoltageCommand(4));
     // autoChooser.addOption("elevator", elevatorSubsystem.setFollowerMotor(3));
@@ -102,19 +104,17 @@ public class Autos {
     autoChooser.addOption("elevator df", elevatorSubsystem.sysIdDynamic(Direction.kForward));
     autoChooser.addOption("elevator dr", elevatorSubsystem.sysIdDynamic(Direction.kReverse));
     autoChooser.addOption("elevator fol", elevatorSubsystem.setFollowerCommand(3));
-    autoChooser.addOption("drive qf", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kForward));
-    autoChooser.addOption("drive qr", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kReverse));
+    autoChooser.addOption(
+        "drive qf", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kForward));
+    autoChooser.addOption(
+        "drive qr", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kReverse));
     autoChooser.addOption("drive df", driveSubsystem.driveDynamicSysIDCommand(Direction.kForward));
     autoChooser.addOption("drive dr", driveSubsystem.driveDynamicSysIDCommand(Direction.kReverse));
 
     autoChooser.addOption("Shooter qf", shooterSubsystem.sysIdQuasistatic(Direction.kForward));
-        autoChooser.addOption("Shooter qr", shooterSubsystem.sysIdQuasistatic(Direction.kReverse));
-            autoChooser.addOption("Shooter df", shooterSubsystem.sysIdDynamic(Direction.kForward));
-                        autoChooser.addOption("Shooter dr", shooterSubsystem.sysIdDynamic(Direction.kReverse));
-
-
-
-
+    autoChooser.addOption("Shooter qr", shooterSubsystem.sysIdQuasistatic(Direction.kReverse));
+    autoChooser.addOption("Shooter df", shooterSubsystem.sysIdDynamic(Direction.kForward));
+    autoChooser.addOption("Shooter dr", shooterSubsystem.sysIdDynamic(Direction.kReverse));
   }
 
   public SendableChooser<Command> getAutoChooser() {

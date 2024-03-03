@@ -1,7 +1,5 @@
 package frc.robot;
 
-import org.littletonrobotics.urcl.URCL;
-
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -13,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.MiscRobotTelemetryAndAlerts;
 import frc.robot.telemetry.wrappers.TelemetryPowerDistribution;
+import org.littletonrobotics.urcl.URCL;
 
 /**
  * The VM is configured to automatically run this class, and to call the methods corresponding to

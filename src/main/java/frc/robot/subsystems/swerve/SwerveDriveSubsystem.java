@@ -2,10 +2,6 @@ package frc.robot.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.SwerveConstants.*;
-import static frc.robot.FieldConstants.Stage.blueStagingLocations;
-import static frc.robot.FieldConstants.Stage.redStagingLocations;
-import static frc.robot.FieldConstants.StagingLocations.ampThreshold;
-import static frc.robot.FieldConstants.StagingLocations.stagingThreshold;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignal;
@@ -16,7 +12,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -26,16 +21,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.MiscConstants;
-import frc.robot.FieldConstants;
 import frc.robot.Robot;
 import frc.robot.telemetry.types.*;
 import frc.robot.telemetry.wrappers.TelemetryPigeon2;
 import frc.robot.utils.Alert;
 import frc.robot.utils.ConfigurationUtils;
 import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
-import frc.robot.utils.RaiderMathUtils;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import org.photonvision.EstimatedRobotPose;
 
@@ -60,14 +52,18 @@ public class SwerveDriveSubsystem extends SubsystemBase {
           new SysIdRoutine.Mechanism(
               (Measure<Voltage> voltage) -> setCharacterizationVoltage(voltage.in(Volts)),
               null,
-              this, "SwerveDrive"));
+              this,
+              "SwerveDrive"));
 
   private final SysIdRoutine steerPositionSysId =
       new SysIdRoutine(
           new SysIdRoutine.Config(
               null, null, null, (state) -> SignalLogger.writeString("State", state.toString())),
           new SysIdRoutine.Mechanism(
-              (Measure<Voltage> voltage) -> setRawVolts(0.0, voltage.in(Volts)), null, this, "SwerveSteer"));
+              (Measure<Voltage> voltage) -> setRawVolts(0.0, voltage.in(Volts)),
+              null,
+              this,
+              "SwerveSteer"));
 
   private final Alert pigeonConfigurationAlert =
       new Alert("Pigeon failed to initialize", Alert.AlertType.ERROR);
@@ -231,8 +227,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_VELOCITY_METERS_SECOND);
     for (int i = 0; i < modules.length; i++) {
-      modules[i].setDesiredState(
-          desiredStates[i], activeSteer, openLoop);
+      modules[i].setDesiredState(desiredStates[i], activeSteer, openLoop);
     }
   }
 

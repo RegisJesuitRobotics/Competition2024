@@ -214,7 +214,7 @@ public class SwerveModule {
     motorConfiguration.Feedback.FeedbackRemoteSensorID = config.steerEncoderID();
     motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
     motorConfiguration.Feedback.RotorToSensorRatio = config.sharedConfiguration().steerGearRatio();
-        motorConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
+    motorConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
 
     config.sharedConfiguration().steerPositionPIDGains().setSlot(motorConfiguration.Slot0);
     config.sharedConfiguration().steerVelocityFFGains().setSlot(motorConfiguration.Slot0);
@@ -282,7 +282,10 @@ public class SwerveModule {
         Units.radiansToRotations(config.steerOffsetRadians());
     encoderConfiguration.MagnetSensor.AbsoluteSensorRange =
         AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
-    encoderConfiguration.MagnetSensor.SensorDirection = config.steerEncoderInverted() ? SensorDirectionValue.Clockwise_Positive : SensorDirectionValue.CounterClockwise_Positive;
+    encoderConfiguration.MagnetSensor.SensorDirection =
+        config.steerEncoderInverted()
+            ? SensorDirectionValue.Clockwise_Positive
+            : SensorDirectionValue.CounterClockwise_Positive;
 
     absoluteSteerPositionSignal = absoluteSteerEncoder.getAbsolutePosition();
 
@@ -297,13 +300,23 @@ public class SwerveModule {
         faultRecorder.run("Encoder configuration"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordCTRE(
-        () -> absoluteSteerEncoder.getPosition().setUpdateFrequency(config.sharedConfiguration().odometryFrequency()),
-        () -> absoluteSteerEncoder.getPosition().getAppliedUpdateFrequency() == config.sharedConfiguration().odometryFrequency(),
+        () ->
+            absoluteSteerEncoder
+                .getPosition()
+                .setUpdateFrequency(config.sharedConfiguration().odometryFrequency()),
+        () ->
+            absoluteSteerEncoder.getPosition().getAppliedUpdateFrequency()
+                == config.sharedConfiguration().odometryFrequency(),
         faultRecorder.run("Position signal update frequency"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordCTRE(
-        () -> absoluteSteerEncoder.getVelocity().setUpdateFrequency(config.sharedConfiguration().odometryFrequency()),
-        () -> absoluteSteerEncoder.getVelocity().getAppliedUpdateFrequency() == config.sharedConfiguration().odometryFrequency(),
+        () ->
+            absoluteSteerEncoder
+                .getVelocity()
+                .setUpdateFrequency(config.sharedConfiguration().odometryFrequency()),
+        () ->
+            absoluteSteerEncoder.getVelocity().getAppliedUpdateFrequency()
+                == config.sharedConfiguration().odometryFrequency(),
         faultRecorder.run("Velocity signal update frequency"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordCTRE(

@@ -36,7 +36,9 @@ public class ShooterSubsystem extends SubsystemBase {
   private final TelemetryCANSparkFlex flywheelMotor =
       new TelemetryCANSparkFlex(
           SHOOTER_ID, CANSparkLowLevel.MotorType.kBrushless, "/shooter/motor", true);
-private final TelemetryCANSparkFlex flywheelMotorFollower = new TelemetryCANSparkFlex(SHOOTER_FOLLOWER_ID, CANSparkLowLevel.MotorType.kBrushless, "/shooter/follower", false);
+  private final TelemetryCANSparkFlex flywheelMotorFollower =
+      new TelemetryCANSparkFlex(
+          SHOOTER_FOLLOWER_ID, CANSparkLowLevel.MotorType.kBrushless, "/shooter/follower", false);
   private RelativeEncoder flywheelEncoder;
 
   private final TunableTelemetryPIDController pidController =
@@ -106,37 +108,36 @@ private final TelemetryCANSparkFlex flywheelMotorFollower = new TelemetryCANSpar
         faultRecorder.run("Burn flash"),
         Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-
     ConfigurationUtils.applyCheckRecordRev(
-            () -> flywheelMotorFollower.setCANTimeout(250),
-            () -> true,
-            faultRecorderFollower.run("CAN timeout"),
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+        () -> flywheelMotorFollower.setCANTimeout(250),
+        () -> true,
+        faultRecorderFollower.run("CAN timeout"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
-            flywheelMotorFollower::restoreFactoryDefaults,
-            () -> true,
-            faultRecorderFollower.run("Factory defaults"),
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+        flywheelMotorFollower::restoreFactoryDefaults,
+        () -> true,
+        faultRecorderFollower.run("Factory defaults"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
-            () -> flywheelMotorFollower.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
-            () -> true,
-            faultRecorderFollower.run("Current limits"),
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+        () -> flywheelMotorFollower.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
+        () -> true,
+        faultRecorderFollower.run("Current limits"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecord(
-            () -> flywheelMotorFollower.setInverted(INVERTED_FOLLOWER),
-            () -> flywheelMotorFollower.getInverted() == INVERTED_FOLLOWER,
-            faultRecorderFollower.run("Inverted"),
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+        () -> flywheelMotorFollower.setInverted(INVERTED_FOLLOWER),
+        () -> flywheelMotorFollower.getInverted() == INVERTED_FOLLOWER,
+        faultRecorderFollower.run("Inverted"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
-            () -> flywheelMotorFollower.setIdleMode(CANSparkMax.IdleMode.kCoast),
-            () -> flywheelMotorFollower.getIdleMode() == CANSparkMax.IdleMode.kCoast,
-            faultRecorder.run("Idle mode"),
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+        () -> flywheelMotorFollower.setIdleMode(CANSparkMax.IdleMode.kCoast),
+        () -> flywheelMotorFollower.getIdleMode() == CANSparkMax.IdleMode.kCoast,
+        faultRecorder.run("Idle mode"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
-            flywheelMotor::burnFlashWithDelay,
-            () -> true,
-            faultRecorder.run("Burn flash"),
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+        flywheelMotor::burnFlashWithDelay,
+        () -> true,
+        faultRecorder.run("Burn flash"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
     flywheelMotorFollower.follow(flywheelMotor, INVERTED_FOLLOWER);
     ConfigurationUtils.postDeviceConfig(

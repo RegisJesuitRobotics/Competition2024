@@ -36,12 +36,14 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   private static final Alert elevatorAlert =
       new Alert("Elevator main motor had a fault initializing", Alert.AlertType.ERROR);
-  private static final Alert elevatorFollowerAlert = new Alert("Elevator follower motor had a fault initializing", Alert.AlertType.ERROR);
+  private static final Alert elevatorFollowerAlert =
+      new Alert("Elevator follower motor had a fault initializing", Alert.AlertType.ERROR);
 
   private final TelemetryCANSparkMax elevatorMotor =
       new TelemetryCANSparkMax(ELEVATOR_MOTOR_ID, MotorType.kBrushless, "/elevator/motor", true);
-  private final TelemetryCANSparkMax elevatorMotorFollower = new TelemetryCANSparkMax(ELEVATOR_FOLLOWER_MOTOR_ID, MotorType.kBrushless, "/elevator/followerMotor", true);
-
+  private final TelemetryCANSparkMax elevatorMotorFollower =
+      new TelemetryCANSparkMax(
+          ELEVATOR_FOLLOWER_MOTOR_ID, MotorType.kBrushless, "/elevator/followerMotor", true);
 
   private final TunableTelemetryProfiledPIDController controller =
       new TunableTelemetryProfiledPIDController(
@@ -55,7 +57,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   private final DoubleTelemetryEntry voltageReq =
       new DoubleTelemetryEntry("/elevator/voltageReq", MiscConstants.TUNING_MODE);
-    
 
   private final BooleanTelemetryEntry isHomedEntry =
       new BooleanTelemetryEntry("/elevator/isHomed", true);
@@ -63,8 +64,10 @@ public class ElevatorSubsystem extends SubsystemBase {
       new BooleanTelemetryEntry("/elevator/bottomLimit", MiscConstants.TUNING_MODE);
   private final EventTelemetryEntry elevatorEventEntry =
       new EventTelemetryEntry("/elevator/main/events");
-  private final EventTelemetryEntry elevatorFollowerEventEntry = new EventTelemetryEntry("elevator/follower/events");
-  private final DoubleTelemetryEntry followerVoltageReq = new DoubleTelemetryEntry("/elevator/followerReq", true);
+  private final EventTelemetryEntry elevatorFollowerEventEntry =
+      new EventTelemetryEntry("elevator/follower/events");
+  private final DoubleTelemetryEntry followerVoltageReq =
+      new DoubleTelemetryEntry("/elevator/followerReq", true);
 
   private boolean isHomed = false;
 
@@ -78,7 +81,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   private void configMotors() {
     StringFaultRecorder faultRecorder = new StringFaultRecorder();
     StringFaultRecorder followerFaultRecorder = new StringFaultRecorder();
-
 
     ConfigurationUtils.applyCheckRecordRev(
         () -> elevatorMotor.setCANTimeout(250),
@@ -132,7 +134,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         faultRecorder.getFaultString());
     elevatorAlert.set(faultRecorder.hasFault());
 
-
     ConfigurationUtils.applyCheckRecordRev(
         () -> elevatorMotorFollower.setCANTimeout(250),
         () -> true,
@@ -178,18 +179,13 @@ public class ElevatorSubsystem extends SubsystemBase {
         faultRecorder.run("Burn flash"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    
-
-
-
     // elevatorMotorFollower.follow(elevatorMotor, FOLLOWER_INVERTED);
     ConfigurationUtils.postDeviceConfig(
-            followerFaultRecorder.hasFault(),
-            elevatorEventEntry::append,
-            "Elevator follower motor",
-            faultRecorder.getFaultString());
+        followerFaultRecorder.hasFault(),
+        elevatorEventEntry::append,
+        "Elevator follower motor",
+        faultRecorder.getFaultString());
     elevatorAlert.set(faultRecorder.hasFault());
-
   }
 
   public boolean atBottomLimit() {
@@ -199,14 +195,14 @@ public class ElevatorSubsystem extends SubsystemBase {
   public boolean atGoal() {
     return controller.atGoal();
   }
-  public Command setFollowerCommand(double voltage){
+
+  public Command setFollowerCommand(double voltage) {
     return this.run(() -> elevatorMotorFollower.setVoltage(voltage));
   }
 
   public void setEncoderPosition(double position) {
     elevatorEncoder.setPosition(position);
     elevatorFollowerEncoder.setPosition(position);
-
   }
 
   public void setVoltage(double voltage) {
@@ -228,8 +224,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   public boolean isHomed() {
     return isHomed;
   }
-
-  
 
   public Command setElevatorPositionCommand(double position) {
     double positionClamped = MathUtil.clamp(position, ELEVATOR_MIN_HEIGHT, ELEVATOR_MAX_HEIGHT);

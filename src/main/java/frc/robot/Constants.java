@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Unit;
 import frc.robot.telemetry.tunable.gains.TunableArmElevatorFFGains;
 import frc.robot.telemetry.tunable.gains.TunableFFGains;
 import frc.robot.telemetry.tunable.gains.TunablePIDGains;
@@ -129,22 +128,12 @@ public final class Constants {
     public static final TunablePIDGains DRIVE_VELOCITY_PID_GAINS =
         new TunablePIDGains("/gains/drive", 0.1581, 0.0, 0.0, MiscConstants.TUNING_MODE);
     public static final TunableFFGains DRIVE_VELOCITY_FF_GAINS =
-        new TunableFFGains(
-            "/gains/drive",
-            0.12798,
-            0.12061,
-            0.0018667,
-            MiscConstants.TUNING_MODE);
+        new TunableFFGains("/gains/drive", 0.12798, 0.12061, 0.0018667, MiscConstants.TUNING_MODE);
 
     public static final TunablePIDGains STEER_POSITION_PID_GAINS =
         new TunablePIDGains("/gains/steer", 40, 0.0, 0, MiscConstants.TUNING_MODE);
     public static final TunableFFGains STEER_VELOCITY_FF_GAINS =
-        new TunableFFGains(
-            "/gains/steer",
-            0.25096,
-            2.4255,
-            0.029622,
-            MiscConstants.TUNING_MODE);
+        new TunableFFGains("/gains/steer", 0.25096, 2.4255, 0.029622, MiscConstants.TUNING_MODE);
 
     // Left right distance between center of wheels
     public static final double TRACKWIDTH_METERS = Units.inchesToMeters(22.75);
@@ -190,7 +179,14 @@ public final class Constants {
             12, 8, 17, true, false, 2.462, true, SHARED_SWERVE_MODULE_CONFIGURATION);
     public static final SwerveModuleConfiguration FRONT_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            13, 5, 18, false, false, 0.3497+Units.degreesToRadians(180), true, SHARED_SWERVE_MODULE_CONFIGURATION);
+            13,
+            5,
+            18,
+            false,
+            false,
+            0.3497 + Units.degreesToRadians(180),
+            true,
+            SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
@@ -198,7 +194,7 @@ public final class Constants {
 
     public static final SwerveModuleConfiguration BACK_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            15, 3, 20, true,false, 0.712, true, SHARED_SWERVE_MODULE_CONFIGURATION);
+            15, 3, 20, true, false, 0.712, true, SHARED_SWERVE_MODULE_CONFIGURATION);
   }
 
   public static class AutoConstants {
