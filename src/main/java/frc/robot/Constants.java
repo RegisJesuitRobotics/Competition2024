@@ -152,10 +152,10 @@ public final class Constants {
           new Translation2d(-WHEELBASE_METERS / 2.0, -TRACKWIDTH_METERS / 2.0)
         };
 
-    public static final double MAX_VELOCITY_METERS_SECOND = 4.023;
+    public static final double MAX_VELOCITY_METERS_SECOND = 4.3;
 
-    public static final double MAX_ANGULAR_VELOCITY_RADIANS_SECOND = 10.063;
-    public static final double MAX_ANGULAR_ACCELERATION_RADIANS_SECOND_SQUARED = 52.717;
+    public static final double MAX_ANGULAR_VELOCITY_RADIANS_SECOND = 10;
+    public static final double MAX_ANGULAR_ACCELERATION_RADIANS_SECOND_SQUARED = 36;
 
     public static final int ODOMETRY_FREQUENCY = 200;
 
@@ -294,7 +294,7 @@ public final class Constants {
     private TeleopConstants() {}
 
     public static final boolean OPEN_LOOP_DRIVETRAIN = true;
-    public static final double TRANSLATION_RATE_LIMIT_METERS_SECOND_SQUARED = 10.0;
+    public static final double TRANSLATION_RATE_LIMIT_METERS_SECOND_SQUARED = 8;
     public static final double ANGULAR_RATE_LIMIT_RADIANS_SECOND_SQUARED = 30;
     public static final double MINIMUM_VELOCITY_METERS_SECOND = 0.10;
     public static final double MINIMUM_ANGULAR_VELOCITY_RADIANS_SECOND = 0.10;

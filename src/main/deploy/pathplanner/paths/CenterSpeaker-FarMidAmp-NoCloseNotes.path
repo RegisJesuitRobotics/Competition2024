@@ -1,0 +1,95 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.2850623701247395,
+        "y": 5.453516007032013
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.2850623701247397,
+        "y": 5.453516007032013
+      },
+      "isLocked": false,
+      "linkedName": "CenterSpeaker"
+    },
+    {
+      "anchor": {
+        "x": 5.657051569387574,
+        "y": 6.227974218780084
+      },
+      "prevControl": {
+        "x": 4.149611502585436,
+        "y": 6.245087746886545
+      },
+      "nextControl": {
+        "x": 6.33691527859793,
+        "y": 6.220255924068165
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.146068876439438,
+        "y": 5.8
+      },
+      "prevControl": {
+        "x": 6.626068876439438,
+        "y": 5.8
+      },
+      "nextControl": {
+        "x": 7.325504791693155,
+        "y": 5.8
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.87,
+        "y": 5.8
+      },
+      "prevControl": {
+        "x": 7.636059988459955,
+        "y": 5.8
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "FarMidAmpNote"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 2,
+      "rotationDegrees": 0,
+      "rotateFast": false
+    },
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": 0,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 6.0,
+    "maxAngularVelocity": 500.0,
+    "maxAngularAcceleration": 2000.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "Center Speaker",
+  "previewStartingState": {
+    "rotation": 0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

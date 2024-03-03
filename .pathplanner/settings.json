@@ -3,14 +3,14 @@
   "robotLength": 0.768,
   "holonomicMode": true,
   "pathFolders": [
-    "Center Stage",
-    "Amp Stage",
-    "Source Stage"
+    "Amp Speaker",
+    "Center Speaker",
+    "Source Speaker"
   ],
   "autoFolders": [
-    "Center Stage",
-    "Amp Stage",
-    "Source Stage"
+    "Amp Speaker",
+    "Center Speaker",
+    "Source Speaker"
   ],
   "defaultMaxVel": 4.0,
   "defaultMaxAccel": 6.0,
