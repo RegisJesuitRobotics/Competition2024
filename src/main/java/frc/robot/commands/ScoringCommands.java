@@ -16,8 +16,8 @@ public class ScoringCommands {
 
   public static Command shootSetpointCloseSpeakerCommand(ShooterSubsystem shooterSubsystem) {
     //    return
-    // shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(10000.0));
-    return shooterSubsystem.runVelocityCommand(1000.0);
+    return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(6000.0));
+    //    return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(0));
   }
 
   public static Command shootSetpointZeroCommand(ShooterSubsystem shooterSubsystem) {
@@ -25,7 +25,7 @@ public class ScoringCommands {
   }
 
   public static Command shootSetpointIdleCommand(ShooterSubsystem shooterSubsystem) {
-    return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(5000.0));
+    return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(1500.0));
   }
 
   public static Command shootSetpointAmpCommand(ShooterSubsystem shooterSubsystem) {

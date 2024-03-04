@@ -20,20 +20,28 @@ public final class Constants {
     public static final double AMP_ELEVATOR_HEIGHT = Units.inchesToMeters(3.5);
     public static final double AMP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(105.0);
 
-    public static final double INTAKE_ELEVATOR_HEIGHT = Units.inchesToMeters(1.5);
+    public static final double INTAKE_ELEVATOR_HEIGHT = Units.inchesToMeters(2.5);
     public static final double INTAKE_WRIST_ANGLE_RADIANS = Units.degreesToRadians(0.0);
 
     public static final double CLOSE_SPEAKER_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
-    public static final double CLOSE_SPEAKER_WRIST_ANGLE_RADIANS = Units.degreesToRadians(7.5);
+    public static final double CLOSE_SPEAKER_WRIST_ANGLE_RADIANS =
+        WristConstants.WRIST_MIN.getRadians() + Units.degreesToRadians(10);
+
+    public static final double CLIMB_UP_ELEVATOR_HEIGHT = Units.inchesToMeters(11.0);
+    public static final double CLIMB_UP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(30.0);
+
+    public static final double CLIMB_DOWN_ELEVATOR_HEIGHT = Units.inchesToMeters(0.0);
+    public static final double CLIMB_DOWN_WRIST_ANGLE_RADIANS =
+        WristConstants.WRIST_MIN.getRadians();
   }
 
   public static class IntakeConstants {
-    public static final double INTAKE_VOLTAGE = 11;
+    public static final double INTAKE_VOLTAGE = 9;
     public static final int INTAKE_MOTOR_ID = 6;
     public static final boolean INVERTED = false;
 
     public static final int STALL_MOTOR_CURRENT = 40;
-    public static final int FREE_MOTOR_CURRENT = 20;
+    public static final int FREE_MOTOR_CURRENT = 30;
   }
 
   public static class SlapdownConstants {
@@ -47,17 +55,17 @@ public final class Constants {
     public static final double FEEDER_GEAR_RATIO = 5.0;
 
     public static final int FEED_STALL_MOTOR_CURRENT = 20;
-    public static final int FEED_FREE_MOTOR_CURRENT = 10;
+    public static final int FEED_FREE_MOTOR_CURRENT = 20;
 
-    public static final int ROTATION_STALL_MOTOR_CURRENT = 20;
-    public static final int ROTATION_FREE_MOTOR_CURRENT = 10;
+    public static final int ROTATION_STALL_MOTOR_CURRENT = 25;
+    public static final int ROTATION_FREE_MOTOR_CURRENT = 20;
 
     public static final double ROTATION_UP_ANGLE = -0.0648 - Units.degreesToRadians(90);
-    public static final double ROTATION_DOWN_ANGLE = 0.75;
+    public static final double ROTATION_DOWN_ANGLE = 0.70;
 
     public static final int ROTATION_LIMIT_SWITCH_ID = 5;
 
-    public static final double FEEDER_VOLTAGE = (7);
+    public static final double FEEDER_VOLTAGE = (9);
 
     public static final TunablePIDGains ROTATION_GAINS =
         new TunablePIDGains("/slapdown/rotation/gains", 2.5, 0, 0, MiscConstants.TUNING_MODE);
@@ -78,36 +86,31 @@ public final class Constants {
     public static final boolean MAIN_INVERTED = false;
     public static final boolean FOLLOWER_INVERTED = false;
 
-    public static final double ELEVATOR_MAX_HEIGHT = Units.inchesToMeters(10.5);
+    public static final double ELEVATOR_MAX_HEIGHT = Units.inchesToMeters(11.0);
     public static final double ELEVATOR_MIN_HEIGHT = Units.inchesToMeters(0.0);
 
-    // TODO: Figure these out
     public static final int STALL_MOTOR_CURRENT = 45;
-    public static final int FREE_MOTOR_CURRENT = 25;
+    public static final int FREE_MOTOR_CURRENT = 40;
 
     public static final int ELEVATOR_MOTOR_ID = 4;
     public static final int ELEVATOR_FOLLOWER_MOTOR_ID = 22;
 
     public static final int ELEVATOR_LIMIT_SWITCH = 6;
 
-    public static final double ELEVATOR_GEAR_RATIO = 5.0 * 4.0;
+    public static final double ELEVATOR_GEAR_RATIO = 4.0 * 4.0 * 3.0;
     public static final double METERS_PER_REV =
         Units.inchesToMeters((Math.PI * 1.75) / (ELEVATOR_GEAR_RATIO));
 
-    // TODO: Do These PID GAINS
     public static final TunablePIDGains PID_GAINS =
-        new TunablePIDGains("gains/elevator", 62, 0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("gains/elevator", 40, 0, 0.0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
         new TunableTrapezoidalProfileGains(
-            "/gains/extension",
-            Units.inchesToMeters(28),
-            Units.inchesToMeters(125),
-            MiscConstants.TUNING_MODE);
+            "/gains/extension", 0.27, 0.33, MiscConstants.TUNING_MODE);
 
     // TODO: TUNE FF GAINS
     public static final TunableArmElevatorFFGains FF_GAINS =
         new TunableArmElevatorFFGains(
-            "gains/elevator", 0.11277, 0.055066, 18.193, 2.8124, MiscConstants.TUNING_MODE);
+            "gains/elevator", 0.11428, 0.049284, 43.755, 6.6756, MiscConstants.TUNING_MODE);
   }
 
   public static class SwerveConstants {
@@ -126,14 +129,16 @@ public final class Constants {
 
     // 0.47
     public static final TunablePIDGains DRIVE_VELOCITY_PID_GAINS =
-        new TunablePIDGains("/gains/drive", 0.1581, 0.0, 0.0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/drive", 0.13282, 0.0, 0.0, MiscConstants.TUNING_MODE);
+    //    public static final TunablePIDGains DRIVE_VELOCITY_PID_GAINS =
+    //        new TunablePIDGains("/gains/drive", 0.0, 0.0, 0.0, MiscConstants.TUNING_MODE);
     public static final TunableFFGains DRIVE_VELOCITY_FF_GAINS =
-        new TunableFFGains("/gains/drive", 0.12798, 0.12061, 0.0018667, MiscConstants.TUNING_MODE);
+        new TunableFFGains("/gains/drive", 0.12881, 0.11817, 0.0093051, MiscConstants.TUNING_MODE);
 
     public static final TunablePIDGains STEER_POSITION_PID_GAINS =
-        new TunablePIDGains("/gains/steer", 40, 0.0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/steer", 30, 0.0, 0, MiscConstants.TUNING_MODE);
     public static final TunableFFGains STEER_VELOCITY_FF_GAINS =
-        new TunableFFGains("/gains/steer", 0.25096, 2.4255, 0.029622, MiscConstants.TUNING_MODE);
+        new TunableFFGains("/gains/steer", 0.27012, 2.2037, 0.059669, MiscConstants.TUNING_MODE);
 
     // Left right distance between center of wheels
     public static final double TRACKWIDTH_METERS = Units.inchesToMeters(22.75);
@@ -174,27 +179,20 @@ public final class Constants {
             STEER_POSITION_PID_GAINS,
             STEER_VELOCITY_FF_GAINS);
 
-    public static final SwerveModuleConfiguration FRONT_RIGHT_MODULE_CONFIGURATION =
-        new SwerveModuleConfiguration(
-            12, 8, 17, true, false, 2.462, true, SHARED_SWERVE_MODULE_CONFIGURATION);
     public static final SwerveModuleConfiguration FRONT_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            13,
-            5,
-            18,
-            false,
-            false,
-            0.3497 + Units.degreesToRadians(180),
-            true,
-            SHARED_SWERVE_MODULE_CONFIGURATION);
-
-    public static final SwerveModuleConfiguration BACK_RIGHT_MODULE_CONFIGURATION =
+            12, 8, 17, true, true, -2.46203, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+    public static final SwerveModuleConfiguration FRONT_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            14, 10, 19, true, false, 0.486, true, SHARED_SWERVE_MODULE_CONFIGURATION);
+            13, 5, 18, true, true, -0.3481, false, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            15, 3, 20, true, false, 0.712, true, SHARED_SWERVE_MODULE_CONFIGURATION);
+            14, 10, 19, true, true, -0.498, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+
+    public static final SwerveModuleConfiguration BACK_RIGHT_MODULE_CONFIGURATION =
+        new SwerveModuleConfiguration(
+            15, 3, 20, true, true, -0.71636, false, SHARED_SWERVE_MODULE_CONFIGURATION);
   }
 
   public static class AutoConstants {
@@ -227,13 +225,10 @@ public final class Constants {
   public static class WristConstants {
     public static final double WRIST_GEAR_RATIO = 25.0 * 42.0 / 18.0;
 
-    public static final Rotation2d WRIST_AMP_POSITION = new Rotation2d(Units.degreesToRadians(55));
-
-    // TODO FIND WRIST CLAMPS
     public static final Rotation2d WRIST_MAX = new Rotation2d(Units.degreesToRadians(60));
-    public static final Rotation2d WRIST_MIN = Rotation2d.fromRadians(-0.027);
+    public static final Rotation2d WRIST_MIN = Rotation2d.fromRadians(0.12799356352873126);
 
-    public static final double WRIST_OFFSET = -0.288 + Units.degreesToRadians(90.0);
+    public static final double WRIST_OFFSET = 0.805 + Math.PI / 2.0;
     public static final int WRIST_ENCODER_PORT = 7;
 
     public static final int WRIST_MOTOR_ID = 2;
@@ -241,14 +236,9 @@ public final class Constants {
     public static final int STALL_MOTOR_CURRENT = 45;
     public static final int FREE_MOTOR_CURRENT = 25;
 
-    // TODO: TUNE PID & TRAP & FF
-    // New gains, 0.43784, 0.0383, 0.76791, 0.55677
     public static final TunableArmElevatorFFGains WRIST_FF_GAINS =
         new TunableArmElevatorFFGains(
             "/wrist/ffGains", .16624, 0.35068, 1.0512, 0.2769, MiscConstants.TUNING_MODE);
-    //    public static final TunablePIDGains WRIST_PID_GAINS =
-    //        new TunablePIDGains("/wrist/pidGains", 56.599, 0, 4.8897, MiscConstants.TUNING_MODE);
-    //
     public static final TunablePIDGains WRIST_PID_GAINS =
         new TunablePIDGains("/wrist/pidGains", 2, 0, 0, MiscConstants.TUNING_MODE);
 
@@ -263,11 +253,11 @@ public final class Constants {
   public static class TransportConstants {
     public static final int TRANSPORT_MOTOR_ID = 1;
     public static final boolean INVERTED = true;
-    public static final int STALL_MOTOR_CURRENT = 45;
-    public static final int FREE_MOTOR_CURRENT = 25;
-    public static final double TRANSPORT_LOAD_VOLTAGE = 2.0;
+    public static final int STALL_MOTOR_CURRENT = 30;
+    public static final int FREE_MOTOR_CURRENT = 20;
+    public static final double TRANSPORT_LOAD_VOLTAGE = 2.5;
 
-    public static final double TRANSPORT_CLOSE_SPEAKER_VOLTAGE = 12;
+    public static final double TRANSPORT_CLOSE_SPEAKER_VOLTAGE = 8;
     public static final int SHOOTER_SENSOR_ID = 8;
   }
 
@@ -280,14 +270,12 @@ public final class Constants {
     public static final int SHOOTER_ID = 11;
     public static final int SHOOTER_FOLLOWER_ID = 23;
 
-    public static final double SHOOTING_RPM = 30;
-
     public static final double SHOOTER_GEAR_RATIO = 1.0 / 2.0;
 
     public static TunablePIDGains SHOOTER_PID_GAINS =
-        new TunablePIDGains("/shooter/pid", 0.0001, 0, 0.0005, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/shooter/pid", 0.000, 0, 0.000, MiscConstants.TUNING_MODE);
     public static TunableFFGains SHOOTER_FF_GAINS =
-        new TunableFFGains("/shooter/FF", 0.39383, 0.0089833, 0.0010833, MiscConstants.TUNING_MODE);
+        new TunableFFGains("/shooter/FF", 0.24264, 0.0085997, 0.0011409, MiscConstants.TUNING_MODE);
   }
 
   public static class TeleopConstants {
@@ -305,7 +293,10 @@ public final class Constants {
 
     public static final Transform3d ROBOT_TO_CAM =
         new Transform3d(
-            -8.017, 0, 27.088, new Rotation3d(0, Units.degreesToRadians(180 - 27.088), 0));
+            Units.inchesToMeters(-8.017),
+            Units.inchesToMeters(0),
+            Units.inchesToMeters(27.088),
+            new Rotation3d(0, Units.degreesToRadians(27.088), 0));
   }
 
   public static class MiscConstants {

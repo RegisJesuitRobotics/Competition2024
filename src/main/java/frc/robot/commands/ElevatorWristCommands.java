@@ -49,4 +49,25 @@ public class ElevatorWristCommands {
         wristSubsystem.setPositonCommand(
             Rotation2d.fromRadians(SetpointConstants.AMP_WRIST_ANGLE_RADIANS)));
   }
+
+  public static Command elevatorWristClimbUpCommand(
+      ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
+    return Commands.parallel(
+        wristSubsystem.setPositonCommand(
+            Rotation2d.fromRadians(SetpointConstants.CLIMB_UP_WRIST_ANGLE_RADIANS)),
+        Commands.sequence(
+            Commands.waitUntil(wristSubsystem::atGoal),
+            elevatorSubsystem.setElevatorPositionCommand(
+                SetpointConstants.CLIMB_UP_ELEVATOR_HEIGHT)));
+  }
+
+  public static Command elevatorWristClimbDownCommand(
+      ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
+    return Commands.sequence(
+        elevatorSubsystem.setVoltageCommand(-10).until(elevatorSubsystem::atBottomLimit),
+        Commands.parallel(
+            elevatorSubsystem.setVoltageCommand(0.0),
+            wristSubsystem.setPositonCommand(
+                Rotation2d.fromRadians(SetpointConstants.CLIMB_DOWN_WRIST_ANGLE_RADIANS))));
+  }
 }

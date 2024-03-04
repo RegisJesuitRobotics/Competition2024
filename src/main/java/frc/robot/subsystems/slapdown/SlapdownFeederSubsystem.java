@@ -29,7 +29,7 @@ public class SlapdownFeederSubsystem extends SubsystemBase {
   public SlapdownFeederSubsystem() {
     configMotors();
 
-    setDefaultCommand(setVoltageCommand(0.0));
+    setDefaultCommand(setVoltageCommand(0.0).ignoringDisable(true));
   }
 
   private void configMotors() {

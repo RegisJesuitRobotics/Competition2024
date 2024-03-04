@@ -24,7 +24,7 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
               {
@@ -40,19 +40,31 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpSpeaker-CloseAmp"
+                        "pathName": "AmpSpeaker-FarAmp"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.25
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CloseAmp-AmpSpeaker"
+                        "pathName": "FarAmp-AmpSpeaker"
                       }
                     }
                   ]
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
           }
         },
         {

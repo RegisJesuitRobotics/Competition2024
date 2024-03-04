@@ -27,6 +27,7 @@ import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.telemetry.tunable.gains.TunableDouble;
 import frc.robot.utils.*;
+import java.util.List;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -37,10 +38,9 @@ import java.util.function.DoubleSupplier;
  */
 public class RobotContainer {
   private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
-  private final SwerveDriveSubsystem driveSubsystem =
-      new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
-  //  private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem((pose) ->
-  // List.of());
+  //  private final SwerveDriveSubsystem driveSubsystem =
+  //      new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
+  private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem((pose) -> List.of());
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final WristSubsystem wristSubsystem = new WristSubsystem();
@@ -179,6 +179,9 @@ public class RobotContainer {
     operatorController.circle().onTrue(ScoringCommands.shootSetpointIdleCommand(shooterSubsystem));
     operatorController.x().onTrue(ScoringCommands.shootSetpointZeroCommand(shooterSubsystem));
 
+    operatorController.options().onTrue(elevatorSubsystem.probeHomeCommand());
+    operatorController.share().onTrue(slapdownSuperstructure.probeRotationHomeCommand());
+
     operatorController
         .povUp()
         .onTrue(
@@ -187,6 +190,14 @@ public class RobotContainer {
     operatorController
         .povDown()
         .onTrue(ElevatorWristCommands.elevatorWristAmpCommand(elevatorSubsystem, wristSubsystem));
+    operatorController
+        .leftBumper()
+        .onTrue(
+            ElevatorWristCommands.elevatorWristClimbUpCommand(elevatorSubsystem, wristSubsystem));
+    operatorController
+        .rightBumper()
+        .whileTrue(
+            ElevatorWristCommands.elevatorWristClimbDownCommand(elevatorSubsystem, wristSubsystem));
     operatorController
         .leftTrigger()
         .onTrue(ElevatorWristCommands.elevatorWristZeroCommand(elevatorSubsystem, wristSubsystem));

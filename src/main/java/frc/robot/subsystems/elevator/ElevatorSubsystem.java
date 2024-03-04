@@ -74,8 +74,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public ElevatorSubsystem() {
     configMotors();
     controller.setTolerance(Units.inchesToMeters(0.5));
-    setDefaultCommand(setVoltageCommand(0.0));
-    // elevatorMotorFollower.follow(elevatorMotor);
+    setDefaultCommand(setVoltageCommand(0.0).ignoringDisable(true));
   }
 
   private void configMotors() {
@@ -145,8 +144,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         faultRecorder.run("Factory default"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecord(
-        () -> elevatorMotorFollower.setInverted(MAIN_INVERTED),
-        () -> elevatorMotorFollower.getInverted() == MAIN_INVERTED,
+        () -> elevatorMotorFollower.setInverted(FOLLOWER_INVERTED),
+        () -> elevatorMotorFollower.getInverted() == FOLLOWER_INVERTED,
         () -> elevatorEventEntry.append("Motor invert"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(

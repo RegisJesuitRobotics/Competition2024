@@ -45,7 +45,7 @@ public class TransportSubsystem extends SubsystemBase {
 
   public TransportSubsystem() {
     configMotor();
-    setDefaultCommand(setVoltageCommand(0.0));
+    setDefaultCommand(setVoltageCommand(0.0).ignoringDisable(true));
   }
 
   public void configMotor() {

@@ -4,7 +4,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
@@ -135,6 +135,8 @@ public class SwerveModule {
             config.sharedConfiguration().canBus(),
             tuningMode);
     configSteerMotor(config);
+
+    OrchestraInstance.INSTANCE.addInstrument(steerMotor);
   }
 
   private void configDriveMotor(SwerveModuleConfiguration config) {
@@ -143,6 +145,7 @@ public class SwerveModule {
         config.sharedConfiguration().driveCurrentLimit();
     motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.sharedConfiguration().driveVelocityPIDGains().setSlot(motorConfiguration.Slot0);
+    config.sharedConfiguration().driveVelocityFFGains().setSlot(motorConfiguration.Slot0);
     motorConfiguration.MotorOutput.Inverted =
         config.driveMotorInverted()
             ? InvertedValue.Clockwise_Positive
@@ -215,9 +218,10 @@ public class SwerveModule {
     motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
     motorConfiguration.Feedback.RotorToSensorRatio = config.sharedConfiguration().steerGearRatio();
     motorConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
+    motorConfiguration.Audio.AllowMusicDurDisable = true;
 
     config.sharedConfiguration().steerPositionPIDGains().setSlot(motorConfiguration.Slot0);
-    config.sharedConfiguration().steerVelocityFFGains().setSlot(motorConfiguration.Slot0);
+    //    config.sharedConfiguration().steerVelocityFFGains().setSlot(motorConfiguration.Slot0);
     // Came from the CTRE Swerve Module example
     motorConfiguration.MotionMagic.MotionMagicCruiseVelocity =
         100.0 / config.sharedConfiguration().steerGearRatio();
@@ -434,8 +438,8 @@ public class SwerveModule {
     steerMotor.setControl(steerVoltageOut.withOutput(steerVolts));
   }
 
-  private final MotionMagicExpoVoltage steerMotionMagicExpoVoltage =
-      new MotionMagicExpoVoltage(0.0).withUpdateFreqHz(0);
+  private final PositionVoltage steerMotionMagicExpoVoltage =
+      new PositionVoltage(0.0).withUpdateFreqHz(0);
 
   private void setSteerReference(double targetAngleRadians, boolean activeSteer) {
     activeSteerEntry.append(activeSteer);
@@ -476,7 +480,7 @@ public class SwerveModule {
       moduleEventEntry.append("Updated drive gains due to value change");
     }
 
-    if (steerPositionPIDGains.hasChanged()) {
+    if (steerPositionPIDGains.hasChanged() || steerVelocityFFGains.hasChanged()) {
       Slot0Configs newSlotConfig = new Slot0Configs();
       steerPositionPIDGains.setSlot(newSlotConfig);
       steerVelocityFFGains.setSlot(newSlotConfig);

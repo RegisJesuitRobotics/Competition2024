@@ -14,12 +14,8 @@ public class OrchestraInstance {
    * @return The command
    */
   public static Command playCommand(String filePath) {
-    return Commands.startEnd(
-            () -> {
-              INSTANCE.loadMusic(filePath);
-              INSTANCE.play();
-            },
-            INSTANCE::stop)
+    return Commands.runEnd(INSTANCE::play, INSTANCE::stop)
+        .beforeStarting(() -> INSTANCE.loadMusic(filePath))
         .ignoringDisable(true)
         .withName("PlayMusic");
   }

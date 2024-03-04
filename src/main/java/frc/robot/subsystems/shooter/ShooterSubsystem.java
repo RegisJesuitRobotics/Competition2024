@@ -7,10 +7,13 @@ import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.tunable.TunableTelemetryPIDController;
 import frc.robot.telemetry.types.BooleanTelemetryEntry;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
@@ -33,12 +36,21 @@ public class ShooterSubsystem extends SubsystemBase {
               null, // No log consumer, since data is recorded by URCL
               this));
 
+  private final SlewRateLimiter rateLimiter =
+      new SlewRateLimiter(Units.rotationsPerMinuteToRadiansPerSecond(10000));
+
   private final TelemetryCANSparkFlex flywheelMotor =
       new TelemetryCANSparkFlex(
-          SHOOTER_ID, CANSparkLowLevel.MotorType.kBrushless, "/shooter/motor", true);
+          SHOOTER_ID,
+          CANSparkLowLevel.MotorType.kBrushless,
+          "/shooter/motor",
+          MiscConstants.TUNING_MODE);
   private final TelemetryCANSparkFlex flywheelMotorFollower =
       new TelemetryCANSparkFlex(
-          SHOOTER_FOLLOWER_ID, CANSparkLowLevel.MotorType.kBrushless, "/shooter/follower", false);
+          SHOOTER_FOLLOWER_ID,
+          CANSparkLowLevel.MotorType.kBrushless,
+          "/shooter/follower",
+          MiscConstants.TUNING_MODE);
   private RelativeEncoder flywheelEncoder;
 
   private final TunableTelemetryPIDController pidController =
@@ -54,7 +66,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public ShooterSubsystem() {
     configMotor();
 
-    setDefaultCommand(setVoltageCommand(0.0));
+    setDefaultCommand(setVoltageCommand(0.0).ignoringDisable(true));
   }
 
   public void configMotor() {
@@ -168,10 +180,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public Command runVelocityCommand(double setpointRadiansSecond) {
     return this.run(
-        () ->
-            setVoltage(
-                pidController.calculate(flywheelEncoder.getVelocity(), setpointRadiansSecond)
-                    + feedforward.calculate(setpointRadiansSecond)));
+            () -> {
+              double rateLimited = rateLimiter.calculate(setpointRadiansSecond);
+              setVoltage(
+                  pidController.calculate(flywheelEncoder.getVelocity(), rateLimited)
+                      + feedforward.calculate(rateLimited));
+            })
+        .beforeStarting(() -> rateLimiter.reset(flywheelEncoder.getVelocity()));
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {

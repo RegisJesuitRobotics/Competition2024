@@ -70,7 +70,7 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
     rotationEncoder = rotationMotor.getEncoder();
     configMotors();
 
-    setDefaultCommand(setVoltageCommand(0.0));
+    setDefaultCommand(setVoltageCommand(0.0).ignoringDisable(true));
   }
 
   private void configMotors() {

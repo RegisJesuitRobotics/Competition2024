@@ -17,6 +17,7 @@ import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
@@ -281,11 +282,39 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   }
 
   public Command driveQuasistaticSysIDCommand(SysIdRoutine.Direction direction) {
-    return driveVelocitySysId.quasistatic(direction).beforeStarting(SignalLogger::start);
+    return driveVelocitySysId
+        .quasistatic(direction)
+        .beforeStarting(SignalLogger::start)
+        .beforeStarting(Commands.waitSeconds(1.5))
+        .beforeStarting(
+            () ->
+                setRawStates(
+                    true,
+                    true,
+                    new SwerveModuleState[] {
+                      new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)),
+                      new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)),
+                      new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)),
+                      new SwerveModuleState(0.0, Rotation2d.fromDegrees(0))
+                    }));
   }
 
   public Command driveDynamicSysIDCommand(SysIdRoutine.Direction direction) {
-    return driveVelocitySysId.dynamic(direction).beforeStarting(SignalLogger::start);
+    return driveVelocitySysId
+        .dynamic(direction)
+        .beforeStarting(SignalLogger::start)
+        .beforeStarting(Commands.waitSeconds(1.5))
+        .beforeStarting(
+            () ->
+                setRawStates(
+                    true,
+                    true,
+                    new SwerveModuleState[] {
+                      new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)),
+                      new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)),
+                      new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)),
+                      new SwerveModuleState(0.0, Rotation2d.fromDegrees(0))
+                    }));
   }
 
   public Command steerQuasistaticSysIDCommand(SysIdRoutine.Direction direction) {
@@ -313,6 +342,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     gyroEntry.append(getGyroRotation().getRadians());
     chassisSpeedsEntry.append(getCurrentChassisSpeeds());
     actualSwerveStatesEntry.append(getActualStates());
+    pigeon.logValues();
 
     for (SwerveModule module : modules) {
       module.logValues();
