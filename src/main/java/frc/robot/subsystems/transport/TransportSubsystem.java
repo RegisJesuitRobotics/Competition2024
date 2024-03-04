@@ -45,7 +45,7 @@ public class TransportSubsystem extends SubsystemBase {
 
   public TransportSubsystem() {
     configMotor();
-    setDefaultCommand(setVoltageCommand(0.0).ignoringDisable(true));
+    setDefaultCommand(setVoltageCommand(0.0).ignoringDisable(true).withName("TransportDefault"));
   }
 
   public void configMotor() {
@@ -101,6 +101,10 @@ public class TransportSubsystem extends SubsystemBase {
 
   public Command setVoltageCommand(double voltage) {
     return this.run(() -> this.runShooterTransportVoltage(voltage));
+  }
+
+  public Command stopMovementCommand() {
+    return this.runOnce(() -> this.runShooterTransportVoltage(0));
   }
 
   @Override

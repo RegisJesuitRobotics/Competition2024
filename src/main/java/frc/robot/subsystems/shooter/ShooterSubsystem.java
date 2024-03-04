@@ -66,7 +66,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public ShooterSubsystem() {
     configMotor();
 
-    setDefaultCommand(setVoltageCommand(0.0).ignoringDisable(true));
+    setDefaultCommand(setVoltageCommand(0.0).ignoringDisable(true).withName("ShooterDefault"));
   }
 
   public void configMotor() {

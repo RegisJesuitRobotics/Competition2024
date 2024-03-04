@@ -31,7 +31,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public IntakeSubsystem() {
     configMotor();
-    setDefaultCommand(setIntakeVoltageCommand(0.0).ignoringDisable(true));
+    setDefaultCommand(setIntakeVoltageCommand(0.0).ignoringDisable(true).withName("IntakeDefault"));
   }
 
   private void configMotor() {

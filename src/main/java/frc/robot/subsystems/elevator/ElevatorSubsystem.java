@@ -74,7 +74,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public ElevatorSubsystem() {
     configMotors();
     controller.setTolerance(Units.inchesToMeters(0.5));
-    setDefaultCommand(setVoltageCommand(0.0).ignoringDisable(true));
+    setDefaultCommand(setVoltageCommand(0.0).ignoringDisable(true).withName("ElevatorDefault"));
   }
 
   private void configMotors() {

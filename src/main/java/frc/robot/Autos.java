@@ -148,16 +148,12 @@ public class Autos {
     return Commands.deadline(
             Commands.sequence(
                     shooterAndElevatorWristInToleranceCommand(),
-                    ScoringCommands.transportCloseSpeakerCommand(transportSubsystem))
-                .until(() -> !transportSubsystem.atSensor())
-                .andThen(
-                    Commands.waitSeconds(0.1),
-                    ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
-                    ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
-                        elevatorSubsystem, wristSubsystem)))
-        .andThen(
-            Commands.runOnce(
-                () -> transportSubsystem.runShooterTransportVoltage(0.0), transportSubsystem));
+                    ScoringCommands.transportCloseSpeakerCommand(transportSubsystem)
+                        .until(() -> !transportSubsystem.atSensor()))
+                .andThen(Commands.waitSeconds(0.1), transportSubsystem.stopMovementCommand()),
+            ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
+            ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
+                elevatorSubsystem, wristSubsystem));
   }
 
   private Command shooterAndElevatorWristInToleranceCommand() {

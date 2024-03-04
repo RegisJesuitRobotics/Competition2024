@@ -2,7 +2,9 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -15,10 +17,13 @@ import frc.robot.commands.MiscCommands;
 import frc.robot.commands.ScoringCommands;
 import frc.robot.commands.drive.LockModulesCommand;
 import frc.robot.commands.drive.teleop.SwerveDriveCommand;
+import frc.robot.commands.led.LEDStateMachineCommand;
+import frc.robot.commands.led.LEDStateMachineCommand.LEDState;
 import frc.robot.hid.CommandNintendoSwitchController;
 import frc.robot.hid.CommandXboxPlaystationController;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.photon.PhotonSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.slapdown.SlapdownSuperstructure;
@@ -27,6 +32,9 @@ import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.telemetry.tunable.gains.TunableDouble;
 import frc.robot.utils.*;
+import frc.robot.utils.led.AlternatePattern;
+import frc.robot.utils.led.SlidePattern;
+import frc.robot.utils.led.SolidPattern;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 
@@ -47,6 +55,7 @@ public class RobotContainer {
   private final TransportSubsystem transportSubsystem = new TransportSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final SlapdownSuperstructure slapdownSuperstructure = new SlapdownSuperstructure();
+  private final LEDSubsystem ledSubsystem = new LEDSubsystem();
 
   private final Autos autos =
       new Autos(
@@ -69,74 +78,31 @@ public class RobotContainer {
   public RobotContainer() {
     configureDriverBindings();
     configureOperatorBindings();
-    configureAutos();
+    configureLEDs();
 
+    SmartDashboard.putData("Auto", autos.getAutoChooser());
     SmartDashboard.putData("Music", OrchestraInstance.playCommand("song10.chrp"));
     SmartDashboard.putData("Alerts", Alert.getDefaultGroup());
     SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
   }
 
-  private void configureAutos() {
-    // autoCommand.addOption("Test Path", autos.testPathAuth());
-    // autoCommand.addOption(
-    //     "Drive SysID QF",
-    // driveSubsystem.quasistaticSysIDCommand(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Drive SysID QR",
-    // driveSubsystem.quasistaticSysIDCommand(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption(
-    //     "Drive SysID DF", driveSubsystem.dynamicSysIDCommand(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Drive SysID DR", driveSubsystem.dynamicSysIDCommand(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption(
-    //     "Slapdown SysID QF",
-    //     slapdownSuperstructure
-    //         .getSlapdownRotationSubsystem()
-    //         .sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Slapdown SysID QR",
-    //     slapdownSuperstructure
-    //         .getSlapdownRotationSubsystem()
-    //         .sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption(
-    //     "Slapdown SysID DF",
-    //     slapdownSuperstructure
-    //         .getSlapdownRotationSubsystem()
-    //         .sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Slapdown SysID DR",
-    //     slapdownSuperstructure
-    //         .getSlapdownRotationSubsystem()
-    //         .sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption("Probe Elevator", elevatorSubsystem.probeHomeCommand());
-    //     autoCommand.addOption(
-    //         "Wrist SysID QF", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Wrist SysID QR", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption(
-    //     "Wrist SysID DF", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Wrist SysID DR", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption(
-    //     "Elevator SysID QF",
-    // elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Elevator SysID QR",
-    // elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption(
-    //     "Elevator SysID DF", elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Elevator SysID DR", elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption(
-    //     "Shooter SysID QF", shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Shooter SysID QR", shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption(
-    //     "Shooter SysID DF", shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Shooter SysID DR", shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+  private void configureLEDs() {
+    List<LEDState> ledStates =
+        List.of(
+            // Red blink if we have any faults
+            new LEDState(
+                () -> Alert.getDefaultGroup().hasAnyErrors(),
+                new AlternatePattern(2.0, Color.kRed, Color.kBlack)),
+            // Default disabled pattern
+            new LEDState(
+                DriverStation::isDisabled,
+                new AlternatePattern(
+                    8.0,
+                    new SlidePattern(8.0 / 2.0, Color.kDarkRed, Color.kWhite),
+                    new SlidePattern(8.0 / 2.0, Color.kWhite, Color.kDarkRed))));
 
-    SmartDashboard.putData("Auto", autos.getAutoChooser());
+    ledSubsystem.setDefaultCommand(
+        new LEDStateMachineCommand(new SolidPattern(Color.kBlack), ledStates, ledSubsystem));
   }
 
   private void configureDriverBindings() {

@@ -70,7 +70,7 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
     rotationEncoder = rotationMotor.getEncoder();
     configMotors();
 
-    setDefaultCommand(setVoltageCommand(0.0).ignoringDisable(true));
+    setDefaultCommand(setVoltageCommand(0.0).ignoringDisable(true).withName("SlapdownRotationDefault"));
   }
 
   private void configMotors() {
@@ -174,7 +174,7 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
   }
 
   public Command probeHomeCommand() {
-    return setVoltageCommand(-0.5).unless(this::atLimit).until(this::atLimit);
+    return setVoltageCommand(-0.5).unless(this::isHomed).until(this::atLimit);
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {

@@ -11,6 +11,8 @@ import frc.robot.telemetry.tunable.gains.TunablePIDGains;
 import frc.robot.telemetry.tunable.gains.TunableTrapezoidalProfileGains;
 import frc.robot.utils.SwerveModuleConfiguration;
 import frc.robot.utils.SwerveModuleConfiguration.SharedSwerveModuleConfiguration;
+import java.util.Collections;
+import java.util.List;
 
 /** File containing all constants for the robot. */
 public final class Constants {
@@ -162,7 +164,7 @@ public final class Constants {
     public static final double MAX_ANGULAR_VELOCITY_RADIANS_SECOND = 10;
     public static final double MAX_ANGULAR_ACCELERATION_RADIANS_SECOND_SQUARED = 36;
 
-    public static final int ODOMETRY_FREQUENCY = 200;
+    public static final int ODOMETRY_FREQUENCY = 250;
 
     private static final SharedSwerveModuleConfiguration SHARED_SWERVE_MODULE_CONFIGURATION =
         new SharedSwerveModuleConfiguration(
@@ -181,18 +183,18 @@ public final class Constants {
 
     public static final SwerveModuleConfiguration FRONT_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            12, 8, 17, true, true, -2.46203, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            12, 8, 17, true, true, -2.483515, false, SHARED_SWERVE_MODULE_CONFIGURATION);
     public static final SwerveModuleConfiguration FRONT_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            13, 5, 18, true, true, -0.3481, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            13, 5, 18, true, true, -0.326738, false, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            14, 10, 19, true, true, -0.498, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            14, 10, 19, true, true, -0.450990, false, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            15, 3, 20, true, true, -0.71636, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            15, 3, 20, true, true, -0.724039, false, SHARED_SWERVE_MODULE_CONFIGURATION);
   }
 
   public static class AutoConstants {
@@ -308,6 +310,20 @@ public final class Constants {
     public static final boolean TUNING_MODE = true;
 
     public static final int CONFIGURATION_ATTEMPTS = 10;
+  }
+
+  public static class LEDConstants {
+    public static final int PWM_PORT = 0;
+    public static final int FRONT_LEFT_SIZE = 11;
+    public static final int FRONT_RIGHT_SIZE = 12;
+    public static final int BACK_LEFT_SIZE = 14;
+    public static final int BACK_RIGHT_SIZE = 14;
+
+    public static final int TOTAL_SIZE =
+        FRONT_LEFT_SIZE + FRONT_RIGHT_SIZE + BACK_LEFT_SIZE + BACK_RIGHT_SIZE;
+    public static final int MAX_SIZE =
+        Collections.max(
+            List.of(BACK_LEFT_SIZE, FRONT_LEFT_SIZE, BACK_RIGHT_SIZE, FRONT_RIGHT_SIZE));
   }
 
   public static final double DT = 0.02;
