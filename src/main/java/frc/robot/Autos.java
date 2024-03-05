@@ -132,9 +132,9 @@ public class Autos {
                             elevatorSubsystem, wristSubsystem))))
         .andThen(
             Commands.parallel(
-                ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
-                    elevatorSubsystem, wristSubsystem),
-                ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem)).until(() -> true)).andThen(Commands.print("I WANT TO SHOOT"));
+                    ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
+                        elevatorSubsystem, wristSubsystem),
+                    ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem)));
   }
 
   public Command autoStart() {
@@ -151,7 +151,6 @@ public class Autos {
     }
     return Commands.deadline(
         Commands.sequence(
-                Commands.print("I LOVE SHOOTING"),
                 shooterAndElevatorWristInToleranceCommand(),
                 ScoringCommands.transportCloseSpeakerCommand(transportSubsystem)
                     .until(() -> !transportSubsystem.atSensor()))

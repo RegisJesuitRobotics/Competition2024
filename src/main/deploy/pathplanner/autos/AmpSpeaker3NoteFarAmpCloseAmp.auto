@@ -5,7 +5,7 @@
       "x": 0.74,
       "y": 6.596235535725297
     },
-    "rotation": 57.68778662786143
+    "rotation": 60.0
   },
   "command": {
     "type": "sequential",
@@ -24,15 +24,9 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "IntakeUntilNote"
-                }
-              },
               {
                 "type": "sequential",
                 "data": {
@@ -44,12 +38,24 @@
                       }
                     },
                     {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.5
+                      }
+                    },
+                    {
                       "type": "path",
                       "data": {
                         "pathName": "FarAmp-AmpSpeaker"
                       }
                     }
                   ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeUntilNote"
                 }
               }
             ]
@@ -62,15 +68,9 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "IntakeUntilNote"
-                }
-              },
               {
                 "type": "sequential",
                 "data": {
@@ -82,12 +82,24 @@
                       }
                     },
                     {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.3
+                      }
+                    },
+                    {
                       "type": "path",
                       "data": {
                         "pathName": "CloseAmp-AmpSpeaker"
                       }
                     }
                   ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeUntilNote"
                 }
               }
             ]

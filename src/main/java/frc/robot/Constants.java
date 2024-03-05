@@ -112,7 +112,7 @@ public final class Constants {
     // TODO: TUNE FF GAINS
     public static final TunableArmElevatorFFGains FF_GAINS =
         new TunableArmElevatorFFGains(
-            "gains/elevator", 0.11428, 0.049284, 43.755, 6.6756, MiscConstants.TUNING_MODE);
+            "gains/elevator", 0.12792, 0.052507, 43.052, 5.9392, MiscConstants.TUNING_MODE);
   }
 
   public static class SwerveConstants {
@@ -314,7 +314,7 @@ public final class Constants {
 
   public static class LEDConstants {
     public static final int PWM_PORT = 0;
-    public static final int FRONT_LEFT_SIZE = 11;
+    public static final int FRONT_LEFT_SIZE = 12;
     public static final int FRONT_RIGHT_SIZE = 12;
     public static final int BACK_LEFT_SIZE = 14;
     public static final int BACK_RIGHT_SIZE = 14;

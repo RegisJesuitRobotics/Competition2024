@@ -8,11 +8,11 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.MiscConstants;
@@ -63,13 +63,13 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final BooleanTelemetryEntry bottomLimitEntry =
       new BooleanTelemetryEntry("/elevator/bottomLimit", MiscConstants.TUNING_MODE);
   private final EventTelemetryEntry elevatorEventEntry =
-      new EventTelemetryEntry("/elevator/main/events");
-  private final EventTelemetryEntry elevatorFollowerEventEntry =
-      new EventTelemetryEntry("elevator/follower/events");
+      new EventTelemetryEntry("/elevator/events");
   private final DoubleTelemetryEntry followerVoltageReq =
-      new DoubleTelemetryEntry("/elevator/followerReq", true);
+      new DoubleTelemetryEntry("/elevator/followerReq", MiscConstants.TUNING_MODE);
 
+  private boolean isHoming = false;
   private boolean isHomed = false;
+  private final Debouncer zeroDebouncer = new Debouncer(0.5);
 
   public ElevatorSubsystem() {
     configMotors();
@@ -226,25 +226,27 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public Command setElevatorPositionCommand(double position) {
     double positionClamped = MathUtil.clamp(position, ELEVATOR_MIN_HEIGHT, ELEVATOR_MAX_HEIGHT);
-    return RaiderCommands.ifCondition(this::isHomed)
-        .then(
-            this.run(
-                    () -> {
-                      double feedbackOutput = controller.calculate(getPosition());
-                      TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
+    return this.run(
+            () -> {
+              double feedbackOutput = controller.calculate(getPosition());
+              TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
 
-                      setVoltage(feedbackOutput + feedforward.calculate(currentSetpoint.velocity));
-                    })
-                .beforeStarting(
-                    () -> {
-                      controller.reset(getPosition(), elevatorEncoder.getVelocity());
-                      controller.setGoal(positionClamped);
-                    }))
-        .otherwise(Commands.none());
+              setVoltage(feedbackOutput + feedforward.calculate(currentSetpoint.velocity));
+            })
+        .beforeStarting(
+            () -> {
+              controller.reset(getPosition(), elevatorEncoder.getVelocity());
+              controller.setGoal(positionClamped);
+            })
+        .onlyIf(this::isHomed);
   }
 
   public Command probeHomeCommand() {
-    return setVoltageCommand(-0.75).unless(this::isHomed).until(this::isHomed);
+    return setVoltageCommand(-0.75)
+        .until(this::isHomed)
+        .beforeStarting(() -> isHoming = true)
+        .finallyDo(() -> isHoming = false)
+        .withName("HomeElevator");
   }
 
   public Command setVoltageCommand(double voltage) {
@@ -261,7 +263,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (atBottomLimit() && !isHomed) {
+    if ((atBottomLimit() && isHoming) || zeroDebouncer.calculate(atBottomLimit())) {
       isHomed = true;
       setEncoderPosition(0.0);
     }

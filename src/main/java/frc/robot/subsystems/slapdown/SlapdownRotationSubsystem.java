@@ -7,11 +7,11 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
@@ -23,12 +23,13 @@ import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.utils.Alert;
 import frc.robot.utils.ConfigurationUtils;
 import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
-import frc.robot.utils.RaiderCommands;
 
 public class SlapdownRotationSubsystem extends SubsystemBase {
 
   private static final Alert rotationMotorAlert =
       new Alert("Slapdown rotation motor had a fault initializing", Alert.AlertType.ERROR);
+  private boolean isHoming = false;
+  private final Debouncer debouncer = new Debouncer(0.5);
 
   private final TelemetryCANSparkMax rotationMotor =
       new TelemetryCANSparkMax(
@@ -150,24 +151,21 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
   }
 
   public Command setRotationGoalCommand(Rotation2d goal) {
-    return RaiderCommands.ifCondition(this::isHomed)
-        .then(
-            this.run(
-                    () -> {
-                      double feedbackOutput = rotationController.calculate(getPosition());
-                      TrapezoidProfile.State currentSetpoint = rotationController.getSetpoint();
+    return this.run(
+            () -> {
+              double feedbackOutput = rotationController.calculate(getPosition());
+              TrapezoidProfile.State currentSetpoint = rotationController.getSetpoint();
 
-                      setRotationVoltage(
-                          feedbackOutput
-                              + rotationFF.calculate(
-                                  currentSetpoint.position, currentSetpoint.velocity));
-                    })
-                .beforeStarting(
-                    () -> {
-                      rotationController.setGoal(goal.getRadians());
-                      rotationController.reset(getPosition(), rotationEncoder.getVelocity());
-                    }))
-        .otherwise(Commands.none());
+              setRotationVoltage(
+                  feedbackOutput
+                      + rotationFF.calculate(currentSetpoint.position, currentSetpoint.velocity));
+            })
+        .beforeStarting(
+            () -> {
+              rotationController.setGoal(goal.getRadians());
+              rotationController.reset(getPosition(), rotationEncoder.getVelocity());
+            })
+        .onlyIf(this::isHomed);
   }
 
   public Command setVoltageCommand(double voltage) {
@@ -175,7 +173,10 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
   }
 
   public Command probeHomeCommand() {
-    return setVoltageCommand(-0.5).unless(this::isHomed).until(this::atLimit);
+    return setVoltageCommand(-0.5)
+        .until(this::atLimit)
+        .beforeStarting(() -> isHoming = true)
+        .finallyDo(() -> isHoming = false);
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -188,7 +189,7 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (atLimit()) {
+    if ((atLimit() && isHoming) || debouncer.calculate(atLimit())) {
       rotationEncoder.setPosition(ROTATION_UP_ANGLE);
       isHomed = true;
     }

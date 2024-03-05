@@ -5,7 +5,7 @@
       "x": 0.74,
       "y": 6.596235535725297
     },
-    "rotation": 57.68778662786143
+    "rotation": 60.0
   },
   "command": {
     "type": "sequential",
@@ -24,7 +24,7 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
               {
@@ -46,7 +46,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.1
+                        "waitTime": 0.3
                       }
                     },
                     {
