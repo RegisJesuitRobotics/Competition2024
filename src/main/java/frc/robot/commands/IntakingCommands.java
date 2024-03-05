@@ -21,6 +21,6 @@ public class IntakingCommands {
         .unless(transport::atSensor)
         .andThen(
             Commands.parallel(
-                intake.setIntakeVoltageCommand(0.0), transport.setVoltageCommand(0.0)));
+                intake.stopCommand(), transport.stopMovementCommand()));
   }
 }

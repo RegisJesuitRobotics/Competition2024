@@ -123,14 +123,18 @@ public class Autos {
       return Commands.print("Intaking");
     }
     return Commands.deadline(
-            IntakingCommands.intakeUntilDetected(
-                intakeSubsystem, slapdownSuperstructure, transportSubsystem),
-            ElevatorWristCommands.elevatorWristIntakePosition(elevatorSubsystem, wristSubsystem))
+            Commands.parallel(
+                IntakingCommands.intakeUntilDetected(
+                    intakeSubsystem, slapdownSuperstructure, transportSubsystem),
+                ElevatorWristCommands.elevatorWristIntakePosition(elevatorSubsystem, wristSubsystem)
+                    .until(
+                        ElevatorWristCommands.elevatorWristToleranceTrigger(
+                            elevatorSubsystem, wristSubsystem))))
         .andThen(
             Commands.parallel(
                 ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
                     elevatorSubsystem, wristSubsystem),
-                ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem)));
+                ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem)).until(() -> true)).andThen(Commands.print("I WANT TO SHOOT"));
   }
 
   public Command autoStart() {
@@ -146,14 +150,14 @@ public class Autos {
       return Commands.print("Shooting Note!").andThen(Commands.waitSeconds(0.5));
     }
     return Commands.deadline(
-            Commands.sequence(
-                    shooterAndElevatorWristInToleranceCommand(),
-                    ScoringCommands.transportCloseSpeakerCommand(transportSubsystem)
-                        .until(() -> !transportSubsystem.atSensor()))
-                .andThen(Commands.waitSeconds(0.1), transportSubsystem.stopMovementCommand()),
-            ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
-            ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
-                elevatorSubsystem, wristSubsystem));
+        Commands.sequence(
+                Commands.print("I LOVE SHOOTING"),
+                shooterAndElevatorWristInToleranceCommand(),
+                ScoringCommands.transportCloseSpeakerCommand(transportSubsystem)
+                    .until(() -> !transportSubsystem.atSensor()))
+            .andThen(Commands.waitSeconds(0.1), transportSubsystem.stopMovementCommand()),
+        ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
+        ElevatorWristCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem, wristSubsystem));
   }
 
   private Command shooterAndElevatorWristInToleranceCommand() {

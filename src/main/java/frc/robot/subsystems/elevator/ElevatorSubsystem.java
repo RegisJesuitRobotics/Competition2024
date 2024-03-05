@@ -261,8 +261,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // TODO: make this or elegant
-    if (atBottomLimit()) {
+    if (atBottomLimit() && !isHomed) {
       isHomed = true;
       setEncoderPosition(0.0);
     }

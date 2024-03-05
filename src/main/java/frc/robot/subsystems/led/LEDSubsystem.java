@@ -25,31 +25,27 @@ public class LEDSubsystem extends SubsystemBase {
     int i = 0;
     splitBuffers[0] = ledBuffer.split(0, FRONT_LEFT_SIZE);
     if (FRONT_LEFT_SIZE < MAX_SIZE) {
-      splitBuffers[0] =
-          splitBuffers[0].concatenate(new FakeLEDBuffer(MAX_SIZE - FRONT_LEFT_SIZE));
+      splitBuffers[0] = splitBuffers[0].concatenate(new FakeLEDBuffer(MAX_SIZE - FRONT_LEFT_SIZE));
     }
     i += FRONT_LEFT_SIZE;
 
     splitBuffers[1] = ledBuffer.split(i, i + BACK_LEFT_SIZE);
     splitBuffers[1] = splitBuffers[1].reversed();
     if (BACK_LEFT_SIZE < MAX_SIZE) {
-      splitBuffers[1] =
-          splitBuffers[1].concatenate(new FakeLEDBuffer(MAX_SIZE - BACK_LEFT_SIZE));
+      splitBuffers[1] = splitBuffers[1].concatenate(new FakeLEDBuffer(MAX_SIZE - BACK_LEFT_SIZE));
     }
     i += BACK_LEFT_SIZE;
 
     splitBuffers[2] = ledBuffer.split(i, i + BACK_RIGHT_SIZE);
     if (BACK_RIGHT_SIZE < MAX_SIZE) {
-      splitBuffers[2] =
-          splitBuffers[2].concatenate(new FakeLEDBuffer(MAX_SIZE - BACK_RIGHT_SIZE));
+      splitBuffers[2] = splitBuffers[2].concatenate(new FakeLEDBuffer(MAX_SIZE - BACK_RIGHT_SIZE));
     }
     i += BACK_RIGHT_SIZE;
 
     splitBuffers[3] = ledBuffer.split(i, i + FRONT_RIGHT_SIZE);
     splitBuffers[3] = splitBuffers[3].reversed();
     if (FRONT_RIGHT_SIZE < MAX_SIZE) {
-      splitBuffers[3] =
-          splitBuffers[3].concatenate(new FakeLEDBuffer(MAX_SIZE - FRONT_RIGHT_SIZE));
+      splitBuffers[3] = splitBuffers[3].concatenate(new FakeLEDBuffer(MAX_SIZE - FRONT_RIGHT_SIZE));
     }
     i += FRONT_RIGHT_SIZE;
 

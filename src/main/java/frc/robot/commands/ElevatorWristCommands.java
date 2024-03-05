@@ -23,7 +23,12 @@ public class ElevatorWristCommands {
 
   public static Command elevatorWristInToleranceCommand(
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
-    return Commands.waitUntil(new Trigger(elevatorSubsystem::atGoal).and(wristSubsystem::atGoal));
+    return Commands.waitUntil(elevatorWristToleranceTrigger(elevatorSubsystem, wristSubsystem));
+  }
+
+  public static Trigger elevatorWristToleranceTrigger(
+      ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
+    return new Trigger(elevatorSubsystem::atGoal).and(wristSubsystem::atGoal);
   }
 
   public static Command elevatorWristCloseSpeakerCommand(

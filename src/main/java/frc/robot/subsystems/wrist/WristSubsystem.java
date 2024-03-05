@@ -133,6 +133,10 @@ public class WristSubsystem extends SubsystemBase {
     return controller.atGoal();
   }
 
+  public boolean atBottom() {
+    return controller.getGoal().position == WRIST_MIN.getRadians() && atGoal();
+  }
+
   public void setVoltage(double voltage) {
     wristMotor.setVoltage(voltage);
     wristVoltageReq.append(voltage);

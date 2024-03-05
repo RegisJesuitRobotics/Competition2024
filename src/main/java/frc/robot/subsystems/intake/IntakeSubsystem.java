@@ -91,4 +91,8 @@ public class IntakeSubsystem extends SubsystemBase {
   public Command setIntakeVoltageCommand(double voltage) {
     return this.run(() -> this.setIntakeVoltage(voltage));
   }
+
+  public Command stopCommand() {
+    return this.runOnce(() -> setIntakeVoltage(0.0));
+  }
 }

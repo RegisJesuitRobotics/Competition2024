@@ -93,6 +93,10 @@ public class RobotContainer {
             new LEDState(
                 () -> Alert.getDefaultGroup().hasAnyErrors(),
                 new AlternatePattern(2.0, Color.kRed, Color.kBlack)),
+            new LEDState(
+                    () -> DriverStation.isTeleopEnabled() && elevatorSubsystem.atBottomLimit() && wristSubsystem.atBottom(),
+                    new SolidPattern(Color.kGreen)
+            ),
             // Default disabled pattern
             new LEDState(
                 DriverStation::isDisabled,

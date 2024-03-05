@@ -213,7 +213,7 @@ public class SwerveModule {
         config.steerMotorInverted()
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
-    motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfiguration.Feedback.FeedbackRemoteSensorID = config.steerEncoderID();
     motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
     motorConfiguration.Feedback.RotorToSensorRatio = config.sharedConfiguration().steerGearRatio();
