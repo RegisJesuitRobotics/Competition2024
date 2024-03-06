@@ -316,6 +316,7 @@ public final class Constants {
     public static final int PWM_PORT = 0;
     public static final int FRONT_LEFT_SIZE = 12;
     public static final int FRONT_RIGHT_SIZE = 12;
+    public static final int STATUS_DEDICATED_SIZE = 2;
     public static final int BACK_LEFT_SIZE = 14;
     public static final int BACK_RIGHT_SIZE = 14;
 
