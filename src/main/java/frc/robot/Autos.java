@@ -87,22 +87,6 @@ public class Autos {
         });
 
     autoChooser = AutoBuilder.buildAutoChooser("JustProbe");
-    autoChooser.addOption("shooter qf", shooterSubsystem.sysIdQuasistatic(Direction.kForward));
-    autoChooser.addOption("shooter qr", shooterSubsystem.sysIdQuasistatic(Direction.kReverse));
-    autoChooser.addOption("shooter df", shooterSubsystem.sysIdDynamic(Direction.kForward));
-    autoChooser.addOption("shooter dr", shooterSubsystem.sysIdDynamic(Direction.kReverse));
-
-    autoChooser.addOption("elevator qf", elevatorSubsystem.sysIdQuasistatic(Direction.kForward));
-    autoChooser.addOption("elevator qr", elevatorSubsystem.sysIdQuasistatic(Direction.kReverse));
-    autoChooser.addOption("elevator df", elevatorSubsystem.sysIdDynamic(Direction.kForward));
-    autoChooser.addOption("elevator dr", elevatorSubsystem.sysIdDynamic(Direction.kReverse));
-
-    autoChooser.addOption(
-        "drive qf", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kForward));
-    autoChooser.addOption(
-        "drive qr", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kReverse));
-    autoChooser.addOption("drive df", driveSubsystem.driveDynamicSysIDCommand(Direction.kForward));
-    autoChooser.addOption("drive dr", driveSubsystem.driveDynamicSysIDCommand(Direction.kReverse));
 
     autoChooser.addOption(
         "drive s qf", driveSubsystem.steerQuasistaticSysIDCommand(Direction.kForward));

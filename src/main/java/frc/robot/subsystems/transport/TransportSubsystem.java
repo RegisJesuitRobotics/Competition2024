@@ -16,12 +16,14 @@ import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.utils.Alert;
 import frc.robot.utils.ConfigurationUtils;
 import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TransportSubsystem extends SubsystemBase {
 
   private static final Alert transportAlert =
       new Alert("Transport motor had a fault initializing", Alert.AlertType.ERROR);
   private static final DigitalInput shooterSensor = new DigitalInput(SHOOTER_SENSOR_ID);
+  public AtomicBoolean shouldLed = new AtomicBoolean(false);
   public final TelemetryCANSparkMax transportMotor =
       new TelemetryCANSparkMax(
           TRANSPORT_MOTOR_ID,

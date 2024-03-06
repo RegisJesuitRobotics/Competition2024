@@ -36,6 +36,7 @@ import frc.robot.utils.led.AlternatePattern;
 import frc.robot.utils.led.SlidePattern;
 import frc.robot.utils.led.SolidPattern;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -87,12 +88,22 @@ public class RobotContainer {
   }
 
   private void configureLEDs() {
+    AtomicBoolean shouldBlink = new AtomicBoolean();
+    new Trigger(transportSubsystem::atSensor)
+        .onTrue(
+            Commands.sequence(
+                Commands.runOnce(() -> shouldBlink.set(true)),
+                Commands.waitSeconds(3),
+                Commands.runOnce(() -> shouldBlink.set(false))));
+
     List<LEDState> ledStates =
         List.of(
             // Red blink if we have any faults
             new LEDState(
                 () -> Alert.getDefaultGroup().hasAnyErrors(),
                 new AlternatePattern(2.0, Color.kRed, Color.kBlack)),
+            new LEDState(
+                shouldBlink::get, new AlternatePattern(0.5, Color.kAliceBlue, Color.kBlack)),
             new LEDState(
                 () ->
                     DriverStation.isTeleopEnabled()
