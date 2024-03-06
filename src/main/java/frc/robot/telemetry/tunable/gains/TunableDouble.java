@@ -5,6 +5,8 @@ import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 
+import java.util.HashMap;
+
 /**
  * Class for a tunable number. Gets value from dashboard in tuning mode, returns default if not or
  * value not in dashboard.
@@ -15,6 +17,8 @@ public class TunableDouble {
   private final boolean tuningMode;
   private final double defaultValue;
   private double lastHasChangedValue;
+
+  private HashMap<Integer, Double> hasChangedMap = new HashMap<>();
 
   /**
    * Create a new TunableNumber with the default value
@@ -59,10 +63,10 @@ public class TunableDouble {
    * @return True if the number has changed since the last time this method was called, false
    *     otherwise
    */
-  public boolean hasChanged() {
+  public boolean hasChanged(int hashCode) {
     double currentValue = get();
-    if (currentValue != lastHasChangedValue) {
-      lastHasChangedValue = currentValue;
+    if (hasChangedMap.get(hashCode) == null || currentValue != hasChangedMap.get(hashCode)) {
+      hasChangedMap.put(hashCode, currentValue);
       return true;
     }
 

@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
@@ -30,6 +31,7 @@ import frc.robot.subsystems.slapdown.SlapdownSuperstructure;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
+import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
 import frc.robot.telemetry.tunable.gains.TunableDouble;
 import frc.robot.utils.*;
 import frc.robot.utils.led.AlternatePattern;
@@ -46,9 +48,9 @@ import java.util.function.DoubleSupplier;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
-  //  private final SwerveDriveSubsystem driveSubsystem =
-  //      new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
+//  private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
+//    private final SwerveDriveSubsystem driveSubsystem =
+//        new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
   private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem((pose) -> List.of());
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
@@ -119,7 +121,7 @@ public class RobotContainer {
         .onTrue(
             Commands.sequence(
                 Commands.runOnce(() -> shouldBlink.set(true)),
-                Commands.waitSeconds(3),
+                Commands.waitSeconds(1),
                 Commands.runOnce(() -> shouldBlink.set(false))));
 
     List<LEDState> ledStates =
@@ -133,7 +135,7 @@ public class RobotContainer {
                 new AlternatePattern(2.0, Color.kRed, Color.kBlack)),
             // Green if we can go under the stage
             new LEDState(
-                shouldBlink::get, new AlternatePattern(0.5, Color.kAliceBlue, Color.kBlack)),
+                shouldBlink::get, new AlternatePattern(0.25, Color.kAliceBlue, Color.kBlack)),
             new LEDState(
                 () ->
                     DriverStation.isTeleopEnabled()
@@ -175,7 +177,7 @@ public class RobotContainer {
         );
     driverController.circle().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
 
-    driverController.a().onTrue(Commands.runOnce(() -> signalHumanPlayer.set(true))).onFalse(
+    driverController.x().onTrue(Commands.runOnce(() -> signalHumanPlayer.set(true))).onFalse(
         Commands.sequence(Commands.waitSeconds(1.5), Commands.runOnce(() -> signalHumanPlayer.set(false)))
     );
   }
@@ -199,6 +201,7 @@ public class RobotContainer {
 
     operatorController.options().onTrue(elevatorSubsystem.probeHomeCommand());
     operatorController.share().onTrue(slapdownSuperstructure.probeRotationHomeCommand());
+    operatorController.povRight().onTrue(ElevatorWristCommands.elevatorWristSafeSpeakerCommand(elevatorSubsystem, wristSubsystem));
 
     operatorController
         .povUp()
@@ -244,6 +247,14 @@ public class RobotContainer {
           rotationLimiter.reset(currentSpeeds.omegaRadiansPerSecond);
         };
 
+    AtomicBoolean snapToSpeaker = new AtomicBoolean();
+    TunableTelemetryProfiledPIDController snapController = new TunableTelemetryProfiledPIDController("/snap/controller", Constants.AutoConstants.ANGULAR_POSITION_PID_GAINS, Constants.AutoConstants.ANGULAR_POSITION_TRAPEZOIDAL_GAINS);
+    snapController.enableContinuousInput(-Math.PI, Math.PI);
+    driverController.a().whileTrue(Commands.run(() -> {
+      snapToSpeaker.set(true);
+    }).finallyDo(() -> snapToSpeaker.set(false)).beforeStarting(
+            () -> snapController.reset(driveSubsystem.getPose().getRotation().getRadians(), driveSubsystem.getCurrentChassisSpeeds().omegaRadiansPerSecond)
+    ));
     driveCommandChooser.setDefaultOption(
         "Hybrid (Default to Field Relative & absolute control but use robot centric when holding button)",
         new SwerveDriveCommand(
@@ -255,10 +266,18 @@ public class RobotContainer {
                                 RaiderMathUtils.deadZoneAndCubeJoystick(
                                     -driverController.getLeftX()))
                             .times(maxTranslationalSpeedSuppler.getAsDouble())),
-                () ->
-                    rotationLimiter.calculate(
-                        RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getRightX())
-                            * maxAngularSpeedSupplier.getAsDouble()),
+                () -> {
+                  if  (snapToSpeaker.get()) {
+                    double target = Units.degreesToRadians(-25.0);
+                    if (RaiderUtils.shouldFlip()) {
+                      target = Units.degreesToRadians(180 + 25);
+                    }
+                    return snapController.calculate(driveSubsystem.getPose().getRotation().getRadians(), target) + snapController.getSetpoint().velocity;
+                  }
+                  return rotationLimiter.calculate(
+                          RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getRightX())
+                                  * maxAngularSpeedSupplier.getAsDouble());
+                },
                 driverController.rightBumper().negate(),
                 driveSubsystem)
             .beforeStarting(resetRateLimiters));

@@ -42,7 +42,7 @@ public class PhotonSubsystem extends SubsystemBase {
 
     poseEstimator =
         new PhotonPoseEstimator(
-            fieldLayout, PoseStrategy.CLOSEST_TO_CAMERA_HEIGHT, camera, ROBOT_TO_CAM);
+            fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camera, ROBOT_TO_CAM);
 
     estimatedPoseEntries.append(new Pose3d[0]);
   }
@@ -72,7 +72,7 @@ public class PhotonSubsystem extends SubsystemBase {
       estimatedPoseEntries.append(new Pose3d[] {});
     }
 
-    visionTargetEntries.append(targetPoses.toArray(new Pose3d[targetPoses.size()]));
+    visionTargetEntries.append(targetPoses.toArray(new Pose3d[0]));
 
     return updatedPoses;
   }

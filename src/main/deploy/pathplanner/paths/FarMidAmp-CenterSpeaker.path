@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.869999999999999,
-        "y": 5.8
+        "x": 6.803640556355187,
+        "y": 6.303414190161714
       },
       "isLocked": false,
       "linkedName": "FarMidAmpNote"
     },
     {
       "anchor": {
-        "x": 5.603838582677165,
-        "y": 6.336966363747543
+        "x": 5.5750371593335775,
+        "y": 6.528599751643948
       },
       "prevControl": {
-        "x": 6.753341307424617,
-        "y": 6.336966363747543
+        "x": 6.72453988408103,
+        "y": 6.528599751643948
       },
       "nextControl": {
-        "x": 4.405349163937297,
-        "y": 6.336966363747543
+        "x": 4.376547740593709,
+        "y": 6.528599751643948
       },
       "isLocked": false,
       "linkedName": null
@@ -70,7 +70,7 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 4.0,
+    "maxVelocity": 3.8,
     "maxAcceleration": 4.0,
     "maxAngularVelocity": 500.0,
     "maxAngularAcceleration": 2000.0

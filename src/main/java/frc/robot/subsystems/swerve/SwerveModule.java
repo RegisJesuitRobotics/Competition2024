@@ -19,6 +19,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.Constants;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.tunable.gains.TunableFFGains;
 import frc.robot.telemetry.tunable.gains.TunablePIDGains;
@@ -390,6 +391,10 @@ public class SwerveModule {
     return new SwerveModulePosition(getDriveMotorPositionMeters(), getSteerAngle());
   }
 
+  public double getPositionRad() {
+    return getDriveMotorPositionMeters() / driveConversion * Math.PI * 2 / Constants.SwerveConstants.DRIVE_GEAR_REDUCTION;
+  }
+
   /**
    * Set the desired state for this swerve module
    *
@@ -471,7 +476,7 @@ public class SwerveModule {
   }
 
   private void checkAndUpdateGains() {
-    if (driveVelocityPIDGains.hasChanged() || driveVelocityFFGains.hasChanged()) {
+    if (driveVelocityPIDGains.hasChanged(hashCode()) || driveVelocityFFGains.hasChanged(hashCode())) {
       Slot0Configs newSlotConfig = new Slot0Configs();
       driveVelocityPIDGains.setSlot(newSlotConfig);
       driveVelocityFFGains.setSlot(newSlotConfig);
@@ -480,7 +485,7 @@ public class SwerveModule {
       moduleEventEntry.append("Updated drive gains due to value change");
     }
 
-    if (steerPositionPIDGains.hasChanged() || steerVelocityFFGains.hasChanged()) {
+    if (steerPositionPIDGains.hasChanged(hashCode()) || steerVelocityFFGains.hasChanged(hashCode())) {
       Slot0Configs newSlotConfig = new Slot0Configs();
       steerPositionPIDGains.setSlot(newSlotConfig);
       steerVelocityFFGains.setSlot(newSlotConfig);

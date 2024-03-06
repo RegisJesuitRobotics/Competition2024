@@ -5,6 +5,7 @@ import static frc.robot.Constants.SwerveConstants.*;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignal;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -107,7 +108,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     poseEstimator =
         new SwerveDrivePoseEstimator(
-            kinematics, getGyroRotation(), getModulePositions(), new Pose2d());
+            kinematics, getGyroRotation(), getModulePositions(), new Pose2d(), VecBuilder.fill(0.1, 0.1, 0.01),
+                VecBuilder.fill(0.9, 0.9, 1));
 
     // Start odometry thread
     Robot.getInstance().addPeriodic(this::updateOdometry, 1.0 / ODOMETRY_FREQUENCY);
@@ -281,6 +283,18 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     return actualPositions;
   }
 
+  public double[] getWheelRadiusCharPosition(){
+    double[] actualPositions = new double[modules.length];
+    for (int i = 0; i < modules.length; i++) {
+      actualPositions[i] = modules[i].getPositionRad();
+    }
+    return actualPositions;
+  }
+
+  public void runWheelCharacterization(double omegaSpeed){
+    setChassisSpeeds(new ChassisSpeeds(0, 0, omegaSpeed), false);
+  }
+
   public Command driveQuasistaticSysIDCommand(SysIdRoutine.Direction direction) {
     return driveVelocitySysId
         .quasistatic(direction)
@@ -315,6 +329,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                       new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)),
                       new SwerveModuleState(0.0, Rotation2d.fromDegrees(0))
                     }));
+  }
+
+  public Rotation2d getGyroYaw(){
+    return Rotation2d.fromDegrees(yawSignal.refresh().getValue());
   }
 
   public Command steerQuasistaticSysIDCommand(SysIdRoutine.Direction direction) {

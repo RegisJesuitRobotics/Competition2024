@@ -19,9 +19,11 @@ public class TunableTrapezoidalProfileGains {
     this.maxAcceleration =
         new TunableDouble(networkName + "maxAcceleration", maxAcceleration, tuningMode);
   }
-
-  public boolean hasChanged() {
-    return maxVelocity.hasChanged() || maxAcceleration.hasChanged();
+public boolean hasChanged(){
+    return hasChanged(0);
+}
+  public boolean hasChanged(int hashCode) {
+    return maxVelocity.hasChanged(hashCode) || maxAcceleration.hasChanged(hashCode);
   }
 
   public TrapezoidProfile.Constraints createConstraints() {

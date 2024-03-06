@@ -29,8 +29,12 @@ public class TunableFFGains {
     slot.kA = aFF.get();
   }
 
-  public boolean hasChanged() {
-    return sFF.hasChanged() || vFF.hasChanged() || aFF.hasChanged();
+  public boolean hasChanged(){
+    return hasChanged(0);
+  }
+
+  public boolean hasChanged(int hashCode) {
+    return sFF.hasChanged(hashCode) || vFF.hasChanged(hashCode) || aFF.hasChanged(hashCode);
   }
 
   public SimpleMotorFeedforward createFeedforward() {

@@ -20,6 +20,7 @@ import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.EventTelemetryEntry;
+import frc.robot.telemetry.wrappers.TelemetryCANSparkFlex;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
 import frc.robot.utils.Alert;
 import frc.robot.utils.ConfigurationUtils;
@@ -39,8 +40,8 @@ public class WristSubsystem extends SubsystemBase {
   private DoubleTelemetryEntry absoluteEncoderEntry =
       new DoubleTelemetryEntry("/wrist/absoluteEncoder", true);
 
-  private final TelemetryCANSparkMax wristMotor =
-      new TelemetryCANSparkMax(
+  private final TelemetryCANSparkFlex wristMotor =
+      new TelemetryCANSparkFlex(
           WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless, "/wrist/motors", true);
   private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(WRIST_ENCODER_PORT);
 

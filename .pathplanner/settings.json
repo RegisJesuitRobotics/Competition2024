@@ -12,7 +12,7 @@
     "Center Speaker",
     "Source Speaker"
   ],
-  "defaultMaxVel": 4.0,
+  "defaultMaxVel": 3.8,
   "defaultMaxAccel": 4.0,
   "defaultMaxAngVel": 500.0,
   "defaultMaxAngAccel": 2000.0,

@@ -16,6 +16,7 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.commands.ElevatorWristCommands;
 import frc.robot.commands.IntakingCommands;
 import frc.robot.commands.ScoringCommands;
+import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -81,10 +82,7 @@ public class Autos {
     PathPlannerLogging.setLogActivePathCallback(
         (path) -> trajectoryTelemetryEntry.append(path.toArray(new Pose2d[0])));
     PathPlannerLogging.setLogTargetPoseCallback(
-        (pose) -> {
-          driveSubsystem.resetOdometry(pose);
-          desiredPoseTelemetryEntry.append(pose);
-        });
+            desiredPoseTelemetryEntry::append);
 
     autoChooser = AutoBuilder.buildAutoChooser("JustProbe");
 
@@ -96,11 +94,17 @@ public class Autos {
         "drive s df", driveSubsystem.steerDynamicSysIDCommand(Direction.kForward));
     autoChooser.addOption(
         "drive s dr", driveSubsystem.steerDynamicSysIDCommand(Direction.kReverse));
+
+    autoChooser.addOption("wheelRadiusCharacterizationClock", new WheelRadiusCharacterization(driveSubsystem, WheelRadiusCharacterization.Direction.CLOCKWISE, 0.5));
+    autoChooser.addOption("wheelRadiusCharacterizationCounterClock", new WheelRadiusCharacterization(driveSubsystem, WheelRadiusCharacterization.Direction.COUNTER_CLOCKWISE, 0.5));
+
   }
 
   public SendableChooser<Command> getAutoChooser() {
     return autoChooser;
   }
+
+
 
   private Command intakeUntilNoteAndPrepareShot() {
     if (Robot.isSimulation()) {

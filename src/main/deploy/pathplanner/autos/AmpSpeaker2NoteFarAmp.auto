@@ -3,7 +3,7 @@
   "startingPose": {
     "position": {
       "x": 0.74,
-      "y": 6.596235535725297
+      "y": 6.61
     },
     "rotation": 60.0
   },
@@ -28,6 +28,12 @@
           "data": {
             "commands": [
               {
+                "type": "named",
+                "data": {
+                  "name": "IntakeUntilNote"
+                }
+              },
+              {
                 "type": "sequential",
                 "data": {
                   "commands": [
@@ -40,7 +46,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.5
+                        "waitTime": 0.25
                       }
                     },
                     {
@@ -50,12 +56,6 @@
                       }
                     }
                   ]
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "IntakeUntilNote"
                 }
               }
             ]

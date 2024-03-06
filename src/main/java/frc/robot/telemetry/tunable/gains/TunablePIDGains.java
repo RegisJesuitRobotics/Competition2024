@@ -30,7 +30,11 @@ public class TunablePIDGains {
   }
 
   public boolean hasChanged() {
-    return p.hasChanged() || i.hasChanged() || d.hasChanged();
+    return hasChanged(0);
+  }
+
+  public boolean hasChanged(int hashCode) {
+    return p.hasChanged(hashCode) || i.hasChanged(hashCode) || d.hasChanged(hashCode);
   }
 
   public TunableTelemetryPIDController createLoggablePIDController(String logTable) {

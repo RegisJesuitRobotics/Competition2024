@@ -22,12 +22,13 @@ public final class Constants {
     public static final double AMP_ELEVATOR_HEIGHT = Units.inchesToMeters(3.5);
     public static final double AMP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(105.0);
 
-    public static final double INTAKE_ELEVATOR_HEIGHT = Units.inchesToMeters(2.5);
+    public static final double INTAKE_ELEVATOR_HEIGHT = Units.inchesToMeters(0);
     public static final double INTAKE_WRIST_ANGLE_RADIANS = Units.degreesToRadians(0.0);
 
     public static final double CLOSE_SPEAKER_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
     public static final double CLOSE_SPEAKER_WRIST_ANGLE_RADIANS =
-        WristConstants.WRIST_MIN.getRadians() + Units.degreesToRadians(10);
+        WristConstants.WRIST_MIN.getRadians() + Units.degreesToRadians(15);
+    public static final double SAFE_SPEAKER_WRIST_RADIANS = 0.69 + Units.degreesToRadians(1);
 
     public static final double CLIMB_UP_ELEVATOR_HEIGHT = Units.inchesToMeters(11.0);
     public static final double CLIMB_UP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(30.0);
@@ -121,7 +122,7 @@ public final class Constants {
     public static final int PIGEON_ID = 21;
 
     public static final int NUM_MODULES = 4;
-    public static final double WHEEL_DIAMETER_METERS = Units.inchesToMeters(3.875);
+    public static final double WHEEL_DIAMETER_METERS = Units.inchesToMeters(1.9 * 2);
     public static final double DRIVE_GEAR_REDUCTION = (50.0 / 16) * (17.0 / 27) * (45.0 / 15);
 
     public static final double STEER_GEAR_REDUCTION = 150.0 / 7.0;
@@ -204,10 +205,10 @@ public final class Constants {
     public static final double MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED = 2.75;
 
     public static final double MAX_AUTO_ANGULAR_VELOCITY_RADIANS_SECOND = 7.0;
-    public static final double MAX_AUTO_ANGULAR_ACCELERATION_RADIANS_SECOND_SQUARED = 20.0;
+    public static final double MAX_AUTO_ANGULAR_ACCELERATION_RADIANS_SECOND_SQUARED = 30.0;
 
     public static final TunablePIDGains TRANSLATION_POSITION_GAINS =
-        new TunablePIDGains("/gains/driveXY", 4.0, 0.0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/driveXY", 4.1, 0.0, 0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains TRANSLATION_POSITION_TRAPEZOIDAL_GAINS =
         new TunableTrapezoidalProfileGains(
             "/gains/driveXY",
@@ -215,7 +216,7 @@ public final class Constants {
             MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED,
             MiscConstants.TUNING_MODE);
     public static final TunablePIDGains ANGULAR_POSITION_PID_GAINS =
-        new TunablePIDGains("/gains/driveAngular", 0.9, 0, 0.0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/driveAngular", 1, 0, 0.0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains ANGULAR_POSITION_TRAPEZOIDAL_GAINS =
         new TunableTrapezoidalProfileGains(
             "/gains/driveAngular",
@@ -297,8 +298,8 @@ public final class Constants {
         new Transform3d(
             Units.inchesToMeters(-8.017),
             Units.inchesToMeters(0),
-            Units.inchesToMeters(27.088),
-            new Rotation3d(0, Units.degreesToRadians(27.088), 0));
+            Units.inchesToMeters(17.34),
+            new Rotation3d(0, -Units.degreesToRadians(27.088), Math.PI));
   }
 
   public static class MiscConstants {

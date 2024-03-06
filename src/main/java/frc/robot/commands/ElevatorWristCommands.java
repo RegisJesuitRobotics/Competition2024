@@ -40,6 +40,15 @@ public class ElevatorWristCommands {
             Rotation2d.fromRadians(SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS)));
   }
 
+  public static Command elevatorWristSafeSpeakerCommand(ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem){
+    return Commands.parallel(
+            elevatorSubsystem.setElevatorPositionCommand(SetpointConstants.CLOSE_SPEAKER_ELEVATOR_HEIGHT),
+            wristSubsystem.setPositonCommand(
+                    Rotation2d.fromRadians(SetpointConstants.SAFE_SPEAKER_WRIST_RADIANS)
+            )
+    );
+  }
+
   public static Command elevatorWristZeroCommand(
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(
@@ -71,7 +80,7 @@ public class ElevatorWristCommands {
     return Commands.sequence(
         elevatorSubsystem.setVoltageCommand(-10).until(elevatorSubsystem::atBottomLimit),
         Commands.parallel(
-            elevatorSubsystem.setVoltageCommand(0.0),
+            elevatorSubsystem.setVoltageCommand(0.4),
             wristSubsystem.setPositonCommand(
                 Rotation2d.fromRadians(SetpointConstants.CLIMB_DOWN_WRIST_ANGLE_RADIANS))));
   }
