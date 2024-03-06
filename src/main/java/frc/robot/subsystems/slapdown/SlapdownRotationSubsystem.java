@@ -146,7 +146,7 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
     return !rotationLimitSwitch.get();
   }
 
-  private boolean isHomed() {
+  public boolean isHomed() {
     return isHomed;
   }
 

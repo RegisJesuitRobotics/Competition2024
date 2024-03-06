@@ -195,6 +195,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     return controller.atGoal();
   }
 
+  public boolean atBottom() {
+    return controller.getGoal().position == ELEVATOR_MIN_HEIGHT && atGoal();
+  }
+
   public Command setFollowerCommand(double voltage) {
     return this.run(() -> elevatorMotorFollower.setVoltage(voltage));
   }

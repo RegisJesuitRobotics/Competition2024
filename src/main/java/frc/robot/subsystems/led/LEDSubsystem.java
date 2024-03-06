@@ -17,6 +17,7 @@ public class LEDSubsystem extends SubsystemBase {
   private final ParentAddressableLEDBuffer ledBuffer = new ParentAddressableLEDBuffer(TOTAL_SIZE);
   private final RaiderAddressableLEDBuffer[] splitBuffers;
   private final Pattern[] patterns;
+  private final RaiderAddressableLEDBuffer statusDedicatedBuffer;
   private double patternStartTime = 0.0;
 
   public LEDSubsystem() {
@@ -29,12 +30,16 @@ public class LEDSubsystem extends SubsystemBase {
     }
     i += FRONT_LEFT_SIZE;
 
-    splitBuffers[1] = ledBuffer.split(i, i + BACK_LEFT_SIZE);
-    splitBuffers[1] = splitBuffers[1].reversed();
+    int effectiveBackLeftSize = BACK_LEFT_SIZE - STATUS_DEDICATED_SIZE;
+    // Pre-concatenate a buffer for the status dedicated LEDs so it appears the saem as the rest
+    splitBuffers[1] = ledBuffer.split(i, i + effectiveBackLeftSize).reversed().preConcatenate(new FakeLEDBuffer(STATUS_DEDICATED_SIZE));
     if (BACK_LEFT_SIZE < MAX_SIZE) {
       splitBuffers[1] = splitBuffers[1].concatenate(new FakeLEDBuffer(MAX_SIZE - BACK_LEFT_SIZE));
     }
-    i += BACK_LEFT_SIZE;
+    i += effectiveBackLeftSize;
+
+    statusDedicatedBuffer = ledBuffer.split(i, i + STATUS_DEDICATED_SIZE);
+    i += STATUS_DEDICATED_SIZE;
 
     splitBuffers[2] = ledBuffer.split(i, i + BACK_RIGHT_SIZE);
     if (BACK_RIGHT_SIZE < MAX_SIZE) {
@@ -42,8 +47,7 @@ public class LEDSubsystem extends SubsystemBase {
     }
     i += BACK_RIGHT_SIZE;
 
-    splitBuffers[3] = ledBuffer.split(i, i + FRONT_RIGHT_SIZE);
-    splitBuffers[3] = splitBuffers[3].reversed();
+    splitBuffers[3] = ledBuffer.split(i, i + FRONT_RIGHT_SIZE).reversed();
     if (FRONT_RIGHT_SIZE < MAX_SIZE) {
       splitBuffers[3] = splitBuffers[3].concatenate(new FakeLEDBuffer(MAX_SIZE - FRONT_RIGHT_SIZE));
     }
@@ -57,6 +61,10 @@ public class LEDSubsystem extends SubsystemBase {
     led.setLength(ledBuffer.getLength());
     led.setData(ledBuffer);
     led.start();
+  }
+
+  public void setStatusLight(int i, Color color) {
+    statusDedicatedBuffer.setLED(i, color);
   }
 
   public void setAllPattern(Pattern pattern, boolean forceRestart) {

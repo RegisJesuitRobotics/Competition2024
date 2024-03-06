@@ -76,6 +76,8 @@ public class RobotContainer {
   private final ListenableSendableChooser<Command> driveCommandChooser =
       new ListenableSendableChooser<>();
 
+  private final AtomicBoolean signalHumanPlayer = new AtomicBoolean(false);
+
   public RobotContainer() {
     configureDriverBindings();
     configureOperatorBindings();
@@ -88,6 +90,30 @@ public class RobotContainer {
   }
 
   private void configureLEDs() {
+    // Default state for homing lights
+    ledSubsystem.setStatusLight(0, Color.kRed);
+    ledSubsystem.setStatusLight(1, Color.kRed);
+
+    // Set homing lights to state
+    new Trigger(slapdownSuperstructure.getSlapdownRotationSubsystem()::isHomed).onFalse(
+        Commands.runOnce(() -> {
+          ledSubsystem.setStatusLight(0, Color.kRed);
+        }).ignoringDisable(true).withName("SlapdownLEDStatusFalse")
+    ).onTrue(
+        Commands.runOnce(() -> {
+          ledSubsystem.setStatusLight(0, Color.kGreen);
+        }).ignoringDisable(true).withName("SlapdownLEDStatusTrue")
+    );
+    new Trigger(elevatorSubsystem::isHomed).onFalse(
+        Commands.runOnce(() -> {
+          ledSubsystem.setStatusLight(1, Color.kRed);
+        }).ignoringDisable(true).withName("ElevatorLEDStatusFalse")
+    ).onTrue(
+        Commands.runOnce(() -> {
+          ledSubsystem.setStatusLight(1, Color.kGreen);
+        }).ignoringDisable(true).withName("ElevatorLEDStatusTrue")
+    );
+
     AtomicBoolean shouldBlink = new AtomicBoolean();
     new Trigger(transportSubsystem::atSensor)
         .onTrue(
@@ -98,16 +124,20 @@ public class RobotContainer {
 
     List<LEDState> ledStates =
         List.of(
+            new LEDState(
+                signalHumanPlayer::get,
+                new AlternatePattern(0.5, Color.kOrange, Color.kBlack)),
             // Red blink if we have any faults
             new LEDState(
                 () -> Alert.getDefaultGroup().hasAnyErrors(),
                 new AlternatePattern(2.0, Color.kRed, Color.kBlack)),
+            // Green if we can go under the stage
             new LEDState(
                 shouldBlink::get, new AlternatePattern(0.5, Color.kAliceBlue, Color.kBlack)),
             new LEDState(
                 () ->
                     DriverStation.isTeleopEnabled()
-                        && elevatorSubsystem.atBottomLimit()
+                        && elevatorSubsystem.atBottom()
                         && wristSubsystem.atBottom(),
                 new SolidPattern(Color.kGreen)),
             // Default disabled pattern
@@ -140,9 +170,14 @@ public class RobotContainer {
         .whileTrue(
             Commands.parallel(
                 IntakingCommands.intakeUntilDetected(
-                    intakeSubsystem, slapdownSuperstructure, transportSubsystem)));
-    driverController.rightTrigger().onFalse(slapdownSuperstructure.setUpCommand());
+                    intakeSubsystem, slapdownSuperstructure, transportSubsystem))).onFalse(
+            slapdownSuperstructure.setUpCommand()
+        );
     driverController.circle().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
+
+    driverController.a().onTrue(Commands.runOnce(() -> signalHumanPlayer.set(true))).onFalse(
+        Commands.sequence(Commands.waitSeconds(1.5), Commands.runOnce(() -> signalHumanPlayer.set(false)))
+    );
   }
 
   private void configureOperatorBindings() {
@@ -151,7 +186,7 @@ public class RobotContainer {
         .onTrue(
             Commands.parallel(
                 ScoringCommands.shootSetpointAmpCommand(shooterSubsystem),
-                transportSubsystem.setVoltageCommand(12)));
+                transportSubsystem.setVoltageCommand(10)));
     operatorController
         .triangle()
         .onTrue(
