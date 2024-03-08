@@ -85,6 +85,8 @@ public class Autos {
             desiredPoseTelemetryEntry::append);
 
     autoChooser = AutoBuilder.buildAutoChooser("JustProbe");
+    autoChooser.addOption("elevator qf", elevatorSubsystem.sysIdQuasistatic(Direction.kForward));
+    autoChooser.addOption("elevator qr", elevatorSubsystem.sysIdQuasistatic(Direction.kReverse));
 
     autoChooser.addOption(
         "drive s qf", driveSubsystem.steerQuasistaticSysIDCommand(Direction.kForward));
