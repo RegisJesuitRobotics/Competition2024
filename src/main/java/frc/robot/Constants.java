@@ -229,7 +229,7 @@ public final class Constants {
     public static final double WRIST_GEAR_RATIO = 25.0 * 42.0 / 18.0;
 
     public static final Rotation2d WRIST_MAX = new Rotation2d(Units.degreesToRadians(60));
-    public static final Rotation2d WRIST_MIN = Rotation2d.fromRadians(0.12799356352873126);
+    public static final Rotation2d WRIST_MIN = Rotation2d.fromRadians(0.10695095737072258);
 
     public static final double WRIST_OFFSET = 0.805 + Math.PI / 2.0;
     public static final int WRIST_ENCODER_PORT = 7;

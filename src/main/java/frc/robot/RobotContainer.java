@@ -323,10 +323,13 @@ public class RobotContainer {
     if (oldCommand != null) {
       // We have to cancel the command so the new default one will run
       oldCommand.cancel();
+
     }
   }
 
   public Command getAutonomousCommand() {
     return autos.getAutoChooser().getSelected();
+
+
   }
 }
