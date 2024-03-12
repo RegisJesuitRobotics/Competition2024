@@ -40,13 +40,13 @@ public class ElevatorWristCommands {
             Rotation2d.fromRadians(SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS)));
   }
 
-  public static Command elevatorWristSafeSpeakerCommand(ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem){
+  public static Command elevatorWristSafeSpeakerCommand(
+      ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(
-            elevatorSubsystem.setElevatorPositionCommand(SetpointConstants.CLOSE_SPEAKER_ELEVATOR_HEIGHT),
-            wristSubsystem.setPositonCommand(
-                    Rotation2d.fromRadians(SetpointConstants.SAFE_SPEAKER_WRIST_RADIANS)
-            )
-    );
+        elevatorSubsystem.setElevatorPositionCommand(
+            SetpointConstants.CLOSE_SPEAKER_ELEVATOR_HEIGHT),
+        wristSubsystem.setPositonCommand(
+            Rotation2d.fromRadians(SetpointConstants.SAFE_SPEAKER_WRIST_RADIANS)));
   }
 
   public static Command elevatorWristFarSpeakerCommand(ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem){
@@ -82,6 +82,16 @@ public class ElevatorWristCommands {
             Commands.waitUntil(wristSubsystem::atGoal),
             elevatorSubsystem.setElevatorPositionCommand(
                 SetpointConstants.CLIMB_UP_ELEVATOR_HEIGHT)));
+  }
+
+  public static Command farPositionCommand(ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem){
+    return Commands.parallel(
+        wristSubsystem.setPositonCommand(
+            Rotation2d.fromRadians(SetpointConstants.FAR_SHOOT_WRIST_POSITION)),
+        Commands.sequence(
+            Commands.waitUntil(wristSubsystem::atGoal),
+            elevatorSubsystem.setElevatorPositionCommand(
+                SetpointConstants.FAR_SHOOT_ELEVATOR_POSITION)));
   }
 
   public static Command elevatorWristClimbDownCommand(

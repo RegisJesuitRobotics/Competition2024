@@ -33,11 +33,15 @@ public class ScoringCommands {
   }
 
   public static Command shootSetpointAmpCommand(ShooterSubsystem shooterSubsystem) {
-//    return shooterSubsystem.setVoltageCommand(8.0);
-    return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(1000.0));
+    //    return shooterSubsystem.setVoltageCommand(8.0);
+    return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(2000.0));
   }
 
   public static Command transportCloseSpeakerCommand(TransportSubsystem transportSubsystem) {
     return transportSubsystem.setVoltageCommand(TransportConstants.TRANSPORT_CLOSE_SPEAKER_VOLTAGE);
+  }
+
+  public static Command setSetpointFarShoot(ShooterSubsystem shooterSubsystem) {
+   return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(8000));
   }
 }

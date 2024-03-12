@@ -29,7 +29,7 @@ public class TunableFFGains {
     slot.kA = aFF.get();
   }
 
-  public boolean hasChanged(){
+  public boolean hasChanged() {
     return hasChanged(0);
   }
 

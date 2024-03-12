@@ -248,10 +248,11 @@ public class ElevatorSubsystem extends SubsystemBase {
   public Command probeHomeCommand() {
     return setVoltageCommand(-0.75)
         .until(this::isHomed)
-        .beforeStarting(() -> {
-          isHoming = true;
-          isHomed = false;
-        })
+        .beforeStarting(
+            () -> {
+              isHoming = true;
+              isHomed = false;
+            })
         .finallyDo(() -> isHoming = false)
         .withName("HomeElevator");
   }

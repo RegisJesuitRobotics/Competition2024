@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.9198957657174576,
-        "y": 7.262887585960358
+        "x": 1.241177037061454,
+        "y": 7.405077812700155
       },
       "isLocked": false,
       "linkedName": "AmpSpeaker"
     },
     {
       "anchor": {
-        "x": 2.5304594822152606,
-        "y": 7.65
+        "x": 2.766059069013813,
+        "y": 7.655743352199173
       },
       "prevControl": {
-        "x": 1.4567305430907158,
-        "y": 7.3967256277105164
+        "x": 1.7660590690138132,
+        "y": 7.655743352199173
       },
       "nextControl": null,
       "isLocked": false,
@@ -39,7 +39,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0,
+    "rotation": 0.0,
     "rotateFast": false
   },
   "reversed": false,
