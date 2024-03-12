@@ -4,7 +4,6 @@ package frc.robot.telemetry.tunable.gains;
 import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
-
 import java.util.HashMap;
 
 /**

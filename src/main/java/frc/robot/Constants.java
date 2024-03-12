@@ -19,8 +19,8 @@ public final class Constants {
   private Constants() {}
 
   public static class SetpointConstants {
-    public static final double AMP_ELEVATOR_HEIGHT = Units.inchesToMeters(3.5);
-    public static final double AMP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(105.0);
+    public static final double AMP_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
+    public static final double AMP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(120.0);
 
     public static final double INTAKE_ELEVATOR_HEIGHT = Units.inchesToMeters(0);
     public static final double INTAKE_WRIST_ANGLE_RADIANS = Units.degreesToRadians(0.0);
@@ -232,7 +232,7 @@ public final class Constants {
     public static final double WRIST_GEAR_RATIO = 25.0 * 42.0 / 18.0;
 
     public static final Rotation2d WRIST_MAX = new Rotation2d(Units.degreesToRadians(60));
-    public static final Rotation2d WRIST_MIN = Rotation2d.fromRadians(0.12799356352873126);
+    public static final Rotation2d WRIST_MIN = Rotation2d.fromRadians(0.10695095737072258);
 
     public static final double WRIST_OFFSET = 0.805 + Math.PI / 2.0;
     public static final int WRIST_ENCODER_PORT = 7;

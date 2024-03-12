@@ -108,8 +108,12 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
     poseEstimator =
         new SwerveDrivePoseEstimator(
-            kinematics, getGyroRotation(), getModulePositions(), new Pose2d(), VecBuilder.fill(0.1, 0.1, 0.01),
-                VecBuilder.fill(0.9, 0.9, 1));
+            kinematics,
+            getGyroRotation(),
+            getModulePositions(),
+            new Pose2d(),
+            VecBuilder.fill(0.1, 0.1, 0.01),
+            VecBuilder.fill(0.9, 0.9, 1));
 
     // Start odometry thread
     Robot.getInstance().addPeriodic(this::updateOdometry, 1.0 / ODOMETRY_FREQUENCY);
@@ -283,7 +287,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     return actualPositions;
   }
 
-  public double[] getWheelRadiusCharPosition(){
+  public double[] getWheelRadiusCharPosition() {
     double[] actualPositions = new double[modules.length];
     for (int i = 0; i < modules.length; i++) {
       actualPositions[i] = modules[i].getPositionRad();
@@ -291,7 +295,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     return actualPositions;
   }
 
-  public void runWheelCharacterization(double omegaSpeed){
+  public void runWheelCharacterization(double omegaSpeed) {
     setChassisSpeeds(new ChassisSpeeds(0, 0, omegaSpeed), false);
   }
 
@@ -331,7 +335,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
                     }));
   }
 
-  public Rotation2d getGyroYaw(){
+  public Rotation2d getGyroYaw() {
     return Rotation2d.fromDegrees(yawSignal.refresh().getValue());
   }
 

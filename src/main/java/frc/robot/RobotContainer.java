@@ -25,7 +25,6 @@ import frc.robot.hid.CommandXboxPlaystationController;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.led.LEDSubsystem;
-import frc.robot.subsystems.photon.PhotonSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.slapdown.SlapdownSuperstructure;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
@@ -48,9 +47,9 @@ import java.util.function.DoubleSupplier;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-//  private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
-//    private final SwerveDriveSubsystem driveSubsystem =
-//        new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
+  //  private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
+  //    private final SwerveDriveSubsystem driveSubsystem =
+  //        new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
   private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem((pose) -> List.of());
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
@@ -97,24 +96,36 @@ public class RobotContainer {
     ledSubsystem.setStatusLight(1, Color.kRed);
 
     // Set homing lights to state
-    new Trigger(slapdownSuperstructure.getSlapdownRotationSubsystem()::isHomed).onFalse(
-        Commands.runOnce(() -> {
-          ledSubsystem.setStatusLight(0, Color.kRed);
-        }).ignoringDisable(true).withName("SlapdownLEDStatusFalse")
-    ).onTrue(
-        Commands.runOnce(() -> {
-          ledSubsystem.setStatusLight(0, Color.kGreen);
-        }).ignoringDisable(true).withName("SlapdownLEDStatusTrue")
-    );
-    new Trigger(elevatorSubsystem::isHomed).onFalse(
-        Commands.runOnce(() -> {
-          ledSubsystem.setStatusLight(1, Color.kRed);
-        }).ignoringDisable(true).withName("ElevatorLEDStatusFalse")
-    ).onTrue(
-        Commands.runOnce(() -> {
-          ledSubsystem.setStatusLight(1, Color.kGreen);
-        }).ignoringDisable(true).withName("ElevatorLEDStatusTrue")
-    );
+    new Trigger(slapdownSuperstructure.getSlapdownRotationSubsystem()::isHomed)
+        .onFalse(
+            Commands.runOnce(
+                    () -> {
+                      ledSubsystem.setStatusLight(0, Color.kRed);
+                    })
+                .ignoringDisable(true)
+                .withName("SlapdownLEDStatusFalse"))
+        .onTrue(
+            Commands.runOnce(
+                    () -> {
+                      ledSubsystem.setStatusLight(0, Color.kGreen);
+                    })
+                .ignoringDisable(true)
+                .withName("SlapdownLEDStatusTrue"));
+    new Trigger(elevatorSubsystem::isHomed)
+        .onFalse(
+            Commands.runOnce(
+                    () -> {
+                      ledSubsystem.setStatusLight(1, Color.kRed);
+                    })
+                .ignoringDisable(true)
+                .withName("ElevatorLEDStatusFalse"))
+        .onTrue(
+            Commands.runOnce(
+                    () -> {
+                      ledSubsystem.setStatusLight(1, Color.kGreen);
+                    })
+                .ignoringDisable(true)
+                .withName("ElevatorLEDStatusTrue"));
 
     AtomicBoolean shouldBlink = new AtomicBoolean();
     new Trigger(transportSubsystem::atSensor)
@@ -127,8 +138,7 @@ public class RobotContainer {
     List<LEDState> ledStates =
         List.of(
             new LEDState(
-                signalHumanPlayer::get,
-                new AlternatePattern(0.5, Color.kOrange, Color.kBlack)),
+                signalHumanPlayer::get, new AlternatePattern(0.5, Color.kOrange, Color.kBlack)),
             // Red blink if we have any faults
             new LEDState(
                 () -> Alert.getDefaultGroup().hasAnyErrors(),
@@ -168,18 +178,28 @@ public class RobotContainer {
                 Constants.TransportConstants.TRANSPORT_CLOSE_SPEAKER_VOLTAGE));
     driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
     driverController
+        .leftBumper()
+        .whileTrue(IntakingCommands.intakeUntilDetectedNoSlap(intakeSubsystem, transportSubsystem));
+    driverController
         .rightTrigger()
         .whileTrue(
             Commands.parallel(
                 IntakingCommands.intakeUntilDetected(
-                    intakeSubsystem, slapdownSuperstructure, transportSubsystem))).onFalse(
-            slapdownSuperstructure.setUpCommand()
-        );
+                    intakeSubsystem, slapdownSuperstructure, transportSubsystem)))
+        .onFalse(slapdownSuperstructure.setUpCommand());
     driverController.circle().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
+    driverController
+        .y()
+        .whileTrue(
+            Commands.parallel(
+                transportSubsystem.setVoltageCommand(-8), shooterSubsystem.setVoltageCommand(-8)));
 
-    driverController.x().onTrue(Commands.runOnce(() -> signalHumanPlayer.set(true))).onFalse(
-        Commands.sequence(Commands.waitSeconds(1.5), Commands.runOnce(() -> signalHumanPlayer.set(false)))
-    );
+    driverController
+        .x()
+        .onTrue(Commands.runOnce(() -> signalHumanPlayer.set(true)))
+        .onFalse(
+            Commands.sequence(
+                Commands.waitSeconds(1.5), Commands.runOnce(() -> signalHumanPlayer.set(false))));
   }
 
   private void configureOperatorBindings() {
@@ -188,7 +208,8 @@ public class RobotContainer {
         .onTrue(
             Commands.parallel(
                 ScoringCommands.shootSetpointAmpCommand(shooterSubsystem),
-                transportSubsystem.setVoltageCommand(10)));
+                Commands.sequence(
+                    Commands.waitSeconds(0.75), transportSubsystem.setVoltageCommand(10))));
     operatorController
         .triangle()
         .onTrue(
@@ -201,7 +222,11 @@ public class RobotContainer {
 
     operatorController.options().onTrue(elevatorSubsystem.probeHomeCommand());
     operatorController.share().onTrue(slapdownSuperstructure.probeRotationHomeCommand());
-    operatorController.povRight().onTrue(ElevatorWristCommands.elevatorWristSafeSpeakerCommand(elevatorSubsystem, wristSubsystem));
+    operatorController
+        .povRight()
+        .onTrue(
+            ElevatorWristCommands.elevatorWristSafeSpeakerCommand(
+                elevatorSubsystem, wristSubsystem));
 
     operatorController
         .povUp()
@@ -248,13 +273,25 @@ public class RobotContainer {
         };
 
     AtomicBoolean snapToSpeaker = new AtomicBoolean();
-    TunableTelemetryProfiledPIDController snapController = new TunableTelemetryProfiledPIDController("/snap/controller", Constants.AutoConstants.ANGULAR_POSITION_PID_GAINS, Constants.AutoConstants.ANGULAR_POSITION_TRAPEZOIDAL_GAINS);
+    TunableTelemetryProfiledPIDController snapController =
+        new TunableTelemetryProfiledPIDController(
+            "/snap/controller",
+            Constants.AutoConstants.ANGULAR_POSITION_PID_GAINS,
+            Constants.AutoConstants.ANGULAR_POSITION_TRAPEZOIDAL_GAINS);
     snapController.enableContinuousInput(-Math.PI, Math.PI);
-    driverController.a().whileTrue(Commands.run(() -> {
-      snapToSpeaker.set(true);
-    }).finallyDo(() -> snapToSpeaker.set(false)).beforeStarting(
-            () -> snapController.reset(driveSubsystem.getPose().getRotation().getRadians(), driveSubsystem.getCurrentChassisSpeeds().omegaRadiansPerSecond)
-    ));
+    driverController
+        .a()
+        .whileTrue(
+            Commands.run(
+                    () -> {
+                      snapToSpeaker.set(true);
+                    })
+                .finallyDo(() -> snapToSpeaker.set(false))
+                .beforeStarting(
+                    () ->
+                        snapController.reset(
+                            driveSubsystem.getPose().getRotation().getRadians(),
+                            driveSubsystem.getCurrentChassisSpeeds().omegaRadiansPerSecond)));
     driveCommandChooser.setDefaultOption(
         "Hybrid (Default to Field Relative & absolute control but use robot centric when holding button)",
         new SwerveDriveCommand(
@@ -267,16 +304,18 @@ public class RobotContainer {
                                     -driverController.getLeftX()))
                             .times(maxTranslationalSpeedSuppler.getAsDouble())),
                 () -> {
-                  if  (snapToSpeaker.get()) {
+                  if (snapToSpeaker.get()) {
                     double target = Units.degreesToRadians(-25.0);
                     if (RaiderUtils.shouldFlip()) {
                       target = Units.degreesToRadians(180 + 25);
                     }
-                    return snapController.calculate(driveSubsystem.getPose().getRotation().getRadians(), target) + snapController.getSetpoint().velocity;
+                    return snapController.calculate(
+                            driveSubsystem.getPose().getRotation().getRadians(), target)
+                        + snapController.getSetpoint().velocity;
                   }
                   return rotationLimiter.calculate(
-                          RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getRightX())
-                                  * maxAngularSpeedSupplier.getAsDouble());
+                      RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getRightX())
+                          * maxAngularSpeedSupplier.getAsDouble());
                 },
                 driverController.rightBumper().negate(),
                 driveSubsystem)
