@@ -36,4 +36,8 @@ public class ScoringCommands {
   public static Command transportCloseSpeakerCommand(TransportSubsystem transportSubsystem) {
     return transportSubsystem.setVoltageCommand(TransportConstants.TRANSPORT_CLOSE_SPEAKER_VOLTAGE);
   }
+
+  public static Command setSetpointFarShoot(ShooterSubsystem shooterSubsystem) {
+   return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(8000));
+  }
 }

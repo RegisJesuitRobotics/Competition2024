@@ -75,6 +75,16 @@ public class ElevatorWristCommands {
                 SetpointConstants.CLIMB_UP_ELEVATOR_HEIGHT)));
   }
 
+  public static Command farPositionCommand(ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem){
+    return Commands.parallel(
+        wristSubsystem.setPositonCommand(
+            Rotation2d.fromRadians(SetpointConstants.FAR_SHOOT_WRIST_POSITION)),
+        Commands.sequence(
+            Commands.waitUntil(wristSubsystem::atGoal),
+            elevatorSubsystem.setElevatorPositionCommand(
+                SetpointConstants.FAR_SHOOT_ELEVATOR_POSITION)));
+  }
+
   public static Command elevatorWristClimbDownCommand(
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.sequence(

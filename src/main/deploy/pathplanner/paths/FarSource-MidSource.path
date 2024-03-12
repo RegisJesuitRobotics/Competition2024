@@ -3,32 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.269736126677953,
-        "y": 2.432078175029955
+        "x": 7.86,
+        "y": 0.7749824424295128
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.173424109889881,
-        "y": 2.0173778996357132
+        "x": 6.917125697492389,
+        "y": 1.108131132462618
       },
       "isLocked": false,
-      "linkedName": "FarMidSourceNote"
-    },
-    {
-      "anchor": {
-        "x": 5.513255300958551,
-        "y": 1.8960832440592332
-      },
-      "prevControl": {
-        "x": 6.428091314384522,
-        "y": 1.8854614956863989
-      },
-      "nextControl": {
-        "x": 3.8384739377113624,
-        "y": 1.9155283751634469
-      },
-      "isLocked": false,
-      "linkedName": null
+      "linkedName": "FarSourceNote"
     },
     {
       "anchor": {
@@ -36,12 +20,12 @@
         "y": 2.8716677383788465
       },
       "prevControl": {
-        "x": 3.33630630166577,
-        "y": 1.8711399006746339
+        "x": 3.1745243942780332,
+        "y": 1.3836444564153068
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "SourceSpeaker"
+      "linkedName": "FarShotSource"
     }
   ],
   "rotationTargets": [],
@@ -61,7 +45,7 @@
   "reversed": false,
   "folder": "Source Speaker",
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": -6.847012206698282,
     "velocity": 0
   },
   "useDefaultConstraints": true

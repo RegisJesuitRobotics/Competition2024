@@ -3,45 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.269736126677953,
-        "y": 2.432078175029955
+        "x": 7.903023546787834,
+        "y": 7.465625852548001
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.173424109889881,
-        "y": 2.0173778996357132
-      },
-      "isLocked": false,
-      "linkedName": "FarMidSourceNote"
-    },
-    {
-      "anchor": {
-        "x": 5.513255300958551,
-        "y": 1.8960832440592332
-      },
-      "prevControl": {
-        "x": 6.428091314384522,
-        "y": 1.8854614956863989
-      },
-      "nextControl": {
-        "x": 3.8384739377113624,
-        "y": 1.9155283751634469
+        "x": 8.90284259426717,
+        "y": 7.484648793895286
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.1246895614918864,
-        "y": 2.8716677383788465
+        "x": 2.0748031496062995,
+        "y": 5.722278666779556
       },
       "prevControl": {
-        "x": 3.33630630166577,
-        "y": 1.8711399006746339
+        "x": 1.107015940883734,
+        "y": 7.550129822481868
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "SourceSpeaker"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -55,11 +39,11 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -49.76999999999998,
+    "rotation": 0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Source Speaker",
+  "folder": "Amp Speaker",
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0

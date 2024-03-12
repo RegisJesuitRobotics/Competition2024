@@ -32,6 +32,9 @@ public final class Constants {
 
     public static final double CLIMB_UP_ELEVATOR_HEIGHT = Units.inchesToMeters(11.0);
     public static final double CLIMB_UP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(30.0);
+//TODO: tune
+    public static final int FAR_SHOOT_ELEVATOR_POSITION = 0;
+    public static final int FAR_SHOOT_WRIST_POSITION = 0 ;
 
     public static final double CLIMB_DOWN_ELEVATOR_HEIGHT = Units.inchesToMeters(0.0);
     public static final double CLIMB_DOWN_WRIST_ANGLE_RADIANS =
@@ -293,6 +296,9 @@ public final class Constants {
 
   public static class VisionConstants {
     private VisionConstants() {}
+
+    public static final double POSE_AMBIGUITY_CUTOFF = 0.05;
+    public static final double DISTANCE_CUTOFF = 4.0;
 
     public static final Transform3d ROBOT_TO_CAM =
         new Transform3d(

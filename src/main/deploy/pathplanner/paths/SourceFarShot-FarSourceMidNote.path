@@ -3,45 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.269736126677953,
-        "y": 2.432078175029955
+        "x": 2.1246895614918864,
+        "y": 2.8716677383788465
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.173424109889881,
-        "y": 2.0173778996357132
+        "x": 4.628085696446933,
+        "y": 0.2985164036353689
       },
       "isLocked": false,
-      "linkedName": "FarMidSourceNote"
+      "linkedName": "FarShotSource"
     },
     {
       "anchor": {
-        "x": 5.513255300958551,
-        "y": 1.8960832440592332
+        "x": 7.281710444771572,
+        "y": 2.432078175029955
       },
       "prevControl": {
-        "x": 6.428091314384522,
-        "y": 1.8854614956863989
+        "x": 6.141246277819087,
+        "y": 2.4524778918209797
       },
       "nextControl": {
-        "x": 3.8384739377113624,
-        "y": 1.9155283751634469
+        "x": 7.662172990083279,
+        "y": 2.4252727633398266
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.1246895614918864,
-        "y": 2.8716677383788465
+        "x": 8.269736126677953,
+        "y": 2.432078175029955
       },
       "prevControl": {
-        "x": 3.33630630166577,
-        "y": 1.8711399006746339
+        "x": 8.139872858896895,
+        "y": 2.493206784740707
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "SourceSpeaker"
+      "linkedName": "FarMidSourceNote"
     }
   ],
   "rotationTargets": [],
@@ -55,13 +55,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -49.76999999999998,
+    "rotation": -0.6035722361884116,
     "rotateFast": false
   },
   "reversed": false,
   "folder": "Source Speaker",
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": -44.47247412796245,
     "velocity": 0
   },
   "useDefaultConstraints": true
