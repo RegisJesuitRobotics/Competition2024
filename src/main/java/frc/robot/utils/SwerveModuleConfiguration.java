@@ -17,14 +17,13 @@ public record SwerveModuleConfiguration(
       String canBus,
       double driveGearRatio,
       double steerGearRatio,
-      double drivePeakCurrentLimit,
-      double driveContinuousCurrentLimit,
-      double drivePeakCurrentDurationSeconds,
-      int steerFreeCurrentLimit,
-      int steerStallCurrentLimit,
+      double driveCurrentLimit,
+      double steerCurrentLimit,
       double wheelDiameterMeters,
+      double freeSpeedMetersPerSecond,
       int odometryFrequency,
       TunablePIDGains driveVelocityPIDGains,
       TunableFFGains driveVelocityFFGains,
-      TunablePIDGains steerPositionPIDGains) {}
+      TunablePIDGains steerPositionPIDGains,
+      TunableFFGains steerVelocityFFGains) {}
 }

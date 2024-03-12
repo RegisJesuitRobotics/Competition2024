@@ -3,6 +3,8 @@ package frc.robot.commands.drive.teleop;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
@@ -47,9 +49,11 @@ public class SwerveDriveCommand extends Command {
     ChassisSpeeds chassisSpeeds = new ChassisSpeeds(translation.getX(), translation.getY(), omega);
 
     if (isFieldRelative) {
-      //            if (RaiderUtils.shouldFlip()) {
-      //                currentHeading = currentHeading.plus(oneHundredEightyDegrees);
-      //            }
+      var alliance = DriverStation.getAlliance();
+
+      if (alliance.isPresent() && alliance.get() == Alliance.Red) {
+        currentHeading = currentHeading.plus(oneHundredEightyDegrees);
+      }
       chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, currentHeading);
     }
 

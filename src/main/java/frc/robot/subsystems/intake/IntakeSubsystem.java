@@ -7,32 +7,92 @@ package frc.robot.subsystems.intake;
 import static frc.robot.Constants.IntakeConstants.*;
 
 import com.revrobotics.CANSparkLowLevel;
-import edu.wpi.first.wpilibj.DigitalInput;
+import com.revrobotics.CANSparkMax;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Constants.MiscConstants;
+import frc.robot.telemetry.types.EventTelemetryEntry;
 import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
+import frc.robot.utils.Alert;
+import frc.robot.utils.ConfigurationUtils;
+import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
 
 public class IntakeSubsystem extends SubsystemBase {
+  private static final Alert intakeMotorAlert =
+      new Alert("Intake motor had a fault initializing", Alert.AlertType.ERROR);
   private final TelemetryCANSparkMax intakeMotor =
       new TelemetryCANSparkMax(
-          INTAKE_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless, "intake/motors", true);
-
-  private final DigitalInput intakeSensor = new DigitalInput(INTAKE_SENSOR_ID);
+          INTAKE_MOTOR_ID,
+          CANSparkLowLevel.MotorType.kBrushless,
+          "/intake/motor",
+          MiscConstants.TUNING_MODE);
+  private final EventTelemetryEntry intakeEventEntry = new EventTelemetryEntry("/intake/events");
 
   public IntakeSubsystem() {
-    intakeMotor.setInverted(true);
+    configMotor();
+    setDefaultCommand(setIntakeVoltageCommand(0.0).ignoringDisable(true).withName("IntakeDefault"));
   }
 
-  public void runIntakeIn() {
+  private void configMotor() {
+    StringFaultRecorder faultRecorder = new StringFaultRecorder();
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> intakeMotor.setCANTimeout(250),
+        () -> true,
+        faultRecorder.run("CAN timeout"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        intakeMotor::restoreFactoryDefaults,
+        () -> true,
+        faultRecorder.run("Factory default"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> intakeMotor.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
+        () -> true,
+        faultRecorder.run("Current limit"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecord(
+        () -> intakeMotor.setInverted(INVERTED),
+        () -> intakeMotor.getInverted() == INVERTED,
+        faultRecorder.run("Invert"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> intakeMotor.setIdleMode(CANSparkMax.IdleMode.kCoast),
+        () -> intakeMotor.getIdleMode() == CANSparkMax.IdleMode.kCoast,
+        faultRecorder.run("Idle mode"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        intakeMotor::burnFlashWithDelay,
+        () -> true,
+        faultRecorder.run("Burn flash"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    intakeMotor.setVoltage(INTAKE_VOLTAGE);
+    ConfigurationUtils.postDeviceConfig(
+        faultRecorder.hasFault(),
+        intakeEventEntry::append,
+        "Intake motor",
+        faultRecorder.getFaultString());
+    intakeMotorAlert.set(faultRecorder.hasFault());
   }
 
-  public boolean atIntakeSensor() {
-    return intakeSensor.get();
+  public void setIntakeVoltage(double voltage) {
+    intakeMotor.setVoltage(voltage);
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    intakeMotor.logValues();
+  }
+
+  public Command checkIntakeCommand() {
+    return this.run(() -> this.setIntakeVoltage(5));
+  }
+
+  public Command setIntakeVoltageCommand(double voltage) {
+    return this.run(() -> this.setIntakeVoltage(voltage));
+  }
+
+  public Command stopCommand() {
+    return this.runOnce(() -> setIntakeVoltage(0.0));
   }
 }

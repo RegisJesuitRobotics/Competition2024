@@ -3,10 +3,9 @@ package frc.robot.telemetry.wrappers;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.TalonFX;
-import frc.robot.telemetry.types.BooleanTelemetryEntry;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.IntegerTelemetryEntry;
-import frc.robot.utils.RaiderUtils;
+import frc.robot.utils.ConfigurationUtils;
 import java.util.List;
 
 public class TelemetryTalonFX extends TalonFX {
@@ -23,7 +22,6 @@ public class TelemetryTalonFX extends TalonFX {
   private final DoubleTelemetryEntry inputAmpsEntry;
   private final DoubleTelemetryEntry outputPercentEntry;
   private final DoubleTelemetryEntry temperatureEntry;
-  private final BooleanTelemetryEntry inBrakeModeEntry;
   private final DoubleTelemetryEntry positionEntry;
   private final DoubleTelemetryEntry velocityEntry;
   private final IntegerTelemetryEntry faultsEntry;
@@ -55,14 +53,13 @@ public class TelemetryTalonFX extends TalonFX {
             velocitySignal,
             faultsSignal,
             stickyFaultsSignal)
-        .forEach(RaiderUtils::explicitlySetSignalFrequency);
+        .forEach(ConfigurationUtils::explicitlySetSignalFrequency);
 
     telemetryPath += "/";
     outputAmpsEntry = new DoubleTelemetryEntry(telemetryPath + "outputAmps", tuningMode);
     inputAmpsEntry = new DoubleTelemetryEntry(telemetryPath + "inputAmps", tuningMode);
     outputPercentEntry = new DoubleTelemetryEntry(telemetryPath + "outputPercent", tuningMode);
     temperatureEntry = new DoubleTelemetryEntry(telemetryPath + "temperature", tuningMode);
-    inBrakeModeEntry = new BooleanTelemetryEntry(telemetryPath + "inBrakeMode", tuningMode);
     positionEntry = new DoubleTelemetryEntry(telemetryPath + "position", tuningMode);
     velocityEntry = new DoubleTelemetryEntry(telemetryPath + "velocity", tuningMode);
     faultsEntry = new IntegerTelemetryEntry(telemetryPath + "faults", tuningMode);
@@ -82,9 +79,7 @@ public class TelemetryTalonFX extends TalonFX {
   }
 
   public void logValues() {
-    // .refresh() on all
-    BaseStatusSignal.waitForAll(
-        0.0,
+    BaseStatusSignal.refreshAll(
         outputAmpsSignal,
         inputAmpsSignal,
         outputPercentSignal,

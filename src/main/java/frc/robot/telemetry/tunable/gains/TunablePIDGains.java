@@ -1,6 +1,7 @@
 package frc.robot.telemetry.tunable.gains;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.pathplanner.lib.util.PIDConstants;
 import frc.robot.telemetry.tunable.TunableTelemetryPIDController;
 
 public class TunablePIDGains {
@@ -29,10 +30,18 @@ public class TunablePIDGains {
   }
 
   public boolean hasChanged() {
-    return p.hasChanged() || i.hasChanged() || d.hasChanged();
+    return hasChanged(0);
+  }
+
+  public boolean hasChanged(int hashCode) {
+    return p.hasChanged(hashCode) || i.hasChanged(hashCode) || d.hasChanged(hashCode);
   }
 
   public TunableTelemetryPIDController createLoggablePIDController(String logTable) {
     return new TunableTelemetryPIDController(logTable, this);
+  }
+
+  public PIDConstants createPIDConstants() {
+    return new PIDConstants(p.get(), i.get(), d.get());
   }
 }

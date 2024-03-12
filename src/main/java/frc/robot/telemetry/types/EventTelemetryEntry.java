@@ -5,4 +5,9 @@ public class EventTelemetryEntry extends StringTelemetryEntry {
   public EventTelemetryEntry(String path) {
     super(path, false, false);
   }
+
+  @Override
+  public void append(String value) {
+    super.append(value);
+  }
 }

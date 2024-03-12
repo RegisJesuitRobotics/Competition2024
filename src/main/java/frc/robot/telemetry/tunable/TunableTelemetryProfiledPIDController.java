@@ -5,6 +5,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import frc.robot.telemetry.tunable.gains.TunablePIDGains;
 import frc.robot.telemetry.tunable.gains.TunableTrapezoidalProfileGains;
+import frc.robot.telemetry.types.BooleanTelemetryEntry;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.StructTelemetryEntry;
 import frc.robot.utils.RaiderStructs;
@@ -15,6 +16,7 @@ public class TunableTelemetryProfiledPIDController extends ProfiledPIDController
   private final StructTelemetryEntry<TrapezoidProfile.State> goalEntry;
   private final StructTelemetryEntry<TrapezoidProfile.State> setpointEntry;
   private final DoubleTelemetryEntry outputEntry;
+  private final BooleanTelemetryEntry atGoalEntry;
 
   private final TunablePIDGains pidGains;
   private final TunableTrapezoidalProfileGains profileGains;
@@ -45,6 +47,7 @@ public class TunableTelemetryProfiledPIDController extends ProfiledPIDController
     setpointEntry =
         new StructTelemetryEntry<>(logTable + "setpoint", RaiderStructs.trapezoidStateStruct, true);
     outputEntry = new DoubleTelemetryEntry(logTable + "output", true);
+    atGoalEntry = new BooleanTelemetryEntry(logTable + "atGoal", true);
   }
 
   @Override
@@ -61,6 +64,7 @@ public class TunableTelemetryProfiledPIDController extends ProfiledPIDController
     double output = super.calculate(measurement);
     setpointEntry.append(getSetpoint());
     outputEntry.append(output);
+    atGoalEntry.append(atGoal());
 
     return output;
   }

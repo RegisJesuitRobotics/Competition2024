@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.MiscRobotTelemetryAndAlerts;
 import frc.robot.telemetry.wrappers.TelemetryPowerDistribution;
+import org.littletonrobotics.urcl.URCL;
 
 /**
  * The VM is configured to automatically run this class, and to call the methods corresponding to
@@ -34,7 +35,7 @@ public class Robot extends TimedRobot {
 
   private TelemetryPowerDistribution powerDistribution;
   private MiscRobotTelemetryAndAlerts miscRobotTelemetryAndAlerts;
-  //    private OverrunAlertManager overrunAlertManager;
+
   public Robot() {
     instance = this;
     startTime = Timer.getFPGATimestamp();
@@ -51,18 +52,20 @@ public class Robot extends TimedRobot {
     DataLogManager.log("*****START*****");
 
     DataLog dataLog = DataLogManager.getLog();
+    if (MiscConstants.TUNING_MODE) {
+      URCL.start();
+      NetworkTableInstance.getDefault().startEntryDataLog(dataLog, "/URCL/", "URCL/");
+    }
     // Log connections and FMSInfo
     NetworkTableInstance.getDefault().startConnectionDataLog(dataLog, "NTConnection");
     NetworkTableInstance.getDefault().startEntryDataLog(dataLog, "/FMSInfo/", "FMSInfo/");
+    NetworkTableInstance.getDefault().startEntryDataLog(dataLog, "/PathPlanner/", "PathPlanner/");
     DriverStation.startDataLog(dataLog);
 
     DriverStation.silenceJoystickConnectionWarning(true);
 
-    powerDistribution =
-        new TelemetryPowerDistribution(
-            MiscConstants.POWER_MODULE_ID, MiscConstants.POWER_MODULE_TYPE);
+    powerDistribution = new TelemetryPowerDistribution();
     miscRobotTelemetryAndAlerts = new MiscRobotTelemetryAndAlerts();
-    //        overrunAlertManager = new OverrunAlertManager();
 
     robotContainer = new RobotContainer();
 
@@ -78,8 +81,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    //        overrunAlertManager.update(super.didLastLoopOverrun);
-
     CommandScheduler.getInstance().run();
 
     miscRobotTelemetryAndAlerts.logValues();

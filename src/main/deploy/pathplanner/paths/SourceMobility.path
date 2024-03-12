@@ -1,0 +1,58 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.46,
+        "y": 2.0466626108005506
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.4599999999999986,
+        "y": 2.0466626108005506
+      },
+      "isLocked": false,
+      "linkedName": "SourceMobility"
+    },
+    {
+      "anchor": {
+        "x": 2.747925074555594,
+        "y": 2.0466626108005506
+      },
+      "prevControl": {
+        "x": 1.747925074555594,
+        "y": 2.0466626108005506
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": 0,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.8,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 500.0,
+    "maxAngularAcceleration": 2000.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": {
+    "rotation": 0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

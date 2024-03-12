@@ -1,8 +1,11 @@
 package frc.robot.subsystems.swerve;
 
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.SwerveConstants.*;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignal;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -10,47 +13,64 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.Robot;
 import frc.robot.telemetry.types.*;
 import frc.robot.telemetry.wrappers.TelemetryPigeon2;
-import frc.robot.utils.RaiderMathUtils;
-import frc.robot.utils.RaiderUtils;
+import frc.robot.utils.Alert;
+import frc.robot.utils.ConfigurationUtils;
+import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
 import java.util.List;
 import java.util.function.Function;
 import org.photonvision.EstimatedRobotPose;
 
 /** The subsystem containing all the swerve modules */
 public class SwerveDriveSubsystem extends SubsystemBase {
-
-  enum DriveMode {
-    OPEN_LOOP,
-    CLOSE_LOOP,
-    CHARACTERIZATION,
-    RAW_VOLTAGE
-  }
-
   private final SwerveModule[] modules = new SwerveModule[NUM_MODULES];
 
   private final Function<Pose2d, List<EstimatedRobotPose>> cameraPoseDataSupplier;
 
   private final TelemetryPigeon2 pigeon =
-      new TelemetryPigeon2(PIGEON_ID, "/drive/gyro", MiscConstants.TUNING_MODE);
+      new TelemetryPigeon2(
+          PIGEON_ID, "/drive/pigeon", MiscConstants.CANIVORE_NAME, MiscConstants.TUNING_MODE);
 
-  private final StatusSignal<Double> yawSignal = pigeon.getYaw();
+  private StatusSignal<Double> yawSignal;
 
   private final SwerveDrivePoseEstimator poseEstimator;
 
-  private final BooleanTelemetryEntry allModulesAtAbsoluteZeroEntry =
-      new BooleanTelemetryEntry("/drive/allModulesAtAbsoluteZero", true);
+  private final SysIdRoutine driveVelocitySysId =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(
+              null, null, null, (state) -> SignalLogger.writeString("State", state.toString())),
+          new SysIdRoutine.Mechanism(
+              (Measure<Voltage> voltage) -> setCharacterizationVoltage(voltage.in(Volts)),
+              null,
+              this,
+              "SwerveDrive"));
 
+  private final SysIdRoutine steerPositionSysId =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(
+              null, null, null, (state) -> SignalLogger.writeString("State", state.toString())),
+          new SysIdRoutine.Mechanism(
+              (Measure<Voltage> voltage) -> setRawVolts(0.0, voltage.in(Volts)),
+              null,
+              this,
+              "SwerveSteer"));
+
+  private final Alert pigeonConfigurationAlert =
+      new Alert("Pigeon failed to initialize", Alert.AlertType.ERROR);
   private final DoubleTelemetryEntry gyroEntry =
-      new DoubleTelemetryEntry("/drive/gyroDegrees", true);
+      new DoubleTelemetryEntry("/drive/gyroRadians", true);
 
   private final StructTelemetryEntry<ChassisSpeeds> chassisSpeedsEntry =
       new StructTelemetryEntry<>("/drive/speeds", ChassisSpeeds.struct, MiscConstants.TUNING_MODE);
@@ -76,38 +96,51 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
   private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(MODULE_TRANSLATIONS);
 
-  private SwerveModuleState[] desiredStates = new SwerveModuleState[NUM_MODULES];
-  private boolean activeSteer = true;
-  private DriveMode driveMode = DriveMode.OPEN_LOOP;
-  private double rawDriveVolts = 0.0;
-  private double rawSteerVolts = 0.0;
-
   public SwerveDriveSubsystem(Function<Pose2d, List<EstimatedRobotPose>> cameraPoseDataSupplier) {
     modules[0] = new SwerveModule(FRONT_LEFT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
     modules[1] = new SwerveModule(FRONT_RIGHT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
     modules[2] = new SwerveModule(BACK_LEFT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
     modules[3] = new SwerveModule(BACK_RIGHT_MODULE_CONFIGURATION, MiscConstants.TUNING_MODE);
-
     driveEventLogger.append("Swerve modules initialized");
+    configurePigeon();
 
     this.cameraPoseDataSupplier = cameraPoseDataSupplier;
 
     poseEstimator =
         new SwerveDrivePoseEstimator(
-            kinematics, getGyroRotation(), getModulePositions(), new Pose2d());
-
-    RaiderUtils.applyAndCheckCTRE(
-        () -> yawSignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
-        () -> yawSignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
-        MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    RaiderUtils.applyAndCheckCTRE(
-        pigeon::optimizeBusUtilization, () -> true, MiscConstants.CONFIGURATION_ATTEMPTS);
+            kinematics,
+            getGyroRotation(),
+            getModulePositions(),
+            new Pose2d(),
+            VecBuilder.fill(0.1, 0.1, 0.01),
+            VecBuilder.fill(0.9, 0.9, 1));
 
     // Start odometry thread
     Robot.getInstance().addPeriodic(this::updateOdometry, 1.0 / ODOMETRY_FREQUENCY);
 
     stopMovement();
+  }
+
+  private void configurePigeon() {
+    StringFaultRecorder faultRecorder = new StringFaultRecorder();
+    yawSignal = pigeon.getYaw();
+    ConfigurationUtils.applyCheckRecordCTRE(
+        () -> yawSignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
+        () -> yawSignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
+        faultRecorder.run("Update frequency"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordCTRE(
+        pigeon::optimizeBusUtilization,
+        () -> true,
+        faultRecorder.run("Optimize bus utilization"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+
+    ConfigurationUtils.postDeviceConfig(
+        faultRecorder.hasFault(),
+        driveEventLogger::append,
+        "Drive Pigeon",
+        faultRecorder.getFaultString());
+    pigeonConfigurationAlert.set(faultRecorder.hasFault());
   }
 
   private void updateOdometry() {
@@ -197,10 +230,12 @@ public class SwerveDriveSubsystem extends SubsystemBase {
       throw new IllegalArgumentException("You must provide desiredStates for all modules");
     }
 
-    driveMode = openLoop ? DriveMode.OPEN_LOOP : DriveMode.CLOSE_LOOP;
-    this.activeSteer = activeSteer;
+    desiredSwerveStatesEntry.append(desiredStates);
 
-    this.desiredStates = RaiderMathUtils.copySwerveStateArray(desiredStates);
+    SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_VELOCITY_METERS_SECOND);
+    for (int i = 0; i < modules.length; i++) {
+      modules[i].setDesiredState(desiredStates[i], activeSteer, openLoop);
+    }
   }
 
   /**
@@ -210,10 +245,9 @@ public class SwerveDriveSubsystem extends SubsystemBase {
    * @param steerVolts the desired steer voltage
    */
   public void setRawVolts(double driveVolts, double steerVolts) {
-    driveMode = DriveMode.RAW_VOLTAGE;
-
-    this.rawDriveVolts = driveVolts;
-    this.rawSteerVolts = steerVolts;
+    for (SwerveModule module : modules) {
+      module.setRawVoltage(driveVolts, steerVolts);
+    }
   }
 
   /** Sets each module velocity to zero and desired angle to what it currently is */
@@ -230,49 +264,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
    *
    * @param voltage the voltage to apply to the drive motor
    */
-  public void setCharacterizationVoltage(double voltage) {
-    driveMode = DriveMode.CHARACTERIZATION;
-    rawDriveVolts = voltage;
-  }
-
-  public double[] getActualDriveVoltages() {
-    double[] voltages = new double[modules.length];
-    for (int i = 0; i < modules.length; i++) {
-      voltages[i] = modules[i].getActualDriveVoltage();
-    }
-    return voltages;
-  }
-
-  public void setAllModulesToAbsolute() {
+  private void setCharacterizationVoltage(double voltage) {
     for (SwerveModule module : modules) {
-      module.resetSteerToAbsolute();
+      module.setDriveCharacterizationVoltage(voltage);
     }
-  }
-
-  private boolean allModulesAtAbsolute() {
-    boolean allSet = true;
-    for (SwerveModule module : modules) {
-      allSet &= module.isSetToAbsolute();
-    }
-    return allSet;
-  }
-
-  /**
-   * Should only be used for characterization
-   *
-   * @return the angle in radians
-   */
-  public double getRawGyroAngle() {
-    return Units.degreesToRadians(pigeon.getAngle());
-  }
-
-  /**
-   * Should only be used for characterization
-   *
-   * @return the angle rate in radians/second
-   */
-  public double getRawGyroRate() {
-    return Units.degreesToRadians(pigeon.getRate());
   }
 
   public SwerveModuleState[] getActualStates() {
@@ -292,30 +287,68 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     return actualPositions;
   }
 
+  public double[] getWheelRadiusCharPosition() {
+    double[] actualPositions = new double[modules.length];
+    for (int i = 0; i < modules.length; i++) {
+      actualPositions[i] = modules[i].getPositionRad();
+    }
+    return actualPositions;
+  }
+
+  public void runWheelCharacterization(double omegaSpeed) {
+    setChassisSpeeds(new ChassisSpeeds(0, 0, omegaSpeed), false);
+  }
+
+  public Command driveQuasistaticSysIDCommand(SysIdRoutine.Direction direction) {
+    return driveVelocitySysId
+        .quasistatic(direction)
+        .beforeStarting(SignalLogger::start)
+        .beforeStarting(Commands.waitSeconds(1.5))
+        .beforeStarting(
+            () ->
+                setRawStates(
+                    true,
+                    true,
+                    new SwerveModuleState[] {
+                      new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)),
+                      new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)),
+                      new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)),
+                      new SwerveModuleState(0.0, Rotation2d.fromDegrees(0))
+                    }));
+  }
+
+  public Command driveDynamicSysIDCommand(SysIdRoutine.Direction direction) {
+    return driveVelocitySysId
+        .dynamic(direction)
+        .beforeStarting(SignalLogger::start)
+        .beforeStarting(Commands.waitSeconds(1.5))
+        .beforeStarting(
+            () ->
+                setRawStates(
+                    true,
+                    true,
+                    new SwerveModuleState[] {
+                      new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)),
+                      new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)),
+                      new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)),
+                      new SwerveModuleState(0.0, Rotation2d.fromDegrees(0))
+                    }));
+  }
+
+  public Rotation2d getGyroYaw() {
+    return Rotation2d.fromDegrees(yawSignal.refresh().getValue());
+  }
+
+  public Command steerQuasistaticSysIDCommand(SysIdRoutine.Direction direction) {
+    return steerPositionSysId.quasistatic(direction).beforeStarting(SignalLogger::start);
+  }
+
+  public Command steerDynamicSysIDCommand(SysIdRoutine.Direction direction) {
+    return steerPositionSysId.dynamic(direction).beforeStarting(SignalLogger::start);
+  }
+
   @Override
   public void periodic() {
-    switch (driveMode) {
-      case OPEN_LOOP, CLOSE_LOOP -> {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, MAX_VELOCITY_METERS_SECOND);
-        for (int i = 0; i < modules.length; i++) {
-          modules[i].setDesiredState(
-              desiredStates[i], activeSteer, driveMode == DriveMode.OPEN_LOOP);
-        }
-      }
-      case RAW_VOLTAGE -> {
-        for (SwerveModule module : modules) {
-          module.setRawVoltage(rawDriveVolts, rawSteerVolts);
-        }
-      }
-      case CHARACTERIZATION -> {
-        for (SwerveModule module : modules) {
-          module.setCharacterizationVoltage(rawDriveVolts);
-        }
-      }
-    }
-
-    // validate timeStamp
-    logValues();
     List<EstimatedRobotPose> estimatedRobotPoses = cameraPoseDataSupplier.apply(getPose());
     for (EstimatedRobotPose estimatedRobotPose : estimatedRobotPoses) {
       if (!DriverStation.isAutonomousEnabled()) {
@@ -323,14 +356,15 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             estimatedRobotPose.estimatedPose.toPose2d(), estimatedRobotPose.timestampSeconds);
       }
     }
+
+    logValues();
   }
 
   private void logValues() {
-    allModulesAtAbsoluteZeroEntry.append(allModulesAtAbsolute());
-    gyroEntry.append(getGyroRotation().getDegrees());
+    gyroEntry.append(getGyroRotation().getRadians());
     chassisSpeedsEntry.append(getCurrentChassisSpeeds());
-    desiredSwerveStatesEntry.append(desiredStates);
     actualSwerveStatesEntry.append(getActualStates());
+    pigeon.logValues();
 
     for (SwerveModule module : modules) {
       module.logValues();

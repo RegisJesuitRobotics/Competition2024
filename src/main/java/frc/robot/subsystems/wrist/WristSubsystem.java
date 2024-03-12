@@ -1,118 +1,179 @@
 package frc.robot.subsystems.wrist;
 
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.WristConstants.*;
 
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
-import frc.robot.telemetry.wrappers.TelemetryCANSparkMax;
+import frc.robot.telemetry.types.DoubleTelemetryEntry;
+import frc.robot.telemetry.types.EventTelemetryEntry;
+import frc.robot.telemetry.wrappers.TelemetryCANSparkFlex;
 import frc.robot.utils.Alert;
-import frc.robot.utils.RaiderUtils;
+import frc.robot.utils.ConfigurationUtils;
+import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
 
 public class WristSubsystem extends SubsystemBase {
+  private static final Alert wristAlert =
+      new Alert("Wrist motor had a fault initializing", Alert.AlertType.ERROR);
+  private final SysIdRoutine wristSysId =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(Volts.per(Second).of(.5), Volts.of(2), null, null),
+          new SysIdRoutine.Mechanism(
+              (voltage) -> setVoltage(voltage.in(Volts)),
+              null, // No log consumer, since data is recorded by URCL
+              this));
 
-  private final Alert wristAlert;
-  private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(WRIST_ENCODER_ID_A);
+  private DoubleTelemetryEntry absoluteEncoderEntry =
+      new DoubleTelemetryEntry("/wrist/absoluteEncoder", true);
 
-  private final DigitalInput wristSwitch = new DigitalInput(WRIST_SWITCH_ID);
-  private final TelemetryCANSparkMax wristMotor =
-      new TelemetryCANSparkMax(
+  private final TelemetryCANSparkFlex wristMotor =
+      new TelemetryCANSparkFlex(
           WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless, "/wrist/motors", true);
+  private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(WRIST_ENCODER_PORT);
 
-  private final ArmFeedforward feedforward =
-      new ArmFeedforward(
-          WRIST_FF_GAINS.aFF.get(), WRIST_FF_GAINS.sFF.get(), WRIST_FF_GAINS.vFF.get());
+  private final ArmFeedforward feedforward = WRIST_FF_GAINS.createArmFeedforward();
   private final TunableTelemetryProfiledPIDController controller =
       new TunableTelemetryProfiledPIDController(
-          "wrist/pid", WRIST_PID_GAINS, TRAPEZOIDAL_PROFILE_GAINS);
-  private final RelativeEncoder relativeEncoder = wristMotor.getEncoder();
+          "/wrist/pid", WRIST_PID_GAINS, TRAPEZOIDAL_PROFILE_GAINS);
+
+  private final DoubleTelemetryEntry wristVoltageReq =
+      new DoubleTelemetryEntry("/wrist/voltage", MiscConstants.TUNING_MODE);
+  private final EventTelemetryEntry wristEventEntry = new EventTelemetryEntry("/wrist/events");
 
   public WristSubsystem() {
-
-    absoluteEncoder.setDutyCycleRange(0, 0);
-
-    wristAlert = new Alert("Wrist: ", Alert.AlertType.ERROR);
     configMotor();
+    absoluteEncoder.setDutyCycleRange(1.0 / 1025.0, 1024.0 / 1025.0);
+    controller.setTolerance(Units.degreesToRadians(5));
+    // Default command is safe state
+    setDefaultCommand(setVotageCommand(0.0));
   }
 
   private void configMotor() {
+    StringFaultRecorder faultRecorder = new StringFaultRecorder();
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> wristMotor.setCANTimeout(250),
+        () -> true,
+        faultRecorder.run("CAN timeout"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        wristMotor::restoreFactoryDefaults,
+        () -> true,
+        faultRecorder.run("Factory default"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> wristMotor.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
+        () -> true,
+        faultRecorder.run("Current limit"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecord(
+        () -> wristMotor.setInverted(INVERTED),
+        () -> wristMotor.getInverted() == INVERTED,
+        () -> wristEventEntry.append("Invert"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> wristMotor.setIdleMode(IdleMode.kBrake),
+        () -> wristMotor.getIdleMode() == IdleMode.kBrake,
+        faultRecorder.run("Idle mode"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    // Set the relative encoder too for logging
+    double relativeEncoderConversionFactor = (2 * Math.PI) / WRIST_GEAR_RATIO;
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> wristMotor.getEncoder().setPositionConversionFactor(relativeEncoderConversionFactor),
+        () ->
+            ConfigurationUtils.fpEqual(
+                wristMotor.getEncoder().getPositionConversionFactor(),
+                relativeEncoderConversionFactor),
+        faultRecorder.run("Position conversion factor"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () ->
+            wristMotor
+                .getEncoder()
+                .setVelocityConversionFactor(relativeEncoderConversionFactor / 60.0),
+        () ->
+            ConfigurationUtils.fpEqual(
+                wristMotor.getEncoder().getVelocityConversionFactor(),
+                relativeEncoderConversionFactor / 60.0),
+        faultRecorder.run("Velocity conversion factor"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        wristMotor::burnFlashWithDelay,
+        () -> true,
+        faultRecorder.run("Burn flash"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    boolean faultInitializing = false;
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> wristMotor.setCANTimeout(250),
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            wristMotor::restoreFactoryDefaults,
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> wristMotor.setSmartCurrentLimit(STALL_MOTOR_CURRENT, FREE_MOTOR_CURRENT),
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            () -> wristMotor.setIdleMode(CANSparkMax.IdleMode.kCoast),
-            () -> wristMotor.getIdleMode() == CANSparkMax.IdleMode.kCoast,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
-
-    faultInitializing |=
-        RaiderUtils.applyAndCheckRev(
-            wristMotor::burnFlashWithDelay,
-            () -> true,
-            Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.postDeviceConfig(
+        faultRecorder.hasFault(),
+        wristEventEntry::append,
+        "Wrist motor",
+        faultRecorder.getFaultString());
+    wristAlert.set(faultRecorder.hasFault());
   }
 
-  public boolean atTransportAngle() {
-    return absoluteEncoder.get() == 0;
-  }
+  public double getPosition() {
 
-  public Rotation2d getPosition() {
-    return Rotation2d.fromRadians(relativeEncoder.getPosition());
+    return MathUtil.angleModulus(
+        Units.rotationsToRadians(absoluteEncoder.getAbsolutePosition()) + WRIST_OFFSET);
   }
 
   public boolean atGoal() {
     return controller.atGoal();
   }
 
-  public void stopMovement() {
-    wristMotor.setVoltage(0);
-  }
-
-  public void setDesiredPosition(Rotation2d desiredPosition) {
-
-    controller.setGoal(desiredPosition.getRadians());
+  public boolean atBottom() {
+    return controller.getGoal().position == WRIST_MIN.getRadians() && atGoal();
   }
 
   public void setVoltage(double voltage) {
     wristMotor.setVoltage(voltage);
+    wristVoltageReq.append(voltage);
+  }
+
+  public Command setVotageCommand(double voltage) {
+    return this.run(() -> setVoltage(voltage));
+  }
+
+  public Command setPositonCommand(Rotation2d desiredPosition) {
+    return this.run(
+            () -> {
+              double feedbackOutput = controller.calculate(getPosition());
+              TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
+
+              setVoltage(
+                  feedbackOutput
+                      + feedforward.calculate(currentSetpoint.position, currentSetpoint.velocity));
+            })
+        .beforeStarting(
+            () -> {
+              controller.reset(getPosition(), wristMotor.getEncoder().getVelocity());
+              controller.setGoal(desiredPosition.getRadians());
+            });
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return wristSysId.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return wristSysId.dynamic(direction);
   }
 
   @Override
   public void periodic() {
-    double feedbackOutput = controller.calculate(getPosition().getRadians());
-
-    TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
-    double combinedOutput =
-        feedbackOutput
-            + feedforward.calculate(getPosition().getRadians(), currentSetpoint.velocity);
-
-    setVoltage(combinedOutput);
-    if (wristSwitch.get()) {
-      absoluteEncoder.reset();
-    }
+    wristMotor.logValues();
+    absoluteEncoderEntry.append(getPosition());
   }
 }

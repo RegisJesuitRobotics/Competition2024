@@ -6,6 +6,8 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Contains various field dimensions and useful reference points. Dimensions are in meters, and sets
@@ -25,12 +27,16 @@ public class FieldConstants {
   public static double podiumX = Units.inchesToMeters(126.75);
   public static double startingLineX = Units.inchesToMeters(74.111);
 
-  public static Translation2d ampCenter =
+  public static Translation2d ampCenterRed =
       new Translation2d(Units.inchesToMeters(72.455), Units.inchesToMeters(322.996));
+  public static Translation2d ampCenterBlue = new Translation2d(0, 0);
 
   /** Staging locations for each note */
   public static final class StagingLocations {
     public static double centerlineX = fieldLength / 2.0;
+    // TODO: FIX THIS
+    public static final double stagingThreshold = 5;
+    public static final double ampThreshold = 5;
 
     // need to update
     public static double centerlineFirstY = Units.inchesToMeters(29.638);
@@ -54,6 +60,34 @@ public class FieldConstants {
       for (int i = 0; i < spikeTranslations.length; i++) {
         spikeTranslations[i] = new Translation2d(spikeX, spikeFirstY + (i * spikeSeparationY));
       }
+    }
+  }
+
+  public static final class Stage {
+    // TODO: Measure these jons
+    public static List<Pose2d> redStagingLocations = new ArrayList<>();
+    public static List<Pose2d> blueStagingLocations = new ArrayList<>();
+
+    public Stage() {
+      redStagingLocations.add(
+          new Pose2d(
+              (Units.inchesToMeters(134)),
+              (fieldLength / 2 + Units.inchesToMeters(164)),
+              new Rotation2d(Units.degreesToRadians(210))));
+      redStagingLocations.add(
+          new Pose2d(
+              (Units.inchesToMeters(166)),
+              (fieldLength / 2 + Units.inchesToMeters(94)),
+              new Rotation2d(0)));
+      redStagingLocations.add(
+          new Pose2d(
+              (Units.inchesToMeters(196)),
+              (fieldLength / 2 + Units.inchesToMeters(94)),
+              new Rotation2d(Units.degreesToRadians(-210))));
+
+      blueStagingLocations.add(
+          new Pose2d(
+              (fieldWidth / 2), (fieldLength * .75), new Rotation2d(Units.degreesToRadians(120))));
     }
   }
 

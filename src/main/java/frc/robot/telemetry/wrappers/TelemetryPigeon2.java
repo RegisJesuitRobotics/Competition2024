@@ -4,7 +4,8 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
-import frc.robot.utils.RaiderUtils;
+import frc.robot.telemetry.types.IntegerTelemetryEntry;
+import frc.robot.utils.ConfigurationUtils;
 import java.util.List;
 
 public class TelemetryPigeon2 extends Pigeon2 {
@@ -19,6 +20,8 @@ public class TelemetryPigeon2 extends Pigeon2 {
   private final StatusSignal<Double> accelZSignal;
   private final StatusSignal<Double> supplyVoltageSignal;
   private final StatusSignal<Double> temperatureSignal;
+  private final StatusSignal<Integer> faultSignal;
+  private final StatusSignal<Integer> stickyFaultSignal;
 
   private final DoubleTelemetryEntry yawEntry;
   private final DoubleTelemetryEntry pitchEntry;
@@ -31,6 +34,8 @@ public class TelemetryPigeon2 extends Pigeon2 {
   private final DoubleTelemetryEntry accelZEntry;
   private final DoubleTelemetryEntry supplyVoltageEntry;
   private final DoubleTelemetryEntry temperatureEntry;
+  private final IntegerTelemetryEntry faultEntry;
+  private final IntegerTelemetryEntry stickyFaultEntry;
 
   public TelemetryPigeon2(int deviceId, String telemetryPath, boolean tuningMode) {
     this(deviceId, telemetryPath, "", tuningMode);
@@ -38,6 +43,7 @@ public class TelemetryPigeon2 extends Pigeon2 {
 
   public TelemetryPigeon2(int deviceId, String telemetryPath, String canbus, boolean tuningMode) {
     super(deviceId, canbus);
+
     // TODO: Check if Device or world
     yawSignal = super.getYaw();
     pitchSignal = super.getPitch();
@@ -50,6 +56,8 @@ public class TelemetryPigeon2 extends Pigeon2 {
     accelZSignal = super.getAccelerationZ();
     supplyVoltageSignal = super.getSupplyVoltage();
     temperatureSignal = super.getTemperature();
+    faultSignal = super.getFaultField();
+    stickyFaultSignal = super.getStickyFaultField();
 
     List.of(
             yawSignal,
@@ -62,8 +70,10 @@ public class TelemetryPigeon2 extends Pigeon2 {
             accelYSignal,
             accelZSignal,
             supplyVoltageSignal,
-            temperatureSignal)
-        .forEach(RaiderUtils::explicitlySetSignalFrequency);
+            temperatureSignal,
+            faultSignal,
+            stickyFaultSignal)
+        .forEach(ConfigurationUtils::explicitlySetSignalFrequency);
 
     telemetryPath += "/";
     yawEntry = new DoubleTelemetryEntry(telemetryPath + "yaw", tuningMode);
@@ -80,11 +90,12 @@ public class TelemetryPigeon2 extends Pigeon2 {
     accelZEntry = new DoubleTelemetryEntry(telemetryPath + "accelZ", tuningMode);
     supplyVoltageEntry = new DoubleTelemetryEntry(telemetryPath + "supplyVoltage", tuningMode);
     temperatureEntry = new DoubleTelemetryEntry(telemetryPath + "temperature", tuningMode);
+    faultEntry = new IntegerTelemetryEntry(telemetryPath + "faults", tuningMode);
+    stickyFaultEntry = new IntegerTelemetryEntry(telemetryPath + "stickyFaults", tuningMode);
   }
 
   public void logValues() {
-    BaseStatusSignal.waitForAll(
-        0.0,
+    BaseStatusSignal.refreshAll(
         yawSignal,
         pitchSignal,
         rollSignal,
@@ -95,7 +106,9 @@ public class TelemetryPigeon2 extends Pigeon2 {
         accelYSignal,
         accelZSignal,
         supplyVoltageSignal,
-        temperatureSignal);
+        temperatureSignal,
+        faultSignal,
+        stickyFaultSignal);
 
     yawEntry.append(yawSignal.getValue());
     pitchEntry.append(pitchSignal.getValue());
@@ -108,5 +121,7 @@ public class TelemetryPigeon2 extends Pigeon2 {
     accelZEntry.append(accelZSignal.getValue());
     supplyVoltageEntry.append(supplyVoltageSignal.getValue());
     temperatureEntry.append(temperatureSignal.getValue());
+    faultEntry.append(faultSignal.getValue());
+    stickyFaultEntry.append(stickyFaultSignal.getValue());
   }
 }

@@ -1,0 +1,86 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.7352600952201659,
+        "y": 4.484967101535422
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.2942635351334977,
+        "y": 4.249813368636048
+      },
+      "isLocked": false,
+      "linkedName": "SourceSpeaker"
+    },
+    {
+      "anchor": {
+        "x": 2.1637767304656146,
+        "y": 4.100916501780468
+      },
+      "prevControl": {
+        "x": 1.5543529615002885,
+        "y": 4.089962513362713
+      },
+      "nextControl": {
+        "x": 2.213768655502098,
+        "y": 4.101815073506281
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.7,
+        "y": 4.100916501780468
+      },
+      "prevControl": {
+        "x": 2.6500000000000004,
+        "y": 4.100916501780468
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "CloseSourceNote"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": 0,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Slow Pickup",
+      "minWaypointRelativePos": 1.0,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 1.375,
+        "maxAcceleration": 6.0,
+        "maxAngularVelocity": 500.0,
+        "maxAngularAcceleration": 2000.0
+      }
+    }
+  ],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.8,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 500.0,
+    "maxAngularAcceleration": 2000.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "Source Speaker",
+  "previewStartingState": {
+    "rotation": -60.0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

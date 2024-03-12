@@ -21,7 +21,11 @@ public class TunableTrapezoidalProfileGains {
   }
 
   public boolean hasChanged() {
-    return maxVelocity.hasChanged() || maxAcceleration.hasChanged();
+    return hasChanged(0);
+  }
+
+  public boolean hasChanged(int hashCode) {
+    return maxVelocity.hasChanged(hashCode) || maxAcceleration.hasChanged(hashCode);
   }
 
   public TrapezoidProfile.Constraints createConstraints() {
