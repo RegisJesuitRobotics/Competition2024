@@ -19,8 +19,8 @@ public final class Constants {
   private Constants() {}
 
   public static class SetpointConstants {
-    public static final double AMP_ELEVATOR_HEIGHT = Units.inchesToMeters(3.5);
-    public static final double AMP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(105.0);
+    public static final double AMP_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
+    public static final double AMP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(120.0);
 
     public static final double INTAKE_ELEVATOR_HEIGHT = Units.inchesToMeters(0);
     public static final double INTAKE_WRIST_ANGLE_RADIANS = Units.degreesToRadians(0.0);
