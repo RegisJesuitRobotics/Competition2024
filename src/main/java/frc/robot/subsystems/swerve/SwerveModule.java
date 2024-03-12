@@ -392,7 +392,11 @@ public class SwerveModule {
   }
 
   public double getPositionRad() {
-    return getDriveMotorPositionMeters() / driveConversion * Math.PI * 2 / Constants.SwerveConstants.DRIVE_GEAR_REDUCTION;
+    return getDriveMotorPositionMeters()
+        / driveConversion
+        * Math.PI
+        * 2
+        / Constants.SwerveConstants.DRIVE_GEAR_REDUCTION;
   }
 
   /**
@@ -476,7 +480,8 @@ public class SwerveModule {
   }
 
   private void checkAndUpdateGains() {
-    if (driveVelocityPIDGains.hasChanged(hashCode()) || driveVelocityFFGains.hasChanged(hashCode())) {
+    if (driveVelocityPIDGains.hasChanged(hashCode())
+        || driveVelocityFFGains.hasChanged(hashCode())) {
       Slot0Configs newSlotConfig = new Slot0Configs();
       driveVelocityPIDGains.setSlot(newSlotConfig);
       driveVelocityFFGains.setSlot(newSlotConfig);
@@ -485,7 +490,8 @@ public class SwerveModule {
       moduleEventEntry.append("Updated drive gains due to value change");
     }
 
-    if (steerPositionPIDGains.hasChanged(hashCode()) || steerVelocityFFGains.hasChanged(hashCode())) {
+    if (steerPositionPIDGains.hasChanged(hashCode())
+        || steerVelocityFFGains.hasChanged(hashCode())) {
       Slot0Configs newSlotConfig = new Slot0Configs();
       steerPositionPIDGains.setSlot(newSlotConfig);
       steerVelocityFFGains.setSlot(newSlotConfig);

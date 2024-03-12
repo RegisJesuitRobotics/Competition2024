@@ -81,8 +81,7 @@ public class Autos {
 
     PathPlannerLogging.setLogActivePathCallback(
         (path) -> trajectoryTelemetryEntry.append(path.toArray(new Pose2d[0])));
-    PathPlannerLogging.setLogTargetPoseCallback(
-            desiredPoseTelemetryEntry::append);
+    PathPlannerLogging.setLogTargetPoseCallback(desiredPoseTelemetryEntry::append);
 
     autoChooser = AutoBuilder.buildAutoChooser("JustProbe");
     autoChooser.addOption("elevator qf", elevatorSubsystem.sysIdQuasistatic(Direction.kForward));
@@ -97,16 +96,19 @@ public class Autos {
     autoChooser.addOption(
         "drive s dr", driveSubsystem.steerDynamicSysIDCommand(Direction.kReverse));
 
-    autoChooser.addOption("wheelRadiusCharacterizationClock", new WheelRadiusCharacterization(driveSubsystem, WheelRadiusCharacterization.Direction.CLOCKWISE, 0.5));
-    autoChooser.addOption("wheelRadiusCharacterizationCounterClock", new WheelRadiusCharacterization(driveSubsystem, WheelRadiusCharacterization.Direction.COUNTER_CLOCKWISE, 0.5));
-
+    autoChooser.addOption(
+        "wheelRadiusCharacterizationClock",
+        new WheelRadiusCharacterization(
+            driveSubsystem, WheelRadiusCharacterization.Direction.CLOCKWISE, 0.5));
+    autoChooser.addOption(
+        "wheelRadiusCharacterizationCounterClock",
+        new WheelRadiusCharacterization(
+            driveSubsystem, WheelRadiusCharacterization.Direction.COUNTER_CLOCKWISE, 0.5));
   }
 
   public SendableChooser<Command> getAutoChooser() {
     return autoChooser;
   }
-
-
 
   private Command intakeUntilNoteAndPrepareShot() {
     if (Robot.isSimulation()) {
@@ -122,9 +124,9 @@ public class Autos {
                             elevatorSubsystem, wristSubsystem))))
         .andThen(
             Commands.parallel(
-                    ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
-                        elevatorSubsystem, wristSubsystem),
-                    ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem)));
+                ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
+                    elevatorSubsystem, wristSubsystem),
+                ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem)));
   }
 
   public Command autoStart() {

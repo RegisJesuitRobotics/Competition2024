@@ -40,13 +40,13 @@ public class ElevatorWristCommands {
             Rotation2d.fromRadians(SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS)));
   }
 
-  public static Command elevatorWristSafeSpeakerCommand(ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem){
+  public static Command elevatorWristSafeSpeakerCommand(
+      ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(
-            elevatorSubsystem.setElevatorPositionCommand(SetpointConstants.CLOSE_SPEAKER_ELEVATOR_HEIGHT),
-            wristSubsystem.setPositonCommand(
-                    Rotation2d.fromRadians(SetpointConstants.SAFE_SPEAKER_WRIST_RADIANS)
-            )
-    );
+        elevatorSubsystem.setElevatorPositionCommand(
+            SetpointConstants.CLOSE_SPEAKER_ELEVATOR_HEIGHT),
+        wristSubsystem.setPositonCommand(
+            Rotation2d.fromRadians(SetpointConstants.SAFE_SPEAKER_WRIST_RADIANS)));
   }
 
   public static Command elevatorWristZeroCommand(

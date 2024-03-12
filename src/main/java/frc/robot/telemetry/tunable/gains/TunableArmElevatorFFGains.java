@@ -26,13 +26,15 @@ public class TunableArmElevatorFFGains {
     this.aFF = new TunableDouble(networkName + "aFF", aFF, tuningMode);
   }
 
-  public boolean hasChanged()
-  {
+  public boolean hasChanged() {
     return hasChanged(0);
   }
 
   public boolean hasChanged(int hashCode) {
-    return sFF.hasChanged(hashCode) || gFF.hasChanged(hashCode) || vFF.hasChanged(hashCode) || aFF.hasChanged(hashCode);
+    return sFF.hasChanged(hashCode)
+        || gFF.hasChanged(hashCode)
+        || vFF.hasChanged(hashCode)
+        || aFF.hasChanged(hashCode);
   }
 
   public ArmFeedforward createArmFeedforward() {

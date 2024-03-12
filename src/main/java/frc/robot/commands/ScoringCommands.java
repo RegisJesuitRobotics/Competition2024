@@ -29,7 +29,7 @@ public class ScoringCommands {
   }
 
   public static Command shootSetpointAmpCommand(ShooterSubsystem shooterSubsystem) {
-//    return shooterSubsystem.setVoltageCommand(8.0);
+    //    return shooterSubsystem.setVoltageCommand(8.0);
     return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(2000.0));
   }
 

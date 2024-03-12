@@ -32,7 +32,11 @@ public class LEDSubsystem extends SubsystemBase {
 
     int effectiveBackLeftSize = BACK_LEFT_SIZE - STATUS_DEDICATED_SIZE;
     // Pre-concatenate a buffer for the status dedicated LEDs so it appears the saem as the rest
-    splitBuffers[1] = ledBuffer.split(i, i + effectiveBackLeftSize).reversed().preConcatenate(new FakeLEDBuffer(STATUS_DEDICATED_SIZE));
+    splitBuffers[1] =
+        ledBuffer
+            .split(i, i + effectiveBackLeftSize)
+            .reversed()
+            .preConcatenate(new FakeLEDBuffer(STATUS_DEDICATED_SIZE));
     if (BACK_LEFT_SIZE < MAX_SIZE) {
       splitBuffers[1] = splitBuffers[1].concatenate(new FakeLEDBuffer(MAX_SIZE - BACK_LEFT_SIZE));
     }
