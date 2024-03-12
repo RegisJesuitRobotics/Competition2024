@@ -167,6 +167,7 @@ public class RobotContainer {
             transportSubsystem.setVoltageCommand(
                 Constants.TransportConstants.TRANSPORT_CLOSE_SPEAKER_VOLTAGE));
     driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
+    driverController.leftBumper().whileTrue(IntakingCommands.intakeUntilDetectedNoSlap(intakeSubsystem, transportSubsystem));
     driverController
         .rightTrigger()
         .whileTrue(
@@ -176,6 +177,7 @@ public class RobotContainer {
             slapdownSuperstructure.setUpCommand()
         );
     driverController.circle().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
+    driverController.y().whileTrue(Commands.parallel(transportSubsystem.setVoltageCommand(-8), shooterSubsystem.setVoltageCommand(-8)));
 
     driverController.x().onTrue(Commands.runOnce(() -> signalHumanPlayer.set(true))).onFalse(
         Commands.sequence(Commands.waitSeconds(1.5), Commands.runOnce(() -> signalHumanPlayer.set(false)))
@@ -188,7 +190,7 @@ public class RobotContainer {
         .onTrue(
             Commands.parallel(
                 ScoringCommands.shootSetpointAmpCommand(shooterSubsystem),
-                transportSubsystem.setVoltageCommand(10)));
+                Commands.sequence(Commands.waitSeconds(0.75),transportSubsystem.setVoltageCommand(10))));
     operatorController
         .triangle()
         .onTrue(
@@ -323,10 +325,13 @@ public class RobotContainer {
     if (oldCommand != null) {
       // We have to cancel the command so the new default one will run
       oldCommand.cancel();
+
     }
   }
 
   public Command getAutonomousCommand() {
     return autos.getAutoChooser().getSelected();
+
+
   }
 }

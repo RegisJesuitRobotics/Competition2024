@@ -21,4 +21,14 @@ public class IntakingCommands {
         .unless(transport::atSensor)
         .andThen(Commands.parallel(intake.stopCommand(), transport.stopMovementCommand()));
   }
+
+  public static Command intakeUntilDetectedNoSlap(
+      IntakeSubsystem intake, TransportSubsystem transport) {
+    return Commands.parallel(
+            intake.setIntakeVoltageCommand(IntakeConstants.INTAKE_VOLTAGE),
+            transport.setVoltageCommand(TransportConstants.TRANSPORT_LOAD_VOLTAGE))
+        .until(transport::atSensor)
+        .unless(transport::atSensor)
+        .andThen(Commands.parallel(intake.stopCommand(), transport.stopMovementCommand()));
+  }
 }
