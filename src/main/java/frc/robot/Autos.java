@@ -78,6 +78,7 @@ public class Autos {
     NamedCommands.registerCommand("AutoStart", autoStart());
     NamedCommands.registerCommand("ShootNote", shootNote());
     NamedCommands.registerCommand("IntakeUntilNote", intakeUntilNoteAndPrepareShot());
+    NamedCommands.registerCommand("ShootFarNote", shootFarNote());
 
     PathPlannerLogging.setLogActivePathCallback(
         (path) -> trajectoryTelemetryEntry.append(path.toArray(new Pose2d[0])));
@@ -147,6 +148,21 @@ public class Autos {
             .andThen(Commands.waitSeconds(0.1), transportSubsystem.stopMovementCommand()),
         ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
         ElevatorWristCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem, wristSubsystem));
+  }
+
+  private Command shootFarNote() {
+
+    if (Robot.isSimulation()) {
+      return Commands.print("Shooting Note!").andThen(Commands.waitSeconds(0.5));
+    }
+    return Commands.deadline(
+        Commands.sequence(
+                shooterAndElevatorWristInToleranceCommand(),
+                ScoringCommands.transportCloseSpeakerCommand(transportSubsystem)
+                    .until(() -> !transportSubsystem.atSensor()))
+            .andThen(Commands.waitSeconds(0.1), transportSubsystem.stopMovementCommand()),
+        ScoringCommands.shootSetpointFarSpeakerCommand(shooterSubsystem),
+        ElevatorWristCommands.elevatorWristFarSpeakerCommand(elevatorSubsystem, wristSubsystem));
   }
 
   private Command shooterAndElevatorWristInToleranceCommand() {

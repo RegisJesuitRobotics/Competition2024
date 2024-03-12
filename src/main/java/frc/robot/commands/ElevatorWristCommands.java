@@ -49,6 +49,15 @@ public class ElevatorWristCommands {
     );
   }
 
+  public static Command elevatorWristFarSpeakerCommand(ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem){
+    return Commands.parallel(
+      elevatorSubsystem.setElevatorPositionCommand(SetpointConstants.FAR_SPEAKER_ELEVATOR_HEIGHT),
+      wristSubsystem.setPositonCommand(
+        Rotation2d.fromRadians(SetpointConstants.FAR_SPEAKER_WRIST_ANGLE_RADIANS)
+      )
+    );
+  }
+
   public static Command elevatorWristZeroCommand(
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(

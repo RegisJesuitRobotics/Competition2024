@@ -6,7 +6,6 @@ import edu.wpi.first.hal.can.CANStatus;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.BuildConstants;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.StructTelemetryEntry;
@@ -53,16 +52,6 @@ public class MiscRobotTelemetryAndAlerts {
       tuningModeAlert.set(true);
     }
 
-    Metadata.add("MavenGroup", BuildConstants.MAVEN_GROUP);
-    Metadata.add("MavenName", BuildConstants.MAVEN_NAME);
-    Metadata.add("Version", BuildConstants.VERSION);
-    Metadata.add("GitRevision", String.valueOf(BuildConstants.GIT_REVISION));
-    Metadata.add("GitSha", BuildConstants.GIT_SHA);
-    Metadata.add("GitDate", BuildConstants.GIT_DATE);
-    Metadata.add("GitBranch", BuildConstants.GIT_BRANCH);
-    Metadata.add("BuildDate", BuildConstants.BUILD_DATE);
-    Metadata.add("BuildUnixTime", String.valueOf(BuildConstants.BUILD_UNIX_TIME));
-    Metadata.add("Dirty", String.valueOf(BuildConstants.DIRTY));
   }
 
   public void logValues() {

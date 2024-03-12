@@ -20,6 +20,10 @@ public class ScoringCommands {
     //    return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(0));
   }
 
+  public static Command shootSetpointFarSpeakerCommand(ShooterSubsystem shooterSubsystem) {
+    return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(8000.0));
+  }
+
   public static Command shootSetpointZeroCommand(ShooterSubsystem shooterSubsystem) {
     return shooterSubsystem.setVoltageCommand(0);
   }
