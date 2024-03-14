@@ -37,7 +37,7 @@ public class ScoringCommands {
     return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(2000.0));
   }
 
-  public static Command transportCloseSpeakerCommand(TransportSubsystem transportSubsystem) {
+  public static Command transportToShooterCommand(TransportSubsystem transportSubsystem) {
     return transportSubsystem.setVoltageCommand(TransportConstants.TRANSPORT_CLOSE_SPEAKER_VOLTAGE);
   }
 

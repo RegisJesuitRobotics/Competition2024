@@ -105,7 +105,7 @@ public class TransportSubsystem extends SubsystemBase {
     return this.run(() -> this.runShooterTransportVoltage(voltage));
   }
 
-  public Command stopMovementCommand() {
+  public Command stopCommand() {
     return this.runOnce(() -> this.runShooterTransportVoltage(0));
   }
 
