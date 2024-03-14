@@ -42,6 +42,6 @@ public class ScoringCommands {
   }
 
   public static Command setSetpointFarShoot(ShooterSubsystem shooterSubsystem) {
-   return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(8000));
+    return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(8000));
   }
 }

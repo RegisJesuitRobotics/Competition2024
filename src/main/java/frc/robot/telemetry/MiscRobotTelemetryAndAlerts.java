@@ -11,7 +11,6 @@ import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.StructTelemetryEntry;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
-import frc.robot.utils.Metadata;
 import frc.robot.utils.RaiderStructs;
 
 public class MiscRobotTelemetryAndAlerts {
@@ -51,7 +50,6 @@ public class MiscRobotTelemetryAndAlerts {
       Alert tuningModeAlert = new Alert("Tuning Mode is Enabled", AlertType.INFO);
       tuningModeAlert.set(true);
     }
-
   }
 
   public void logValues() {

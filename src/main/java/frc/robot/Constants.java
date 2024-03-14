@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Unit;
 import frc.robot.telemetry.tunable.gains.TunableArmElevatorFFGains;
 import frc.robot.telemetry.tunable.gains.TunableFFGains;
 import frc.robot.telemetry.tunable.gains.TunablePIDGains;
@@ -33,9 +32,9 @@ public final class Constants {
 
     public static final double CLIMB_UP_ELEVATOR_HEIGHT = Units.inchesToMeters(11.0);
     public static final double CLIMB_UP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(30.0);
-//TODO: tune
+    // TODO: tune
     public static final int FAR_SHOOT_ELEVATOR_POSITION = 0;
-    public static final int FAR_SHOOT_WRIST_POSITION = 0 ;
+    public static final int FAR_SHOOT_WRIST_POSITION = 0;
 
     public static final double CLIMB_DOWN_ELEVATOR_HEIGHT = Units.inchesToMeters(0.0);
     public static final double CLIMB_DOWN_WRIST_ANGLE_RADIANS =
@@ -43,7 +42,7 @@ public final class Constants {
 
     public static final double FAR_SPEAKER_ELEVATOR_HEIGHT = Units.inchesToMeters(1.0);
     public static final double FAR_SPEAKER_WRIST_ANGLE_RADIANS =
-         WristConstants.WRIST_MIN.getRadians() + Units.degreesToRadians(10);
+        WristConstants.WRIST_MIN.getRadians() + Units.degreesToRadians(10);
   }
 
   public static class IntakeConstants {
@@ -302,18 +301,16 @@ public final class Constants {
   public static class VisionConstants {
     private VisionConstants() {}
 
-    
     public static final double POSE_AMBIGUITY_CUTOFF = 0.5;
     public static final double DISTANCE_CUTOFF = 4.0;
- }
+  }
 
-    public static final Transform3d ROBOT_TO_CAM =
-        new Transform3d(
-            Units.inchesToMeters(-8.017),
-            Units.inchesToMeters(0),
-            Units.inchesToMeters(17.34),
-            new Rotation3d(0, -Units.degreesToRadians(27.088), Math.PI));
-  
+  public static final Transform3d ROBOT_TO_CAM =
+      new Transform3d(
+          Units.inchesToMeters(-8.017),
+          Units.inchesToMeters(0),
+          Units.inchesToMeters(17.34),
+          new Rotation3d(0, -Units.degreesToRadians(27.088), Math.PI));
 
   public static class MiscConstants {
     public static final String CANIVORE_NAME = "canivore";
