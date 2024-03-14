@@ -96,7 +96,7 @@ public class SlapdownFeederSubsystem extends SubsystemBase {
   }
 
   public Command setVoltageCommand(double voltage) {
-    return this.run(() -> setFeederVoltage(voltage));
+    return this.run(() -> setFeederVoltage(voltage)).withName("SetFeederVoltage");
   }
 
   @Override

@@ -58,7 +58,7 @@ public class WristSubsystem extends SubsystemBase {
     absoluteEncoder.setDutyCycleRange(1.0 / 1025.0, 1024.0 / 1025.0);
     controller.setTolerance(Units.degreesToRadians(5));
     // Default command is safe state
-    setDefaultCommand(setVotageCommand(0.0));
+    setDefaultCommand(setVoltageCommand(0.0));
   }
 
   private void configMotor() {
@@ -142,8 +142,8 @@ public class WristSubsystem extends SubsystemBase {
     wristVoltageReq.append(voltage);
   }
 
-  public Command setVotageCommand(double voltage) {
-    return this.run(() -> setVoltage(voltage));
+  public Command setVoltageCommand(double voltage) {
+    return this.run(() -> setVoltage(voltage)).withName("WristVoltage");
   }
 
   public Command setPositonCommand(Rotation2d desiredPosition) {
@@ -160,7 +160,8 @@ public class WristSubsystem extends SubsystemBase {
             () -> {
               controller.reset(getPosition(), wristMotor.getEncoder().getVelocity());
               controller.setGoal(desiredPosition.getRadians());
-            });
+            })
+        .withName("SetWristPosition");
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {

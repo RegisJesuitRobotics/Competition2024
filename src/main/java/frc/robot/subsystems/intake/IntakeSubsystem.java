@@ -84,15 +84,11 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeMotor.logValues();
   }
 
-  public Command checkIntakeCommand() {
-    return this.run(() -> this.setIntakeVoltage(5));
-  }
-
   public Command setIntakeVoltageCommand(double voltage) {
-    return this.run(() -> this.setIntakeVoltage(voltage));
+    return this.run(() -> this.setIntakeVoltage(voltage)).withName("SetIntakeVoltage");
   }
 
   public Command stopCommand() {
-    return this.runOnce(() -> setIntakeVoltage(0.0));
+    return this.runOnce(() -> setIntakeVoltage(0.0)).withName("StopIntake");
   }
 }

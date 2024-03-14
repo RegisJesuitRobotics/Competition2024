@@ -10,7 +10,8 @@ public class MiscCommands {
 
   public static Command rumbleHIDCommand(GenericHID hid) {
     return Commands.runEnd(
-        () -> hid.setRumble(RumbleType.kBothRumble, 1.0),
-        () -> hid.setRumble(RumbleType.kBothRumble, 0.0));
+            () -> hid.setRumble(RumbleType.kBothRumble, 1.0),
+            () -> hid.setRumble(RumbleType.kBothRumble, 0.0))
+        .withName("RumbleHID");
   }
 }

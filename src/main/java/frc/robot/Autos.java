@@ -126,7 +126,7 @@ public class Autos {
                 slapdownSuperstructure.setUpCommand(),
                 ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
                     elevatorSubsystem, wristSubsystem),
-                ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem)));
+                ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem))).withName("AutoIntakeUntilNote");
   }
 
   public Command autoStart() {
@@ -134,7 +134,7 @@ public class Autos {
       return Commands.print("Probed!");
     }
     return Commands.parallel(
-        elevatorSubsystem.probeHomeCommand(), slapdownSuperstructure.probeRotationHomeCommand());
+        elevatorSubsystem.probeHomeCommand(), slapdownSuperstructure.probeRotationHomeCommand()).withName("AutoStart");
   }
 
   private Command shootNote() {
@@ -149,7 +149,7 @@ public class Autos {
             ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
             ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
                 elevatorSubsystem, wristSubsystem))
-        .andThen(transportSubsystem.stopCommand());
+        .andThen(transportSubsystem.stopCommand()).withName("AutoShootNote");
   }
 
   private Command shootFarNote() {
@@ -163,14 +163,13 @@ public class Autos {
                 ScoringCommands.transportToShooterCommand(transportSubsystem)
                     .until(() -> !transportSubsystem.atSensor())),
             ScoringCommands.shootSetpointFarSpeakerCommand(shooterSubsystem),
-            ElevatorWristCommands.elevatorWristFarSpeakerCommand(
-                elevatorSubsystem, wristSubsystem))
-        .andThen(transportSubsystem.stopCommand());
+            ElevatorWristCommands.elevatorWristFarSpeakerCommand(elevatorSubsystem, wristSubsystem))
+        .andThen(transportSubsystem.stopCommand()).withName("AutoShootFarNote");
   }
 
   private Command shooterAndElevatorWristInToleranceCommand() {
     return Commands.parallel(
         ScoringCommands.shooterInToleranceCommand(shooterSubsystem),
-        ElevatorWristCommands.elevatorWristInToleranceCommand(elevatorSubsystem, wristSubsystem));
+        ElevatorWristCommands.elevatorWristInToleranceCommand(elevatorSubsystem, wristSubsystem)).withName("ShooterAndElevatorWristInTolerance");
   }
 }

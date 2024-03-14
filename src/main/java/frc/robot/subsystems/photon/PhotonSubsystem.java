@@ -1,7 +1,7 @@
 package frc.robot.subsystems.photon;
 
+import static frc.robot.Constants.ROBOT_TO_CAM;
 import static frc.robot.Constants.VisionConstants;
-import static frc.robot.Constants.VisionConstants.ROBOT_TO_CAM;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;

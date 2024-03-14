@@ -199,10 +199,6 @@ public class ElevatorSubsystem extends SubsystemBase {
     return controller.getGoal().position == ELEVATOR_MIN_HEIGHT && atGoal();
   }
 
-  public Command setFollowerCommand(double voltage) {
-    return this.run(() -> elevatorMotorFollower.setVoltage(voltage));
-  }
-
   public void setEncoderPosition(double position) {
     elevatorEncoder.setPosition(position);
     elevatorFollowerEncoder.setPosition(position);
@@ -217,11 +213,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public double getPosition() {
     return elevatorEncoder.getPosition();
-  }
-
-  public void stopMove() {
-    elevatorMotor.setVoltage(0);
-    elevatorMotorFollower.setVoltage(0);
   }
 
   public boolean isHomed() {
@@ -242,7 +233,8 @@ public class ElevatorSubsystem extends SubsystemBase {
               controller.reset(getPosition(), elevatorEncoder.getVelocity());
               controller.setGoal(positionClamped);
             })
-        .onlyIf(this::isHomed);
+        .onlyIf(this::isHomed)
+        .withName("SetElevatorPosition");
   }
 
   public Command probeHomeCommand() {
@@ -258,7 +250,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public Command setVoltageCommand(double voltage) {
-    return this.run(() -> setVoltage(voltage));
+    return this.run(() -> setVoltage(voltage)).withName("SetElevatorVoltage");
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
