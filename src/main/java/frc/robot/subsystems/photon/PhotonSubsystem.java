@@ -7,19 +7,23 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.FieldConstants;
 import frc.robot.telemetry.types.StructArrayTelemetryEntry;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
+import frc.robot.utils.RaiderUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -46,6 +50,41 @@ public class PhotonSubsystem extends SubsystemBase {
             fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camera, ROBOT_TO_CAM);
 
     estimatedPoseEntries.append(new Pose3d[0]);
+  }
+
+  public OptionalDouble getDistanceSpeaker() {
+    int desiredTag = RaiderUtils.shouldFlip() ? 4 : 7;
+
+    PhotonPipelineResult result = camera.getLatestResult();
+
+    for (PhotonTrackedTarget target : result.targets) {
+
+      if (target.getFiducialId() == desiredTag) {
+
+        return OptionalDouble.of(
+            PhotonUtils.calculateDistanceToTargetMeters(
+                ROBOT_TO_CAM.getZ(),
+                fieldLayout.getTagPose(desiredTag).get().getZ(),
+                ROBOT_TO_CAM.getRotation().getY(),
+                Units.degreesToRadians(target.getPitch())));
+      }
+    }
+    return OptionalDouble.empty();
+  }
+
+  public OptionalDouble getOffsetRadiansSpeaker() {
+    int desiredTag = RaiderUtils.shouldFlip() ? 4 : 7;
+
+    PhotonPipelineResult result = camera.getLatestResult();
+
+    for (PhotonTrackedTarget target : result.targets) {
+
+      if (target.getFiducialId() == desiredTag) {
+
+        return OptionalDouble.of(target.getYaw());
+      }
+    }
+    return OptionalDouble.empty();
   }
 
   public List<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
