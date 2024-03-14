@@ -16,14 +16,16 @@ public class ElevatorWristCommands {
   public static Command elevatorWristIntakePosition(
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(
-        elevatorSubsystem.setElevatorPositionCommand(SetpointConstants.INTAKE_ELEVATOR_HEIGHT),
-        wristSubsystem.setPositonCommand(
-            Rotation2d.fromRadians(SetpointConstants.INTAKE_WRIST_ANGLE_RADIANS)));
+            elevatorSubsystem.setElevatorPositionCommand(SetpointConstants.INTAKE_ELEVATOR_HEIGHT),
+            wristSubsystem.setPositonCommand(
+                Rotation2d.fromRadians(SetpointConstants.INTAKE_WRIST_ANGLE_RADIANS)))
+        .withName("ElevatorWristIntakePosition");
   }
 
   public static Command elevatorWristInToleranceCommand(
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
-    return Commands.waitUntil(elevatorWristToleranceTrigger(elevatorSubsystem, wristSubsystem));
+    return Commands.waitUntil(elevatorWristToleranceTrigger(elevatorSubsystem, wristSubsystem))
+        .withName("ElevatorWristInTolerance");
   }
 
   public static Trigger elevatorWristToleranceTrigger(
@@ -34,54 +36,71 @@ public class ElevatorWristCommands {
   public static Command elevatorWristCloseSpeakerCommand(
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(
-        elevatorSubsystem.setElevatorPositionCommand(
-            SetpointConstants.CLOSE_SPEAKER_ELEVATOR_HEIGHT),
-        wristSubsystem.setPositonCommand(
-            Rotation2d.fromRadians(SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS)));
+            elevatorSubsystem.setElevatorPositionCommand(
+                SetpointConstants.CLOSE_SPEAKER_ELEVATOR_HEIGHT),
+            wristSubsystem.setPositonCommand(
+                Rotation2d.fromRadians(SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS)))
+        .withName("ElevatorWristCloseSpeaker");
   }
 
   public static Command elevatorWristSafeSpeakerCommand(
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(
-        elevatorSubsystem.setElevatorPositionCommand(
-            SetpointConstants.CLOSE_SPEAKER_ELEVATOR_HEIGHT),
-        wristSubsystem.setPositonCommand(
-            Rotation2d.fromRadians(SetpointConstants.SAFE_SPEAKER_WRIST_RADIANS)));
+            elevatorSubsystem.setElevatorPositionCommand(
+                SetpointConstants.CLOSE_SPEAKER_ELEVATOR_HEIGHT),
+            wristSubsystem.setPositonCommand(
+                Rotation2d.fromRadians(SetpointConstants.SAFE_SPEAKER_WRIST_RADIANS)))
+        .withName("ElevatorWristSafeSpeaker");
+  }
+
+  public static Command elevatorWristFarSpeakerCommand(
+      ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
+    return Commands.parallel(
+            elevatorSubsystem.setElevatorPositionCommand(
+                SetpointConstants.FAR_SPEAKER_ELEVATOR_HEIGHT),
+            wristSubsystem.setPositonCommand(
+                Rotation2d.fromRadians(SetpointConstants.FAR_SPEAKER_WRIST_ANGLE_RADIANS)))
+        .withName("ElevatorWristFarSpeaker");
   }
 
   public static Command elevatorWristZeroCommand(
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(
-        elevatorSubsystem.setElevatorPositionCommand(ElevatorConstants.ELEVATOR_MIN_HEIGHT),
-        wristSubsystem.setPositonCommand(WristConstants.WRIST_MIN));
+            elevatorSubsystem.setElevatorPositionCommand(ElevatorConstants.ELEVATOR_MIN_HEIGHT),
+            wristSubsystem.setPositonCommand(WristConstants.WRIST_MIN))
+        .withName("ElevatorWristZero");
   }
 
   public static Command elevatorWristAmpCommand(
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(
-        elevatorSubsystem.setElevatorPositionCommand(SetpointConstants.AMP_ELEVATOR_HEIGHT),
-        wristSubsystem.setPositonCommand(
-            Rotation2d.fromRadians(SetpointConstants.AMP_WRIST_ANGLE_RADIANS)));
+            elevatorSubsystem.setElevatorPositionCommand(SetpointConstants.AMP_ELEVATOR_HEIGHT),
+            wristSubsystem.setPositonCommand(
+                Rotation2d.fromRadians(SetpointConstants.AMP_WRIST_ANGLE_RADIANS)))
+        .withName("ElevatorWristAmp");
   }
 
   public static Command elevatorWristClimbUpCommand(
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(
-        wristSubsystem.setPositonCommand(
-            Rotation2d.fromRadians(SetpointConstants.CLIMB_UP_WRIST_ANGLE_RADIANS)),
-        Commands.sequence(
-            Commands.waitUntil(wristSubsystem::atGoal),
-            elevatorSubsystem.setElevatorPositionCommand(
-                SetpointConstants.CLIMB_UP_ELEVATOR_HEIGHT)));
+            wristSubsystem.setPositonCommand(
+                Rotation2d.fromRadians(SetpointConstants.CLIMB_UP_WRIST_ANGLE_RADIANS)),
+            Commands.sequence(
+                Commands.waitUntil(wristSubsystem::atGoal),
+                elevatorSubsystem.setElevatorPositionCommand(
+                    SetpointConstants.CLIMB_UP_ELEVATOR_HEIGHT)))
+        .withName("ElevatorWristClimbUp");
   }
 
   public static Command elevatorWristClimbDownCommand(
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.sequence(
-        elevatorSubsystem.setVoltageCommand(-10).until(elevatorSubsystem::atBottomLimit),
-        Commands.parallel(
-            elevatorSubsystem.setVoltageCommand(0.4),
-            wristSubsystem.setPositonCommand(
-                Rotation2d.fromRadians(SetpointConstants.CLIMB_DOWN_WRIST_ANGLE_RADIANS))));
+            elevatorSubsystem.setVoltageCommand(-10).until(elevatorSubsystem::atBottomLimit),
+            Commands.parallel(
+                // TODO: Evaluate stall voltage
+                elevatorSubsystem.setVoltageCommand(0.0),
+                wristSubsystem.setPositonCommand(
+                    Rotation2d.fromRadians(SetpointConstants.CLIMB_DOWN_WRIST_ANGLE_RADIANS))))
+        .withName("ElevatorWristClimbDown");
   }
 }

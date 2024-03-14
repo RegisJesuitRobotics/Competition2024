@@ -15,9 +15,11 @@ public class ScoringCommands {
   }
 
   public static Command shootSetpointCloseSpeakerCommand(ShooterSubsystem shooterSubsystem) {
-    //    return
     return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(6000.0));
-    //    return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(0));
+  }
+
+  public static Command shootSetpointFarSpeakerCommand(ShooterSubsystem shooterSubsystem) {
+    return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(8000.0));
   }
 
   public static Command shootSetpointZeroCommand(ShooterSubsystem shooterSubsystem) {
@@ -29,11 +31,17 @@ public class ScoringCommands {
   }
 
   public static Command shootSetpointAmpCommand(ShooterSubsystem shooterSubsystem) {
-    //    return shooterSubsystem.setVoltageCommand(8.0);
     return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(2000.0));
   }
 
-  public static Command transportCloseSpeakerCommand(TransportSubsystem transportSubsystem) {
+  public static Command transportToShooterCommand(TransportSubsystem transportSubsystem) {
     return transportSubsystem.setVoltageCommand(TransportConstants.TRANSPORT_CLOSE_SPEAKER_VOLTAGE);
+  }
+
+  public static Command reverseShooterTransportCommand(
+      ShooterSubsystem shooterSubsystem, TransportSubsystem transportSubsystem) {
+    return Commands.parallel(
+            shooterSubsystem.setVoltageCommand(-8.0), transportSubsystem.setVoltageCommand(-8.0))
+        .withName("ReverseShooterTransport");
   }
 }

@@ -95,18 +95,12 @@ public class TransportSubsystem extends SubsystemBase {
     return !shooterSensor.get();
   }
 
-  public Command runTransportOutCommand() {
-    return this.startEnd(
-        () -> this.runShooterTransportVoltage(TRANSPORT_LOAD_VOLTAGE),
-        () -> this.runShooterTransportVoltage(0));
-  }
-
   public Command setVoltageCommand(double voltage) {
-    return this.run(() -> this.runShooterTransportVoltage(voltage));
+    return this.run(() -> this.runShooterTransportVoltage(voltage)).withName("TransportVoltage");
   }
 
-  public Command stopMovementCommand() {
-    return this.runOnce(() -> this.runShooterTransportVoltage(0));
+  public Command stopCommand() {
+    return this.runOnce(() -> this.runShooterTransportVoltage(0)).withName("TransportStop");
   }
 
   @Override

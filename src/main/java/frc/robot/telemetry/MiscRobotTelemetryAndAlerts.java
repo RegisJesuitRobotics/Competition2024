@@ -6,13 +6,14 @@ import edu.wpi.first.hal.can.CANStatus;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.BuildConstants;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
+import frc.robot.telemetry.types.StringTelemetryEntry;
 import frc.robot.telemetry.types.StructTelemetryEntry;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
-import frc.robot.utils.Metadata;
 import frc.robot.utils.RaiderStructs;
 
 public class MiscRobotTelemetryAndAlerts {
@@ -40,6 +41,11 @@ public class MiscRobotTelemetryAndAlerts {
           RaiderStructs.CANBusStatusStruct,
           MiscConstants.TUNING_MODE);
 
+  private final StringTelemetryEntry startCommandsEntry =
+      new StringTelemetryEntry(tableName + "startCommands", false);
+  private final StringTelemetryEntry endCommandsEntry =
+      new StringTelemetryEntry(tableName + "endCommands", false);
+
   public MiscRobotTelemetryAndAlerts() {
     for (int i = 0; i < controllerAlerts.length; i++) {
       controllerAlerts[i] =
@@ -53,16 +59,16 @@ public class MiscRobotTelemetryAndAlerts {
       tuningModeAlert.set(true);
     }
 
-    Metadata.add("MavenGroup", BuildConstants.MAVEN_GROUP);
-    Metadata.add("MavenName", BuildConstants.MAVEN_NAME);
-    Metadata.add("Version", BuildConstants.VERSION);
-    Metadata.add("GitRevision", String.valueOf(BuildConstants.GIT_REVISION));
-    Metadata.add("GitSha", BuildConstants.GIT_SHA);
-    Metadata.add("GitDate", BuildConstants.GIT_DATE);
-    Metadata.add("GitBranch", BuildConstants.GIT_BRANCH);
-    Metadata.add("BuildDate", BuildConstants.BUILD_DATE);
-    Metadata.add("BuildUnixTime", String.valueOf(BuildConstants.BUILD_UNIX_TIME));
-    Metadata.add("Dirty", String.valueOf(BuildConstants.DIRTY));
+    CommandScheduler.getInstance()
+        .onCommandInitialize((command) -> startCommandsEntry.append(getCommandID(command)));
+    CommandScheduler.getInstance()
+        .onCommandFinish((command) -> endCommandsEntry.append(getCommandID(command)));
+    CommandScheduler.getInstance()
+        .onCommandInterrupt((command) -> endCommandsEntry.append(getCommandID(command)));
+  }
+
+  private String getCommandID(Command command) {
+    return command.getName() + "(" + command.hashCode() + ")";
   }
 
   public void logValues() {

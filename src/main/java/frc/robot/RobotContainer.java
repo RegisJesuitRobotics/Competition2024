@@ -98,32 +98,20 @@ public class RobotContainer {
     // Set homing lights to state
     new Trigger(slapdownSuperstructure.getSlapdownRotationSubsystem()::isHomed)
         .onFalse(
-            Commands.runOnce(
-                    () -> {
-                      ledSubsystem.setStatusLight(0, Color.kRed);
-                    })
+            Commands.runOnce(() -> ledSubsystem.setStatusLight(0, Color.kRed))
                 .ignoringDisable(true)
                 .withName("SlapdownLEDStatusFalse"))
         .onTrue(
-            Commands.runOnce(
-                    () -> {
-                      ledSubsystem.setStatusLight(0, Color.kGreen);
-                    })
+            Commands.runOnce(() -> ledSubsystem.setStatusLight(0, Color.kGreen))
                 .ignoringDisable(true)
                 .withName("SlapdownLEDStatusTrue"));
     new Trigger(elevatorSubsystem::isHomed)
         .onFalse(
-            Commands.runOnce(
-                    () -> {
-                      ledSubsystem.setStatusLight(1, Color.kRed);
-                    })
+            Commands.runOnce(() -> ledSubsystem.setStatusLight(1, Color.kRed))
                 .ignoringDisable(true)
                 .withName("ElevatorLEDStatusFalse"))
         .onTrue(
-            Commands.runOnce(
-                    () -> {
-                      ledSubsystem.setStatusLight(1, Color.kGreen);
-                    })
+            Commands.runOnce(() -> ledSubsystem.setStatusLight(1, Color.kGreen))
                 .ignoringDisable(true)
                 .withName("ElevatorLEDStatusTrue"));
 
@@ -131,9 +119,10 @@ public class RobotContainer {
     new Trigger(transportSubsystem::atSensor)
         .onTrue(
             Commands.sequence(
-                Commands.runOnce(() -> shouldBlink.set(true)),
-                Commands.waitSeconds(1),
-                Commands.runOnce(() -> shouldBlink.set(false))));
+                    Commands.runOnce(() -> shouldBlink.set(true)),
+                    Commands.waitSeconds(1),
+                    Commands.runOnce(() -> shouldBlink.set(false)))
+                .withName("TransportSensorBlink"));
 
     List<LEDState> ledStates =
         List.of(
@@ -191,15 +180,14 @@ public class RobotContainer {
     driverController
         .y()
         .whileTrue(
-            Commands.parallel(
-                transportSubsystem.setVoltageCommand(-8), shooterSubsystem.setVoltageCommand(-8)));
-
+            ScoringCommands.reverseShooterTransportCommand(shooterSubsystem, transportSubsystem));
     driverController
         .x()
-        .onTrue(Commands.runOnce(() -> signalHumanPlayer.set(true)))
+        .onTrue(Commands.runOnce(() -> signalHumanPlayer.set(true)).withName("SignalHumanPlayer"))
         .onFalse(
             Commands.sequence(
-                Commands.waitSeconds(1.5), Commands.runOnce(() -> signalHumanPlayer.set(false))));
+                    Commands.waitSeconds(1.5), Commands.runOnce(() -> signalHumanPlayer.set(false)))
+                .withName("SignalHumanPlayerOff"));
   }
 
   private void configureOperatorBindings() {
@@ -207,27 +195,29 @@ public class RobotContainer {
         .square()
         .onTrue(
             Commands.parallel(
-                ScoringCommands.shootSetpointAmpCommand(shooterSubsystem),
-                Commands.sequence(
-                    Commands.waitSeconds(0.75), transportSubsystem.setVoltageCommand(10))));
+                    ScoringCommands.shootSetpointAmpCommand(shooterSubsystem),
+                    Commands.sequence(
+                        Commands.waitSeconds(0.75), transportSubsystem.setVoltageCommand(10)))
+                .withName("ShootAmp"));
     operatorController
         .triangle()
         .onTrue(
             Commands.parallel(
-                ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
-                Commands.waitUntil(shooterSubsystem::inTolerance)
-                    .andThen(MiscCommands.rumbleHIDCommand(operatorController.getHID()))));
+                    ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
+                    Commands.waitUntil(shooterSubsystem::inTolerance)
+                        .andThen(MiscCommands.rumbleHIDCommand(operatorController.getHID())))
+                .withName("ShootCloseSpeakerWithRumble"));
     operatorController.circle().onTrue(ScoringCommands.shootSetpointIdleCommand(shooterSubsystem));
     operatorController.x().onTrue(ScoringCommands.shootSetpointZeroCommand(shooterSubsystem));
 
     operatorController.options().onTrue(elevatorSubsystem.probeHomeCommand());
     operatorController.share().onTrue(slapdownSuperstructure.probeRotationHomeCommand());
+
     operatorController
         .povRight()
         .onTrue(
             ElevatorWristCommands.elevatorWristSafeSpeakerCommand(
                 elevatorSubsystem, wristSubsystem));
-
     operatorController
         .povUp()
         .onTrue(
@@ -282,10 +272,7 @@ public class RobotContainer {
     driverController
         .a()
         .whileTrue(
-            Commands.run(
-                    () -> {
-                      snapToSpeaker.set(true);
-                    })
+            Commands.run(() -> snapToSpeaker.set(true))
                 .finallyDo(() -> snapToSpeaker.set(false))
                 .beforeStarting(
                     () ->

@@ -16,19 +16,25 @@
     },
     {
       "anchor": {
-        "x": 0.7352600952201659,
-        "y": 4.484967101535422
+        "x": 2.1246895614918864,
+        "y": 2.8716677383788465
       },
       "prevControl": {
-        "x": 1.360765388197443,
-        "y": 3.8321332985258567
+        "x": 2.7501948544691635,
+        "y": 2.218833935369281
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "SourceSpeaker"
+      "linkedName": "FarShotSource"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": -57.676828249346606,
+      "rotateFast": false
+    }
+  ],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {

@@ -3,38 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.713477768188097,
-        "y": 4.239635551761809
+        "x": 7.903023546787834,
+        "y": 7.465625852548001
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.077131586910304,
-        "y": 4.868861510266262
+        "x": 8.90284259426717,
+        "y": 7.484648793895286
       },
       "isLocked": false,
-      "linkedName": "CloseSourceNote"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.2850623701247395,
-        "y": 5.453516007032013
+        "x": 2.0748031496062995,
+        "y": 5.722278666779556
       },
       "prevControl": {
-        "x": 1.9378165756331507,
-        "y": 4.729556659113318
+        "x": 1.107015940883734,
+        "y": 7.550129822481868
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "CenterSpeaker"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 1.0,
-      "rotationDegrees": 0,
-      "rotateFast": false
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -49,7 +43,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Center Speaker",
+  "folder": "Amp Speaker",
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0

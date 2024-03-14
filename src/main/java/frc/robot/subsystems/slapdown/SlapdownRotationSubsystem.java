@@ -165,11 +165,12 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
               rotationController.setGoal(goal.getRadians());
               rotationController.reset(getPosition(), rotationEncoder.getVelocity());
             })
-        .onlyIf(this::isHomed);
+        .onlyIf(this::isHomed)
+        .withName("SetSlapdownRotationGoal");
   }
 
   public Command setVoltageCommand(double voltage) {
-    return this.run(() -> setRotationVoltage(voltage));
+    return this.run(() -> setRotationVoltage(voltage)).withName("SetSlapdownRotationVoltage");
   }
 
   public Command probeHomeCommand() {
@@ -180,7 +181,8 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
               isHoming = true;
               isHomed = false;
             })
-        .finallyDo(() -> isHoming = false);
+        .finallyDo(() -> isHoming = false)
+        .withName("ProbeSlapdownRotationHome");
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {

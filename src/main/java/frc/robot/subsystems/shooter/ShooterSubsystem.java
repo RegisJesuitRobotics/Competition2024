@@ -175,7 +175,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public Command setVoltageCommand(double voltage) {
-    return this.run(() -> setVoltage(voltage));
+    return this.run(() -> setVoltage(voltage)).withName("ShooterSetVoltage");
   }
 
   public Command runVelocityCommand(double setpointRadiansSecond) {
@@ -186,7 +186,8 @@ public class ShooterSubsystem extends SubsystemBase {
                   pidController.calculate(flywheelEncoder.getVelocity(), rateLimited)
                       + feedforward.calculate(rateLimited));
             })
-        .beforeStarting(() -> rateLimiter.reset(flywheelEncoder.getVelocity()));
+        .beforeStarting(() -> rateLimiter.reset(flywheelEncoder.getVelocity()))
+        .withName("ShooterRunVelocity");
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {

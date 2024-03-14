@@ -78,32 +78,35 @@ public class Autos {
     NamedCommands.registerCommand("AutoStart", autoStart());
     NamedCommands.registerCommand("ShootNote", shootNote());
     NamedCommands.registerCommand("IntakeUntilNote", intakeUntilNoteAndPrepareShot());
+    NamedCommands.registerCommand("ShootFarNote", shootFarNote());
 
     PathPlannerLogging.setLogActivePathCallback(
         (path) -> trajectoryTelemetryEntry.append(path.toArray(new Pose2d[0])));
     PathPlannerLogging.setLogTargetPoseCallback(desiredPoseTelemetryEntry::append);
 
     autoChooser = AutoBuilder.buildAutoChooser("JustProbe");
-    autoChooser.addOption("elevator qf", elevatorSubsystem.sysIdQuasistatic(Direction.kForward));
-    autoChooser.addOption("elevator qr", elevatorSubsystem.sysIdQuasistatic(Direction.kReverse));
+    if (MiscConstants.TUNING_MODE) {
+      autoChooser.addOption("elevator qf", elevatorSubsystem.sysIdQuasistatic(Direction.kForward));
+      autoChooser.addOption("elevator qr", elevatorSubsystem.sysIdQuasistatic(Direction.kReverse));
 
-    autoChooser.addOption(
-        "drive s qf", driveSubsystem.steerQuasistaticSysIDCommand(Direction.kForward));
-    autoChooser.addOption(
-        "drive s qr", driveSubsystem.steerQuasistaticSysIDCommand(Direction.kReverse));
-    autoChooser.addOption(
-        "drive s df", driveSubsystem.steerDynamicSysIDCommand(Direction.kForward));
-    autoChooser.addOption(
-        "drive s dr", driveSubsystem.steerDynamicSysIDCommand(Direction.kReverse));
+      autoChooser.addOption(
+          "drive s qf", driveSubsystem.steerQuasistaticSysIDCommand(Direction.kForward));
+      autoChooser.addOption(
+          "drive s qr", driveSubsystem.steerQuasistaticSysIDCommand(Direction.kReverse));
+      autoChooser.addOption(
+          "drive s df", driveSubsystem.steerDynamicSysIDCommand(Direction.kForward));
+      autoChooser.addOption(
+          "drive s dr", driveSubsystem.steerDynamicSysIDCommand(Direction.kReverse));
 
-    autoChooser.addOption(
-        "wheelRadiusCharacterizationClock",
-        new WheelRadiusCharacterization(
-            driveSubsystem, WheelRadiusCharacterization.Direction.CLOCKWISE, 0.5));
-    autoChooser.addOption(
-        "wheelRadiusCharacterizationCounterClock",
-        new WheelRadiusCharacterization(
-            driveSubsystem, WheelRadiusCharacterization.Direction.COUNTER_CLOCKWISE, 0.5));
+      autoChooser.addOption(
+          "wheelRadiusCharacterizationClock",
+          new WheelRadiusCharacterization(
+              driveSubsystem, WheelRadiusCharacterization.Direction.CLOCKWISE, 0.5));
+      autoChooser.addOption(
+          "wheelRadiusCharacterizationCounterClock",
+          new WheelRadiusCharacterization(
+              driveSubsystem, WheelRadiusCharacterization.Direction.COUNTER_CLOCKWISE, 0.5));
+    }
   }
 
   public SendableChooser<Command> getAutoChooser() {
@@ -115,18 +118,16 @@ public class Autos {
       return Commands.print("Intaking");
     }
     return Commands.deadline(
-            Commands.parallel(
-                IntakingCommands.intakeUntilDetected(
-                    intakeSubsystem, slapdownSuperstructure, transportSubsystem),
-                ElevatorWristCommands.elevatorWristIntakePosition(elevatorSubsystem, wristSubsystem)
-                    .until(
-                        ElevatorWristCommands.elevatorWristToleranceTrigger(
-                            elevatorSubsystem, wristSubsystem))))
+            IntakingCommands.intakeUntilDetected(
+                intakeSubsystem, slapdownSuperstructure, transportSubsystem),
+            ElevatorWristCommands.elevatorWristIntakePosition(elevatorSubsystem, wristSubsystem))
         .andThen(
             Commands.parallel(
+                slapdownSuperstructure.setUpCommand(),
                 ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
                     elevatorSubsystem, wristSubsystem),
-                ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem)));
+                ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem)))
+        .withName("AutoIntakeUntilNote");
   }
 
   public Command autoStart() {
@@ -134,7 +135,8 @@ public class Autos {
       return Commands.print("Probed!");
     }
     return Commands.parallel(
-        elevatorSubsystem.probeHomeCommand(), slapdownSuperstructure.probeRotationHomeCommand());
+            elevatorSubsystem.probeHomeCommand(), slapdownSuperstructure.probeRotationHomeCommand())
+        .withName("AutoStart");
   }
 
   private Command shootNote() {
@@ -142,18 +144,38 @@ public class Autos {
       return Commands.print("Shooting Note!").andThen(Commands.waitSeconds(0.5));
     }
     return Commands.deadline(
-        Commands.sequence(
+            Commands.sequence(
                 shooterAndElevatorWristInToleranceCommand(),
-                ScoringCommands.transportCloseSpeakerCommand(transportSubsystem)
-                    .until(() -> !transportSubsystem.atSensor()))
-            .andThen(Commands.waitSeconds(0.1), transportSubsystem.stopMovementCommand()),
-        ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
-        ElevatorWristCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem, wristSubsystem));
+                ScoringCommands.transportToShooterCommand(transportSubsystem)
+                    .until(() -> !transportSubsystem.atSensor())),
+            ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
+            ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
+                elevatorSubsystem, wristSubsystem))
+        .andThen(transportSubsystem.stopCommand())
+        .withName("AutoShootNote");
+  }
+
+  private Command shootFarNote() {
+    if (Robot.isSimulation()) {
+      return Commands.print("Shooting Note!").andThen(Commands.waitSeconds(0.5));
+    }
+
+    return Commands.deadline(
+            Commands.sequence(
+                shooterAndElevatorWristInToleranceCommand(),
+                ScoringCommands.transportToShooterCommand(transportSubsystem)
+                    .until(() -> !transportSubsystem.atSensor())),
+            ScoringCommands.shootSetpointFarSpeakerCommand(shooterSubsystem),
+            ElevatorWristCommands.elevatorWristFarSpeakerCommand(elevatorSubsystem, wristSubsystem))
+        .andThen(transportSubsystem.stopCommand())
+        .withName("AutoShootFarNote");
   }
 
   private Command shooterAndElevatorWristInToleranceCommand() {
     return Commands.parallel(
-        ScoringCommands.shooterInToleranceCommand(shooterSubsystem),
-        ElevatorWristCommands.elevatorWristInToleranceCommand(elevatorSubsystem, wristSubsystem));
+            ScoringCommands.shooterInToleranceCommand(shooterSubsystem),
+            ElevatorWristCommands.elevatorWristInToleranceCommand(
+                elevatorSubsystem, wristSubsystem))
+        .withName("ShooterAndElevatorWristInTolerance");
   }
 }
