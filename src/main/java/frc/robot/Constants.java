@@ -20,7 +20,7 @@ public final class Constants {
 
   public static class SetpointConstants {
     public static final double AMP_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
-    public static final double AMP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(120.0);
+    public static final double AMP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(110.0);
 
     public static final double INTAKE_ELEVATOR_HEIGHT = Units.inchesToMeters(0);
     public static final double INTAKE_WRIST_ANGLE_RADIANS = WristConstants.WRIST_MIN.getRadians();
