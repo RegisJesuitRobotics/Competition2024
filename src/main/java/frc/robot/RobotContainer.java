@@ -40,128 +40,22 @@ import java.util.function.DoubleSupplier;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
-  //  private final SwerveDriveSubsystem driveSubsystem =
-  //      new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
   private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem((pose) -> List.of());
-  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-  private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-  private final WristSubsystem wristSubsystem = new WristSubsystem();
-  private final TransportSubsystem transportSubsystem = new TransportSubsystem();
-  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-  private final SlapdownSuperstructure slapdownSuperstructure = new SlapdownSuperstructure();
-  private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
-
-  private final Autos autos =
-      new Autos(
-          driveSubsystem,
-          elevatorSubsystem,
-          shooterSubsystem,
-          wristSubsystem,
-          transportSubsystem,
-          intakeSubsystem,
-          slapdownSuperstructure);
 
   private final SendableChooser<Command> autoCommand = new SendableChooser<>();
 
   private final CommandNintendoSwitchController driverController =
       new CommandNintendoSwitchController(0);
-  private final CommandXboxPlaystationController operatorController =
-      new CommandXboxPlaystationController(1);
 
   private final ListenableSendableChooser<Command> driveCommandChooser =
       new ListenableSendableChooser<>();
 
   public RobotContainer() {
     configureDriverBindings();
-    configureOperatorBindings();
-    configureAutos();
 
     SmartDashboard.putData("Music", OrchestraInstance.playCommand("song1.chrp"));
     SmartDashboard.putData("Alerts", Alert.getDefaultGroup());
     SmartDashboard.putData("CommandScheduler", CommandScheduler.getInstance());
-  }
-
-  private void configureAutos() {
-    autoCommand.setDefaultOption("Just Probe", autos.autoStart());
-    autoCommand.addOption("NOTHING", Commands.none());
-    autoCommand.addOption("Center Speaker One Piece", autos.centerSpeakerOnePieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Two Piece Close Amp", autos.centerSpeakerCloseAmpTwoPieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Two Piece Close Source", autos.centerSpeakerCloseSourceTwoPieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Two Piece Close Mid", autos.centerSpeakerCloseMidTwoPieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Three Piece Close Amp Mid",
-        autos.centerSpeakerCloseAmpMidThreePieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Three Piece Close Source Mid",
-        autos.centerSpeakerCloseSourceMidThreePieceAuto());
-    autoCommand.addOption(
-        "Center Speaker Four Piece Close", autos.centerSpeakerCloseFourPieceAuto());
-    autoCommand.addOption("Mobility Source Side", autos.mobilitySourceSideAuto());
-    autoCommand.addOption("Mobility Amp Side", autos.mobilityAmpSideAuto());
-    // autoCommand.addOption("Test Path", autos.testPathAuth());
-    // autoCommand.addOption(
-    //     "Drive SysID QF",
-    // driveSubsystem.quasistaticSysIDCommand(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Drive SysID QR",
-    // driveSubsystem.quasistaticSysIDCommand(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption(
-    //     "Drive SysID DF", driveSubsystem.dynamicSysIDCommand(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Drive SysID DR", driveSubsystem.dynamicSysIDCommand(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption(
-    //     "Slapdown SysID QF",
-    //     slapdownSuperstructure
-    //         .getSlapdownRotationSubsystem()
-    //         .sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Slapdown SysID QR",
-    //     slapdownSuperstructure
-    //         .getSlapdownRotationSubsystem()
-    //         .sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption(
-    //     "Slapdown SysID DF",
-    //     slapdownSuperstructure
-    //         .getSlapdownRotationSubsystem()
-    //         .sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Slapdown SysID DR",
-    //     slapdownSuperstructure
-    //         .getSlapdownRotationSubsystem()
-    //         .sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption("Probe Elevator", elevatorSubsystem.probeHomeCommand());
-    // autoCommand.addOption(
-    //     "Wrist SysID QF", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Wrist SysID QR", wristSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption(
-    //     "Wrist SysID DF", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Wrist SysID DR", wristSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption(
-    //     "Elevator SysID QF",
-    // elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Elevator SysID QR",
-    // elevatorSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption(
-    //     "Elevator SysID DF", elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Elevator SysID DR", elevatorSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption(
-    //     "Shooter SysID QF", shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Shooter SysID QR", shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // autoCommand.addOption(
-    //     "Shooter SysID DF", shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // autoCommand.addOption(
-    //     "Shooter SysID DR", shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    SmartDashboard.putData("Auto", autoCommand);
   }
 
   private void configureDriverBindings() {
@@ -171,57 +65,6 @@ public class RobotContainer {
         .onTrue(
             RaiderCommands.runOnceAllowDisable(driveSubsystem::zeroHeading)
                 .withName("ZeroHeading"));
-    driverController
-        .leftTrigger()
-        .whileTrue(
-            transportSubsystem.setVoltageCommand(
-                Constants.TransportConstants.TRANSPORT_CLOSE_SPEAKER_VOLTAGE));
-    driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
-    driverController
-        .rightStick()
-        .whileTrue(
-            Commands.parallel(
-                IntakingCommands.intakeUntilDetected(
-                    intakeSubsystem, slapdownSuperstructure, transportSubsystem),
-                elevatorSubsystem.setElevatorPositionCommand(Units.inchesToMeters(0)),
-                wristSubsystem.setPositonCommand(new Rotation2d(0))));
-    driverController.rightStick().onFalse(slapdownSuperstructure.setUpCommand());
-    // TODO: Speaker centric
-    driverController.rightTrigger().whileTrue(Commands.none());
-    // TODO: Amp auto align
-    driverController.x().whileTrue(Commands.none());
-    // TODO: Climb auto align
-    driverController.a().whileTrue(Commands.none());
-    driverController.circle().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
-  }
-
-  private void configureOperatorBindings() {
-    operatorController
-        .square()
-        .onTrue(
-            Commands.parallel(
-                ScoringCommands.shootSetpointAmpCommand(shooterSubsystem),
-                transportSubsystem.setVoltageCommand(12)));
-    operatorController
-        .triangle()
-        .onTrue(
-            Commands.parallel(
-                ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
-                Commands.waitUntil(shooterSubsystem::inTolerance)
-                    .andThen(MiscCommands.rumbleHIDCommand(operatorController.getHID()))));
-    operatorController.circle().onTrue(ScoringCommands.shootSetpointIdleCommand(shooterSubsystem));
-    operatorController.x().onTrue(ScoringCommands.shootSetpointZeroCommand(shooterSubsystem));
-
-    operatorController
-        .povUp()
-        .onTrue(
-            ScoringCommands.elevatorWristCloseSpeakerCommand(elevatorSubsystem, wristSubsystem));
-    operatorController
-        .povLeft()
-        .onTrue(ScoringCommands.elevatorWristAmpCommand(elevatorSubsystem, wristSubsystem));
-    operatorController
-        .leftTrigger()
-        .onTrue(ScoringCommands.elevatorWristZeroCommand(elevatorSubsystem, wristSubsystem));
   }
 
   private void configureDriving() {
