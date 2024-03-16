@@ -23,15 +23,15 @@ public final class Constants {
     public static final double AMP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(120.0);
 
     public static final double INTAKE_ELEVATOR_HEIGHT = Units.inchesToMeters(0);
-    public static final double INTAKE_WRIST_ANGLE_RADIANS = Units.degreesToRadians(0.0);
+    public static final double INTAKE_WRIST_ANGLE_RADIANS = WristConstants.WRIST_MIN.getRadians();
 
     public static final double CLOSE_SPEAKER_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
     public static final double CLOSE_SPEAKER_WRIST_ANGLE_RADIANS =
-        WristConstants.WRIST_MIN.getRadians() + Units.degreesToRadians(15);
+        Units.degreesToRadians(20);
     public static final double SAFE_SPEAKER_WRIST_RADIANS = 0.69 + Units.degreesToRadians(1);
 
     public static final double CLIMB_UP_ELEVATOR_HEIGHT = Units.inchesToMeters(11.0);
-    public static final double CLIMB_UP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(30.0);
+    public static final double CLIMB_UP_WRIST_ANGLE_RADIANS = Math.PI / 2.0;
     // TODO: tune
     public static final int FAR_SHOOT_ELEVATOR_POSITION = 0;
     public static final int FAR_SHOOT_WRIST_POSITION = 0;
@@ -41,8 +41,7 @@ public final class Constants {
         WristConstants.WRIST_MIN.getRadians();
 
     public static final double FAR_SPEAKER_ELEVATOR_HEIGHT = Units.inchesToMeters(1.0);
-    public static final double FAR_SPEAKER_WRIST_ANGLE_RADIANS =
-        WristConstants.WRIST_MIN.getRadians() + Units.degreesToRadians(10);
+    public static final double FAR_SPEAKER_WRIST_ANGLE_RADIANS = Units.degreesToRadians(10);
   }
 
   public static class IntakeConstants {
@@ -112,15 +111,14 @@ public final class Constants {
         Units.inchesToMeters((Math.PI * 1.75) / (ELEVATOR_GEAR_RATIO));
 
     public static final TunablePIDGains PID_GAINS =
-        new TunablePIDGains("gains/elevator", 40, 0, 0.0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/elevator", 40, 0, 0.0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
         new TunableTrapezoidalProfileGains(
-            "/gains/extension", 0.27, 0.33, MiscConstants.TUNING_MODE);
+            "/gains/elevator", 0.25, 0.5, MiscConstants.TUNING_MODE);
 
-    // TODO: TUNE FF GAINS
     public static final TunableArmElevatorFFGains FF_GAINS =
         new TunableArmElevatorFFGains(
-            "gains/elevator", 0.12792, 0.052507, 43.052, 5.9392, MiscConstants.TUNING_MODE);
+            "/gains/elevator", 0.12792, 0.052507, 43.052, 5.9392, MiscConstants.TUNING_MODE);
   }
 
   public static class SwerveConstants {
@@ -129,7 +127,7 @@ public final class Constants {
     public static final int PIGEON_ID = 21;
 
     public static final int NUM_MODULES = 4;
-    public static final double WHEEL_DIAMETER_METERS = Units.inchesToMeters(1.9 * 2);
+    public static final double WHEEL_DIAMETER_METERS = Units.inchesToMeters(1.9426461704096043 * 2);
     public static final double DRIVE_GEAR_REDUCTION = (50.0 / 16) * (17.0 / 27) * (45.0 / 15);
 
     public static final double STEER_GEAR_REDUCTION = 150.0 / 7.0;
@@ -139,14 +137,12 @@ public final class Constants {
 
     // 0.47
     public static final TunablePIDGains DRIVE_VELOCITY_PID_GAINS =
-        new TunablePIDGains("/gains/drive", 0.13282, 0.0, 0.0, MiscConstants.TUNING_MODE);
-    //    public static final TunablePIDGains DRIVE_VELOCITY_PID_GAINS =
-    //        new TunablePIDGains("/gains/drive", 0.0, 0.0, 0.0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/drive", 0.26125, 0.0, 0.0, MiscConstants.TUNING_MODE);
     public static final TunableFFGains DRIVE_VELOCITY_FF_GAINS =
-        new TunableFFGains("/gains/drive", 0.12881, 0.11817, 0.0093051, MiscConstants.TUNING_MODE);
+        new TunableFFGains("/gains/drive", 0.24872, 0.11031, 0.0080533, MiscConstants.TUNING_MODE);
 
     public static final TunablePIDGains STEER_POSITION_PID_GAINS =
-        new TunablePIDGains("/gains/steer", 30, 0.0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/steer", 110, 0.0, 0, MiscConstants.TUNING_MODE);
     public static final TunableFFGains STEER_VELOCITY_FF_GAINS =
         new TunableFFGains("/gains/steer", 0.27012, 2.2037, 0.059669, MiscConstants.TUNING_MODE);
 
@@ -191,25 +187,25 @@ public final class Constants {
 
     public static final SwerveModuleConfiguration FRONT_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            12, 8, 17, true, true, -2.483515, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            12, 8, 17, true, true, -2.446699356, false, SHARED_SWERVE_MODULE_CONFIGURATION);
     public static final SwerveModuleConfiguration FRONT_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            13, 5, 18, true, true, -0.326738, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            13, 5, 18, true, true, -0.326737907, false, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_LEFT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            14, 10, 19, true, true, -0.450990, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            14, 10, 19, true, true, -0.5031456984264903, false, SHARED_SWERVE_MODULE_CONFIGURATION);
 
     public static final SwerveModuleConfiguration BACK_RIGHT_MODULE_CONFIGURATION =
         new SwerveModuleConfiguration(
-            15, 3, 20, true, true, -0.724039, false, SHARED_SWERVE_MODULE_CONFIGURATION);
+            15, 3, 20, true, true, -0.679553488943546, false, SHARED_SWERVE_MODULE_CONFIGURATION);
   }
 
   public static class AutoConstants {
     private AutoConstants() {}
 
-    public static final double MAX_AUTO_VELOCITY_METERS_SECOND = 3;
-    public static final double MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED = 2.75;
+    public static final double MAX_AUTO_VELOCITY_METERS_SECOND = 3.8;
+    public static final double MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED = 5 ;
 
     public static final double MAX_AUTO_ANGULAR_VELOCITY_RADIANS_SECOND = 7.0;
     public static final double MAX_AUTO_ANGULAR_ACCELERATION_RADIANS_SECOND_SQUARED = 30.0;
@@ -236,9 +232,9 @@ public final class Constants {
     public static final double WRIST_GEAR_RATIO = 25.0 * 42.0 / 18.0;
 
     public static final Rotation2d WRIST_MAX = new Rotation2d(Units.degreesToRadians(60));
-    public static final Rotation2d WRIST_MIN = Rotation2d.fromRadians(0.10695095737072258);
+    public static final Rotation2d WRIST_MIN = Rotation2d.fromRadians(0.009064);
 
-    public static final double WRIST_OFFSET = 0.805 + Math.PI / 2.0;
+    public static final double WRIST_OFFSET = 0.703253 + Math.PI / 2.0;
     public static final int WRIST_ENCODER_PORT = 7;
 
     public static final int WRIST_MOTOR_ID = 2;
@@ -248,15 +244,15 @@ public final class Constants {
 
     public static final TunableArmElevatorFFGains WRIST_FF_GAINS =
         new TunableArmElevatorFFGains(
-            "/wrist/ffGains", .16624, 0.35068, 1.0512, 0.2769, MiscConstants.TUNING_MODE);
+            "/gains/wrist/", 0.12906, 0.22287, 0.97761, 0.1151, MiscConstants.TUNING_MODE);
     public static final TunablePIDGains WRIST_PID_GAINS =
-        new TunablePIDGains("/wrist/pidGains", 2, 0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/wrist/", 2, 0.0, 0.0, MiscConstants.TUNING_MODE);
 
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
         new TunableTrapezoidalProfileGains(
-            "/wrist/trapGains",
+            "/gains/wrist",
             Units.rotationsToRadians(1.5),
-            Units.rotationsToRadians(1.5),
+            Units.rotationsToRadians(2),
             MiscConstants.TUNING_MODE);
   }
 
@@ -292,10 +288,10 @@ public final class Constants {
     private TeleopConstants() {}
 
     public static final boolean OPEN_LOOP_DRIVETRAIN = true;
-    public static final double TRANSLATION_RATE_LIMIT_METERS_SECOND_SQUARED = 8;
-    public static final double ANGULAR_RATE_LIMIT_RADIANS_SECOND_SQUARED = 30;
-    public static final double MINIMUM_VELOCITY_METERS_SECOND = 0.10;
-    public static final double MINIMUM_ANGULAR_VELOCITY_RADIANS_SECOND = 0.10;
+    public static final double TRANSLATION_RATE_LIMIT_METERS_SECOND_SQUARED = 10;
+    public static final double ANGULAR_RATE_LIMIT_RADIANS_SECOND_SQUARED = 40;
+    public static final double MINIMUM_VELOCITY_METERS_SECOND = 0.05;
+    public static final double MINIMUM_ANGULAR_VELOCITY_RADIANS_SECOND = 0.1;
   }
 
   public static class VisionConstants {

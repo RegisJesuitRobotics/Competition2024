@@ -70,7 +70,7 @@ public class Autos {
         new HolonomicPathFollowerConfig(
             AutoConstants.TRANSLATION_POSITION_GAINS.createPIDConstants(),
             AutoConstants.ANGULAR_POSITION_PID_GAINS.createPIDConstants(),
-            SwerveConstants.MAX_VELOCITY_METERS_SECOND,
+            AutoConstants.MAX_AUTO_VELOCITY_METERS_SECOND,
             SwerveConstants.WHEEL_RADIUS,
             new ReplanningConfig()),
         RaiderUtils::shouldFlip,
@@ -88,6 +88,16 @@ public class Autos {
     if (MiscConstants.TUNING_MODE) {
       autoChooser.addOption("elevator qf", elevatorSubsystem.sysIdQuasistatic(Direction.kForward));
       autoChooser.addOption("elevator qr", elevatorSubsystem.sysIdQuasistatic(Direction.kReverse));
+
+      autoChooser.addOption("wrist qf", wristSubsystem.sysIdQuasistatic(Direction.kForward));
+      autoChooser.addOption("wrist qr", wristSubsystem.sysIdQuasistatic(Direction.kReverse));
+      autoChooser.addOption("wrist df", wristSubsystem.sysIdDynamic(Direction.kForward));
+      autoChooser.addOption("wrist dr", wristSubsystem.sysIdDynamic(Direction.kReverse));
+
+      autoChooser.addOption("drive qf", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kForward));
+      autoChooser.addOption("drive qr", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kReverse));
+      autoChooser.addOption("drive df", driveSubsystem.driveDynamicSysIDCommand(Direction.kForward));
+      autoChooser.addOption("drive dr", driveSubsystem.driveDynamicSysIDCommand(Direction.kReverse));
 
       autoChooser.addOption(
           "drive s qf", driveSubsystem.steerQuasistaticSysIDCommand(Direction.kForward));

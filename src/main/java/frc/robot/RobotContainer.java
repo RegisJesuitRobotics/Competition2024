@@ -299,8 +299,8 @@ public class RobotContainer {
                                     -driverController.getLeftX()))
                             .times(maxTranslationalSpeedSuppler.getAsDouble())),
                 () -> {
-                  OptionalDouble result = photonSubsystem.getOffsetRadiansSpeaker();
                   if (snapToSpeaker.get()) {
+                    OptionalDouble result = photonSubsystem.getOffsetRadiansSpeaker();
                     double target = 0;
 
                     if (result.isEmpty()) {

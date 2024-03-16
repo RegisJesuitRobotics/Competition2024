@@ -15,6 +15,7 @@ import frc.robot.telemetry.types.StructArrayTelemetryEntry;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
 import frc.robot.utils.RaiderUtils;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -78,10 +79,8 @@ public class PhotonSubsystem extends SubsystemBase {
     PhotonPipelineResult result = camera.getLatestResult();
 
     for (PhotonTrackedTarget target : result.targets) {
-
       if (target.getFiducialId() == desiredTag) {
-
-        return OptionalDouble.of(target.getYaw());
+        return OptionalDouble.of(Units.degreesToRadians(target.getYaw()));
       }
     }
     return OptionalDouble.empty();
