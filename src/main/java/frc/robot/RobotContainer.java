@@ -129,13 +129,13 @@ public class RobotContainer {
         List.of(
             new LEDState(
                 signalHumanPlayer::get, new AlternatePattern(0.5, Color.kOrange, Color.kBlack)),
+            // Green if we can go under the stage
+            new LEDState(
+                shouldBlink::get, new AlternatePattern(0.25, Color.kAliceBlue, Color.kBlack)),
             // Red blink if we have any faults
             new LEDState(
                 () -> Alert.getDefaultGroup().hasAnyErrors(),
                 new AlternatePattern(2.0, Color.kRed, Color.kBlack)),
-            // Green if we can go under the stage
-            new LEDState(
-                shouldBlink::get, new AlternatePattern(0.25, Color.kAliceBlue, Color.kBlack)),
             new LEDState(
                 () ->
                     DriverStation.isTeleopEnabled()
@@ -217,7 +217,7 @@ public class RobotContainer {
     operatorController
         .povRight()
         .onTrue(
-            ElevatorWristCommands.elevatorWristSafeSpeakerCommand(
+            ElevatorWristCommands.elevatorWristExpelCommand(
                 elevatorSubsystem, wristSubsystem));
     operatorController
         .povUp()

@@ -53,6 +53,16 @@ public class ElevatorWristCommands {
         .withName("ElevatorWristSafeSpeaker");
   }
 
+  public static Command elevatorWristExpelCommand(
+      ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
+    return Commands.parallel(
+            elevatorSubsystem.setElevatorPositionCommand(
+                SetpointConstants.EXPEL_ELEVATOR_HEIGHT),
+            wristSubsystem.setPositonCommand(
+                Rotation2d.fromRadians(SetpointConstants.EXPEL_WRIST_ANGLE_RADIANS)))
+        .withName("ElevatorWristExpel");
+  }
+
   public static Command elevatorWristFarSpeakerCommand(
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(

@@ -30,6 +30,10 @@ public final class Constants {
         Units.degreesToRadians(20);
     public static final double SAFE_SPEAKER_WRIST_RADIANS = 0.69 + Units.degreesToRadians(1);
 
+    public static final double EXPEL_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
+    public static final double EXPEL_WRIST_ANGLE_RADIANS =
+        Units.degreesToRadians(50);
+
     public static final double CLIMB_UP_ELEVATOR_HEIGHT = Units.inchesToMeters(11.0);
     public static final double CLIMB_UP_WRIST_ANGLE_RADIANS = Math.PI / 2.0;
     // TODO: tune
