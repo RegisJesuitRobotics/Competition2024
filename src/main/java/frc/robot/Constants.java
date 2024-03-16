@@ -113,7 +113,7 @@ public final class Constants {
 
     public static final double STEER_GEAR_REDUCTION = 150.0 / 7.0;
 
-    public static final double DRIVE_CURRENT_LIMIT = 60.0;
+    public static final double DRIVE_CURRENT_LIMIT = 50.0;
     public static final int STEER_STALL_CURRENT_LIMIT = 45;
     public static final int STEER_FREE_CURRENT_LIMIT = 25;
 
