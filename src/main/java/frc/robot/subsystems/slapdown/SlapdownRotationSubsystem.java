@@ -182,7 +182,7 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
               isHomed = false;
             })
         .finallyDo(() -> isHoming = false)
-        .withName("ProbeSlapdownRotationHome");
+        .withName("HomeSlapdownRotation");
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {

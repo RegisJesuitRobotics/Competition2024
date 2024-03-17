@@ -94,10 +94,14 @@ public class Autos {
       autoChooser.addOption("wrist df", wristSubsystem.sysIdDynamic(Direction.kForward));
       autoChooser.addOption("wrist dr", wristSubsystem.sysIdDynamic(Direction.kReverse));
 
-      autoChooser.addOption("drive qf", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kForward));
-      autoChooser.addOption("drive qr", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kReverse));
-      autoChooser.addOption("drive df", driveSubsystem.driveDynamicSysIDCommand(Direction.kForward));
-      autoChooser.addOption("drive dr", driveSubsystem.driveDynamicSysIDCommand(Direction.kReverse));
+      autoChooser.addOption(
+          "drive qf", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kForward));
+      autoChooser.addOption(
+          "drive qr", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kReverse));
+      autoChooser.addOption(
+          "drive df", driveSubsystem.driveDynamicSysIDCommand(Direction.kForward));
+      autoChooser.addOption(
+          "drive dr", driveSubsystem.driveDynamicSysIDCommand(Direction.kReverse));
 
       autoChooser.addOption(
           "drive s qf", driveSubsystem.steerQuasistaticSysIDCommand(Direction.kForward));
@@ -145,7 +149,8 @@ public class Autos {
       return Commands.print("Probed!");
     }
     return Commands.parallel(
-            elevatorSubsystem.probeHomeCommand(), slapdownSuperstructure.probeRotationHomeCommand())
+            elevatorSubsystem.probeHomeCommand(),
+            slapdownSuperstructure.getSlapdownRotationSubsystem().probeHomeCommand())
         .withName("AutoStart");
   }
 

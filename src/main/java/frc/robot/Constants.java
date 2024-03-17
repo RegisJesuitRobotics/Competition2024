@@ -26,13 +26,11 @@ public final class Constants {
     public static final double INTAKE_WRIST_ANGLE_RADIANS = WristConstants.WRIST_MIN.getRadians();
 
     public static final double CLOSE_SPEAKER_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
-    public static final double CLOSE_SPEAKER_WRIST_ANGLE_RADIANS =
-        Units.degreesToRadians(20);
+    public static final double CLOSE_SPEAKER_WRIST_ANGLE_RADIANS = Units.degreesToRadians(20);
     public static final double SAFE_SPEAKER_WRIST_RADIANS = 0.69 + Units.degreesToRadians(1);
 
     public static final double EXPEL_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
-    public static final double EXPEL_WRIST_ANGLE_RADIANS =
-        Units.degreesToRadians(50);
+    public static final double EXPEL_WRIST_ANGLE_RADIANS = Units.degreesToRadians(50);
 
     public static final double CLIMB_UP_ELEVATOR_HEIGHT = Units.inchesToMeters(11.0);
     public static final double CLIMB_UP_WRIST_ANGLE_RADIANS = Math.PI / 2.0;
@@ -117,8 +115,7 @@ public final class Constants {
     public static final TunablePIDGains PID_GAINS =
         new TunablePIDGains("/gains/elevator", 40, 0, 0.0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
-        new TunableTrapezoidalProfileGains(
-            "/gains/elevator", 0.25, 0.5, MiscConstants.TUNING_MODE);
+        new TunableTrapezoidalProfileGains("/gains/elevator", 0.25, 0.5, MiscConstants.TUNING_MODE);
 
     public static final TunableArmElevatorFFGains FF_GAINS =
         new TunableArmElevatorFFGains(
@@ -146,7 +143,7 @@ public final class Constants {
         new TunableFFGains("/gains/drive", 0.24872, 0.11031, 0.0080533, MiscConstants.TUNING_MODE);
 
     public static final TunablePIDGains STEER_POSITION_PID_GAINS =
-        new TunablePIDGains("/gains/steer", 110, 0.0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/steer", 110, 0.0, 0.0, MiscConstants.TUNING_MODE);
     public static final TunableFFGains STEER_VELOCITY_FF_GAINS =
         new TunableFFGains("/gains/steer", 0.27012, 2.2037, 0.059669, MiscConstants.TUNING_MODE);
 
@@ -209,7 +206,7 @@ public final class Constants {
     private AutoConstants() {}
 
     public static final double MAX_AUTO_VELOCITY_METERS_SECOND = 3.8;
-    public static final double MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED = 5 ;
+    public static final double MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED = 5;
 
     public static final double MAX_AUTO_ANGULAR_VELOCITY_RADIANS_SECOND = 7.0;
     public static final double MAX_AUTO_ANGULAR_ACCELERATION_RADIANS_SECOND_SQUARED = 30.0;

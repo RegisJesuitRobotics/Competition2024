@@ -212,13 +212,13 @@ public class RobotContainer {
     operatorController.x().onTrue(ScoringCommands.shootSetpointZeroCommand(shooterSubsystem));
 
     operatorController.options().onTrue(elevatorSubsystem.probeHomeCommand());
-    operatorController.share().onTrue(slapdownSuperstructure.probeRotationHomeCommand());
+    operatorController
+        .share()
+        .onTrue(slapdownSuperstructure.getSlapdownRotationSubsystem().probeHomeCommand());
 
     operatorController
         .povRight()
-        .onTrue(
-            ElevatorWristCommands.elevatorWristExpelCommand(
-                elevatorSubsystem, wristSubsystem));
+        .onTrue(ElevatorWristCommands.elevatorWristExpelCommand(elevatorSubsystem, wristSubsystem));
     operatorController
         .povUp()
         .onTrue(
