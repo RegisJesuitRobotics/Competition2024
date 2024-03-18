@@ -8,62 +8,50 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.590841941299371,
-        "y": 3.9195938989614603
+        "x": 1.0158553006343387,
+        "y": 2.7843648865479205
       },
       "isLocked": false,
       "linkedName": "SourceSpeaker"
     },
     {
       "anchor": {
-        "x": 7.5,
-        "y": 0.7749824424295128
+        "x": 7.976691647385896,
+        "y": 0.7258700518926368
       },
       "prevControl": {
-        "x": 6.0466974021228825,
-        "y": 0.7749824424295128
+        "x": 7.19784077595014,
+        "y": 0.6481030491350274
       },
       "nextControl": {
-        "x": 7.550000000000001,
-        "y": 0.7749824424295128
+        "x": 8.443745097265666,
+        "y": 0.7725045852247947
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.25,
-        "y": 0.7749824424295128
+        "x": 8.180780955410492,
+        "y": 7.358039156136207
       },
       "prevControl": {
-        "x": 8.2,
-        "y": 0.7749824424295128
+        "x": 8.180780955410492,
+        "y": 6.358039156136207
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "FarSourceNote"
+      "linkedName": null
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 1,
-      "rotationDegrees": 0,
+      "rotationDegrees": -90.0,
       "rotateFast": false
     }
   ],
-  "constraintZones": [
-    {
-      "name": "Slow Pickup",
-      "minWaypointRelativePos": 1.0,
-      "maxWaypointRelativePos": 2.0,
-      "constraints": {
-        "maxVelocity": 1.375,
-        "maxAcceleration": 6.0,
-        "maxAngularVelocity": 500.0,
-        "maxAngularAcceleration": 2000.0
-      }
-    }
-  ],
+  "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.8,
@@ -73,7 +61,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0,
+    "rotation": -90.0,
     "rotateFast": false
   },
   "reversed": false,

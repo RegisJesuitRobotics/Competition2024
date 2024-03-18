@@ -3,9 +3,9 @@
   "startingPose": {
     "position": {
       "x": 0.74,
-      "y": 4.48
+      "y": 6.61
     },
-    "rotation": -60.0
+    "rotation": 60.0
   },
   "command": {
     "type": "sequential",
@@ -34,7 +34,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "SourceSpeaker-CloseSource"
+                        "pathName": "AmpSpeaker-CloseAmp Low Profile"
                       }
                     },
                     {
@@ -46,7 +46,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CloseSource-SourceSpeaker"
+                        "pathName": "CloseAmp-AmpSpeaker"
                       }
                     }
                   ]
@@ -66,16 +66,10 @@
           "data": {
             "name": "ShootNote"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "SourceSpeaker-Mobility"
-          }
         }
       ]
     }
   },
-  "folder": "Source Speaker",
+  "folder": "Amp Speaker",
   "choreoAuto": false
 }

@@ -3,9 +3,9 @@
   "startingPose": {
     "position": {
       "x": 0.74,
-      "y": 6.61
+      "y": 4.48
     },
-    "rotation": 60.0
+    "rotation": -59.45431809626428
   },
   "command": {
     "type": "sequential",
@@ -26,12 +26,12 @@
         {
           "type": "path",
           "data": {
-            "pathName": "AmpSpeaker-Mobility"
+            "pathName": "SourceSpeaker-MessupCenter"
           }
         }
       ]
     }
   },
-  "folder": "Amp Speaker",
+  "folder": "Source Speaker",
   "choreoAuto": false
 }

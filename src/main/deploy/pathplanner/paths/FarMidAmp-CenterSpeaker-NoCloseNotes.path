@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.87,
-        "y": 5.8
+        "x": 8.25,
+        "y": 5.78
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.575070085330886,
-        "y": 6.116115861862884
+        "x": 6.9550700853308856,
+        "y": 6.096115861862884
       },
       "isLocked": false,
       "linkedName": "FarMidAmpNote"
