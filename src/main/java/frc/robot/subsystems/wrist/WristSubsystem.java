@@ -8,7 +8,6 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -24,6 +23,7 @@ import frc.robot.telemetry.wrappers.TelemetryCANSparkFlex;
 import frc.robot.utils.Alert;
 import frc.robot.utils.ConfigurationUtils;
 import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
+import java.util.function.DoubleSupplier;
 
 public class WristSubsystem extends SubsystemBase {
   private static final Alert wristAlert =
@@ -135,7 +135,7 @@ public class WristSubsystem extends SubsystemBase {
   }
 
   public boolean atBottom() {
-    return controller.getGoal().position == WRIST_MIN.getRadians() && atGoal();
+    return controller.getGoal().position == WRIST_MIN_RADIANS && atGoal();
   }
 
   public void setVoltage(double voltage) {
@@ -147,9 +147,14 @@ public class WristSubsystem extends SubsystemBase {
     return this.run(() -> setVoltage(voltage)).withName("WristVoltage");
   }
 
-  public Command setPositonCommand(Rotation2d desiredPosition) {
+  public Command setPositionCommand(double desiredPositionRadians) {
+    return setPositionCommand(() -> desiredPositionRadians);
+  }
+
+  public Command setPositionCommand(DoubleSupplier desiredPositionRadians) {
     return this.run(
             () -> {
+              controller.setGoal(desiredPositionRadians.getAsDouble());
               double feedbackOutput = controller.calculate(getPosition());
               TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
 
@@ -158,10 +163,7 @@ public class WristSubsystem extends SubsystemBase {
                       + feedforward.calculate(currentSetpoint.position, currentSetpoint.velocity));
             })
         .beforeStarting(
-            () -> {
-              controller.reset(getPosition(), wristMotor.getEncoder().getVelocity());
-              controller.setGoal(desiredPosition.getRadians());
-            })
+            () -> controller.reset(getPosition(), wristMotor.getEncoder().getVelocity()))
         .withName("SetWristPosition");
   }
 

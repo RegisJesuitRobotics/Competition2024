@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.SetpointConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.TeleopConstants;
 import frc.robot.commands.ElevatorWristCommands;
@@ -30,8 +31,11 @@ import frc.robot.subsystems.slapdown.SlapdownSuperstructure;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
+import frc.robot.telemetry.tunable.TunableTelemetryPIDController;
 import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
 import frc.robot.telemetry.tunable.gains.TunableDouble;
+import frc.robot.telemetry.types.BooleanTelemetryEntry;
+import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.utils.*;
 import frc.robot.utils.led.AlternatePattern;
 import frc.robot.utils.led.SlidePattern;
@@ -219,10 +223,23 @@ public class RobotContainer {
     operatorController
         .povRight()
         .onTrue(ElevatorWristCommands.elevatorWristExpelCommand(elevatorSubsystem, wristSubsystem));
+//    operatorController
+//        .povUp()
+//        .onTrue(
+//            ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
+//                elevatorSubsystem, wristSubsystem));
     operatorController
         .povUp()
         .onTrue(
-            ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
+            ElevatorWristCommands.elevatorWristDynamicCommand(
+                () -> SetpointConstants.CLOSE_SPEAKER_ELEVATOR_HEIGHT,
+                () -> {
+                  OptionalDouble distance = photonSubsystem.getDistanceSpeaker();
+                  if (distance.isEmpty()) {
+                    return SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS;
+                  }
+                  return SetpointConstants.WRIST_SETPOINT_TABLE.get(distance.getAsDouble());
+                },
                 elevatorSubsystem, wristSubsystem));
     operatorController
         .povDown()
@@ -264,29 +281,16 @@ public class RobotContainer {
         };
 
     AtomicBoolean snapToSpeaker = new AtomicBoolean();
-    TunableTelemetryProfiledPIDController snapController =
-        new TunableTelemetryProfiledPIDController(
+    TunableTelemetryPIDController snapController =
+        new TunableTelemetryPIDController(
             "/snap/controller",
-            Constants.AutoConstants.ANGULAR_POSITION_PID_GAINS,
-            Constants.AutoConstants.ANGULAR_POSITION_TRAPEZOIDAL_GAINS);
+            Constants.AutoConstants.ANGULAR_POSITION_PID_GAINS);
     snapController.enableContinuousInput(-Math.PI, Math.PI);
     driverController
         .a()
         .whileTrue(
             Commands.run(() -> snapToSpeaker.set(true))
-                .finallyDo(() -> snapToSpeaker.set(false))
-                .beforeStarting(
-                    () -> {
-                      OptionalDouble result = photonSubsystem.getOffsetRadiansSpeaker();
-                      if (result.isEmpty()) {
-                        snapController.reset(
-                            0, driveSubsystem.getCurrentChassisSpeeds().omegaRadiansPerSecond);
-                      } else {
-                        snapController.reset(
-                            result.getAsDouble(),
-                            driveSubsystem.getCurrentChassisSpeeds().omegaRadiansPerSecond);
-                      }
-                    }));
+                .finallyDo(() -> snapToSpeaker.set(false)));
     driveCommandChooser.setDefaultOption(
         "Hybrid (Default to Field Relative & absolute control but use robot centric when holding button)",
         new SwerveDriveCommand(
@@ -301,13 +305,13 @@ public class RobotContainer {
                 () -> {
                   if (snapToSpeaker.get()) {
                     OptionalDouble result = photonSubsystem.getOffsetRadiansSpeaker();
+
                     double target = 0;
 
                     if (result.isEmpty()) {
                       return 0;
                     } else {
-                      return snapController.calculate(result.getAsDouble(), target)
-                          + snapController.getSetpoint().velocity;
+                      return snapController.calculate(result.getAsDouble(), target);
                     }
                   }
                   return rotationLimiter.calculate(

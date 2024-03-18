@@ -11,6 +11,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.FieldConstants;
+import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.StructArrayTelemetryEntry;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
@@ -36,6 +37,8 @@ public class PhotonSubsystem extends SubsystemBase {
           "/photon/estimatedPoses", Pose3d.struct, MiscConstants.TUNING_MODE);
   private final StructArrayTelemetryEntry<Pose3d> visionTargetEntries =
       new StructArrayTelemetryEntry<>("/photon/targets", Pose3d.struct, MiscConstants.TUNING_MODE);
+
+  private final DoubleTelemetryEntry distanceEntry = new DoubleTelemetryEntry("/photon/distance", true);
 
   private final PhotonCamera camera = new PhotonCamera("MainCamera");
   private final Alert cameraNotConnectedAlert =
@@ -65,7 +68,7 @@ public class PhotonSubsystem extends SubsystemBase {
             PhotonUtils.calculateDistanceToTargetMeters(
                 ROBOT_TO_CAM.getZ(),
                 fieldLayout.getTagPose(desiredTag).get().getZ(),
-                ROBOT_TO_CAM.getRotation().getY(),
+                -ROBOT_TO_CAM.getRotation().getY(),
                 Units.degreesToRadians(target.getPitch())));
       }
     }
@@ -128,7 +131,11 @@ public class PhotonSubsystem extends SubsystemBase {
   public void periodic() {
     boolean allCamerasConnected = camera.isConnected();
     getEstimatedGlobalPose(new Pose2d());
-
+    if (getDistanceSpeaker().isPresent()) {
+      distanceEntry.append(getDistanceSpeaker().getAsDouble());
+    }else{
+      distanceEntry.append(-1);
+    }
     cameraNotConnectedAlert.set(!allCamerasConnected);
   }
 }

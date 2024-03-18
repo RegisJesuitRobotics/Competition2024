@@ -112,6 +112,11 @@ public class Autos {
       autoChooser.addOption(
           "drive s dr", driveSubsystem.steerDynamicSysIDCommand(Direction.kReverse));
 
+      autoChooser.addOption("shooter qf", shooterSubsystem.sysIdQuasistatic(Direction.kForward));
+      autoChooser.addOption("shooter qr", shooterSubsystem.sysIdQuasistatic(Direction.kReverse));
+      autoChooser.addOption("shooter df", shooterSubsystem.sysIdDynamic(Direction.kForward));
+      autoChooser.addOption("shooter dr", shooterSubsystem.sysIdDynamic(Direction.kReverse));
+
       autoChooser.addOption(
           "wheelRadiusCharacterizationClock",
           new WheelRadiusCharacterization(

@@ -146,6 +146,20 @@ public class ShooterSubsystem extends SubsystemBase {
         faultRecorder.run("Idle mode"),
         Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
+        () -> flywheelMotorFollower.getEncoder().setPositionConversionFactor(conversionFactor),
+        () ->
+            ConfigurationUtils.fpEqual(
+                flywheelMotorFollower.getEncoder().getPositionConversionFactor(), conversionFactor),
+        faultRecorder.run("Position conversion factor"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> flywheelMotorFollower.getEncoder().setVelocityConversionFactor(conversionFactor / 60),
+        () ->
+            ConfigurationUtils.fpEqual(
+                flywheelMotorFollower.getEncoder().getVelocityConversionFactor(), conversionFactor / 60),
+        faultRecorder.run("Velocity conversion factor"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
         flywheelMotor::burnFlashWithDelay,
         () -> true,
         faultRecorder.run("Burn flash"),
@@ -208,6 +222,7 @@ public class ShooterSubsystem extends SubsystemBase {
       feedforward = SHOOTER_FF_GAINS.createFeedforward();
     }
     flywheelMotor.logValues();
+    flywheelMotorFollower.logValues();
     atToleranceEntry.append(inTolerance());
   }
 }

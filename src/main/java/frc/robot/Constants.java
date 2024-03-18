@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
 import frc.robot.telemetry.tunable.gains.TunableArmElevatorFFGains;
 import frc.robot.telemetry.tunable.gains.TunableFFGains;
@@ -19,14 +20,27 @@ public final class Constants {
   private Constants() {}
 
   public static class SetpointConstants {
+
+    public static final InterpolatingDoubleTreeMap WRIST_SETPOINT_TABLE = new InterpolatingDoubleTreeMap();
+
+    static {
+      WRIST_SETPOINT_TABLE.put(0.0, WristConstants.WRIST_MIN_RADIANS);
+      WRIST_SETPOINT_TABLE.put(1.1, Units.degreesToRadians(45.0) - WristConstants.WRIST_TO_SHOOTER);
+      WRIST_SETPOINT_TABLE.put(1.6, Units.degreesToRadians(53.0) - WristConstants.WRIST_TO_SHOOTER);
+      WRIST_SETPOINT_TABLE.put(2.1, Units.degreesToRadians(60.0) - WristConstants.WRIST_TO_SHOOTER);
+      WRIST_SETPOINT_TABLE.put(2.6, Units.degreesToRadians(64.0) - WristConstants.WRIST_TO_SHOOTER);
+      WRIST_SETPOINT_TABLE.put(2.8, Units.degreesToRadians(65.0) - WristConstants.WRIST_TO_SHOOTER);
+      WRIST_SETPOINT_TABLE.put(3.1, Units.degreesToRadians(67.5) - WristConstants.WRIST_TO_SHOOTER);
+    }
+
     public static final double AMP_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
     public static final double AMP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(110.0);
 
-    public static final double INTAKE_ELEVATOR_HEIGHT = Units.inchesToMeters(0);
-    public static final double INTAKE_WRIST_ANGLE_RADIANS = WristConstants.WRIST_MIN.getRadians();
+    public static final double INTAKE_ELEVATOR_HEIGHT = Units.inchesToMeters(2);
+    public static final double INTAKE_WRIST_ANGLE_RADIANS = WristConstants.WRIST_MIN_RADIANS;
 
     public static final double CLOSE_SPEAKER_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
-    public static final double CLOSE_SPEAKER_WRIST_ANGLE_RADIANS = Units.degreesToRadians(20);
+    public static final double CLOSE_SPEAKER_WRIST_ANGLE_RADIANS = Units.degreesToRadians(65) - WristConstants.WRIST_TO_SHOOTER;
     public static final double SAFE_SPEAKER_WRIST_RADIANS = 0.69 + Units.degreesToRadians(1);
 
     public static final double EXPEL_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
@@ -40,7 +54,7 @@ public final class Constants {
 
     public static final double CLIMB_DOWN_ELEVATOR_HEIGHT = Units.inchesToMeters(0.0);
     public static final double CLIMB_DOWN_WRIST_ANGLE_RADIANS =
-        WristConstants.WRIST_MIN.getRadians();
+        WristConstants.WRIST_MIN_RADIANS;
 
     public static final double FAR_SPEAKER_ELEVATOR_HEIGHT = Units.inchesToMeters(1.0);
     public static final double FAR_SPEAKER_WRIST_ANGLE_RADIANS = Units.degreesToRadians(10);
@@ -233,9 +247,11 @@ public final class Constants {
     public static final double WRIST_GEAR_RATIO = 25.0 * 42.0 / 18.0;
 
     public static final Rotation2d WRIST_MAX = new Rotation2d(Units.degreesToRadians(60));
-    public static final Rotation2d WRIST_MIN = Rotation2d.fromRadians(0.009064);
+    public static final double WRIST_MIN_RADIANS = -0.13236545988983028;
 
-    public static final double WRIST_OFFSET = 0.703253 + Math.PI / 2.0;
+    public static final double WRIST_TO_SHOOTER = Units.degreesToRadians(29.0) - WRIST_MIN_RADIANS;
+
+    public static final double WRIST_OFFSET = 0.5545670430374852 + Math.PI / 2.0;
     public static final int WRIST_ENCODER_PORT = 7;
 
     public static final int WRIST_MOTOR_ID = 2;
@@ -245,7 +261,7 @@ public final class Constants {
 
     public static final TunableArmElevatorFFGains WRIST_FF_GAINS =
         new TunableArmElevatorFFGains(
-            "/gains/wrist/", 0.12906, 0.22287, 0.97761, 0.1151, MiscConstants.TUNING_MODE);
+            "/gains/wrist/", 0.13193, 0.25029, 0.93277, 0.10262, MiscConstants.TUNING_MODE);
     public static final TunablePIDGains WRIST_PID_GAINS =
         new TunablePIDGains("/gains/wrist/", 2, 0.0, 0.0, MiscConstants.TUNING_MODE);
 
@@ -259,10 +275,12 @@ public final class Constants {
 
   public static class TransportConstants {
     public static final int TRANSPORT_MOTOR_ID = 1;
-    public static final boolean INVERTED = true;
+    public static final boolean INVERTED = false;
     public static final int STALL_MOTOR_CURRENT = 30;
     public static final int FREE_MOTOR_CURRENT = 20;
-    public static final double TRANSPORT_LOAD_VOLTAGE = 2.5;
+    public static final double TRANSPORT_LOAD_VOLTAGE = 4;
+
+    public static final double GEAR_RATIO = 9.0;
 
     public static final double TRANSPORT_CLOSE_SPEAKER_VOLTAGE = 8;
     public static final int SHOOTER_SENSOR_ID = 8;
@@ -272,17 +290,17 @@ public final class Constants {
     public static final int FREE_MOTOR_CURRENT = 25;
     public static final int STALL_MOTOR_CURRENT = 80;
 
-    public static final boolean INVERTED = false;
+    public static final boolean INVERTED = true;
     public static final boolean INVERTED_FOLLOWER = true;
     public static final int SHOOTER_ID = 11;
     public static final int SHOOTER_FOLLOWER_ID = 23;
 
-    public static final double SHOOTER_GEAR_RATIO = 1.0 / 2.0;
+    public static final double SHOOTER_GEAR_RATIO = 18.0 / 24.0;
 
     public static TunablePIDGains SHOOTER_PID_GAINS =
-        new TunablePIDGains("/shooter/pid", 0.000, 0, 0.000, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/shooter", 3.2728E-05, 0.0, 0.0, MiscConstants.TUNING_MODE);
     public static TunableFFGains SHOOTER_FF_GAINS =
-        new TunableFFGains("/shooter/FF", 0.24264, 0.0085997, 0.0011409, MiscConstants.TUNING_MODE);
+        new TunableFFGains("/gains/shooter", 0.26471, 0.013347, 0.00091971, MiscConstants.TUNING_MODE);
   }
 
   public static class TeleopConstants {

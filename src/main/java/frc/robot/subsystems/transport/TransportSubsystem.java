@@ -77,6 +77,27 @@ public class TransportSubsystem extends SubsystemBase {
         () -> transportMotor.getIdleMode() == CANSparkMax.IdleMode.kBrake,
         faultRecorder.run("Idle mode"),
         Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    double conversionFactor = Math.PI * 2 / GEAR_RATIO;
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> transportMotor.getEncoder().setPositionConversionFactor(conversionFactor),
+        () ->
+            ConfigurationUtils.fpEqual(
+                transportMotor.getEncoder().getPositionConversionFactor(),
+                conversionFactor),
+        faultRecorder.run("Position conversion factor"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () ->
+            transportMotor
+                .getEncoder()
+                .setVelocityConversionFactor(conversionFactor / 60.0),
+        () ->
+            ConfigurationUtils.fpEqual(
+                transportMotor.getEncoder().getVelocityConversionFactor(),
+                conversionFactor / 60.0),
+        faultRecorder.run("Velocity conversion factor"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+
     ConfigurationUtils.applyCheckRecordRev(
         transportMotor::burnFlashWithDelay,
         () -> true,
