@@ -30,16 +30,11 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class PhotonSubsystem extends SubsystemBase {
   private final AprilTagFieldLayout fieldLayout;
-  PhotonPoseEstimator poseEstimator;
-
-  private final StructArrayTelemetryEntry<Pose3d> estimatedPoseEntries =
-      new StructArrayTelemetryEntry<>(
-          "/photon/estimatedPoses", Pose3d.struct, MiscConstants.TUNING_MODE);
-  private final StructArrayTelemetryEntry<Pose3d> visionTargetEntries =
-      new StructArrayTelemetryEntry<>("/photon/targets", Pose3d.struct, MiscConstants.TUNING_MODE);
 
   private final DoubleTelemetryEntry distanceEntry =
       new DoubleTelemetryEntry("/photon/distance", true);
+  private final DoubleTelemetryEntry offsetEntry =
+      new DoubleTelemetryEntry("/photon/rotationOffset", true);
 
   private final PhotonCamera camera = new PhotonCamera("MainCamera");
   private final Alert cameraNotConnectedAlert =
@@ -48,12 +43,6 @@ public class PhotonSubsystem extends SubsystemBase {
   public PhotonSubsystem() {
     fieldLayout = FieldConstants.aprilTags;
     fieldLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
-
-    poseEstimator =
-        new PhotonPoseEstimator(
-            fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camera, ROBOT_TO_CAM);
-
-    estimatedPoseEntries.append(new Pose3d[0]);
   }
 
   public OptionalDouble getDistanceSpeaker() {
@@ -64,7 +53,6 @@ public class PhotonSubsystem extends SubsystemBase {
     for (PhotonTrackedTarget target : result.targets) {
 
       if (target.getFiducialId() == desiredTag) {
-
         return OptionalDouble.of(
             PhotonUtils.calculateDistanceToTargetMeters(
                 ROBOT_TO_CAM.getZ(),
@@ -89,54 +77,23 @@ public class PhotonSubsystem extends SubsystemBase {
     return OptionalDouble.empty();
   }
 
-  public List<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
-    List<EstimatedRobotPose> updatedPoses = new ArrayList<>();
-    List<Pose3d> targetPoses = new ArrayList<>();
-
-    PhotonPipelineResult result = camera.getLatestResult();
-
-    // Remove bad tags if only one, also add to our array
-    for (int j = result.targets.size() - 1; j >= 0; j--) {
-      PhotonTrackedTarget target = result.targets.get(j);
-      boolean shouldUse =
-          (result.targets.get(j).getPoseAmbiguity() < VisionConstants.POSE_AMBIGUITY_CUTOFF
-                  || result.targets.size() > 1)
-              && result.targets.get(j).getBestCameraToTarget().getTranslation().getNorm()
-                  < VisionConstants.DISTANCE_CUTOFF;
-
-      if (fieldLayout.getTagPose(target.getFiducialId()).isPresent() && shouldUse) {
-        Pose3d tagPose = fieldLayout.getTagPose(target.getFiducialId()).get();
-
-        targetPoses.add(tagPose);
-      }
-      if (!shouldUse) {
-        result.targets.remove(j);
-      }
-    }
-
-    poseEstimator.setReferencePose(prevEstimatedRobotPose);
-    Optional<EstimatedRobotPose> estimatedRobotPose = poseEstimator.update(result);
-    if (estimatedRobotPose.isPresent()) {
-      estimatedPoseEntries.append(new Pose3d[] {estimatedRobotPose.get().estimatedPose});
-      updatedPoses.add(estimatedRobotPose.get());
-    } else {
-      estimatedPoseEntries.append(new Pose3d[] {});
-    }
-
-    visionTargetEntries.append(targetPoses.toArray(new Pose3d[0]));
-
-    return updatedPoses;
-  }
-
   @Override
   public void periodic() {
     boolean allCamerasConnected = camera.isConnected();
-    getEstimatedGlobalPose(new Pose2d());
-    if (getDistanceSpeaker().isPresent()) {
-      distanceEntry.append(getDistanceSpeaker().getAsDouble());
-    } else {
-      distanceEntry.append(-1);
-    }
     cameraNotConnectedAlert.set(!allCamerasConnected);
+
+    OptionalDouble distance = getDistanceSpeaker();
+    if (distance.isPresent()) {
+      distanceEntry.append(distance.getAsDouble());
+    } else {
+      distanceEntry.append(Double.NaN);
+    }
+
+    OptionalDouble offset = getOffsetRadiansSpeaker();
+    if (offset.isPresent()) {
+      offsetEntry.append(offset.getAsDouble());
+    } else {
+      offsetEntry.append(Double.NaN);
+    }
   }
 }

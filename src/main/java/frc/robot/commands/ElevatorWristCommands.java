@@ -52,15 +52,6 @@ public class ElevatorWristCommands {
         .withName("ElevatorWristCloseSpeaker");
   }
 
-  public static Command elevatorWristSafeSpeakerCommand(
-      ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
-    return Commands.parallel(
-            elevatorSubsystem.setElevatorPositionCommand(
-                SetpointConstants.REGULAR_SHOT_ELEVATOR_HEIGHT_METERS),
-            wristSubsystem.setPositionCommand(SetpointConstants.SAFE_SPEAKER_WRIST_RADIANS))
-        .withName("ElevatorWristSafeSpeaker");
-  }
-
   public static Command elevatorWristExpelCommand(
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(
