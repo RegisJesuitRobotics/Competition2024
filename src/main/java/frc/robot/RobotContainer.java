@@ -139,6 +139,11 @@ public class RobotContainer {
                 new AlternatePattern(2.0, Color.kRed, Color.kBlack)),
             new LEDState(
                 () ->
+                    transportSubsystem.atSensor()
+                        && photonSubsystem.getDistanceSpeaker().isPresent(),
+                new SolidPattern(Color.kPurple)),
+            new LEDState(
+                () ->
                     DriverStation.isTeleopEnabled()
                         && elevatorSubsystem.atBottom()
                         && wristSubsystem.atBottom(),
@@ -155,6 +160,8 @@ public class RobotContainer {
         new LEDStateMachineCommand(new SolidPattern(Color.kBlack), ledStates, ledSubsystem));
   }
 
+  private final AtomicBoolean snapToSpeaker = new AtomicBoolean();
+
   private void configureDriverBindings() {
     configureDriving();
     driverController
@@ -170,13 +177,19 @@ public class RobotContainer {
     driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
     driverController
         .leftBumper()
-        .whileTrue(IntakingCommands.intakeUntilDetectedNoSlap(intakeSubsystem, transportSubsystem));
+        .whileTrue(
+            Commands.parallel(
+                IntakingCommands.intakeUntilDetectedNoSlap(intakeSubsystem, transportSubsystem),
+                ElevatorWristCommands.elevatorWristIntakePosition(
+                    elevatorSubsystem, wristSubsystem)));
     driverController
         .rightTrigger()
         .whileTrue(
             Commands.parallel(
                 IntakingCommands.intakeUntilDetected(
-                    intakeSubsystem, slapdownSuperstructure, transportSubsystem)))
+                    intakeSubsystem, slapdownSuperstructure, transportSubsystem),
+                ElevatorWristCommands.elevatorWristIntakePosition(
+                    elevatorSubsystem, wristSubsystem)))
         .onFalse(slapdownSuperstructure.setUpCommand());
     driverController.circle().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
     driverController
@@ -190,6 +203,27 @@ public class RobotContainer {
             Commands.sequence(
                     Commands.waitSeconds(1.5), Commands.runOnce(() -> signalHumanPlayer.set(false)))
                 .withName("SignalHumanPlayerOff"));
+    driverController
+        .a()
+        .whileTrue(
+            Commands.parallel(
+                    Commands.run(() -> snapToSpeaker.set(true))
+                        .finallyDo(() -> snapToSpeaker.set(false)),
+                    ElevatorWristCommands.elevatorWristDynamicCommand(
+                        () -> SetpointConstants.REGULAR_SHOT_ELEVATOR_HEIGHT_METERS,
+                        () -> {
+                          OptionalDouble distance = photonSubsystem.getDistanceSpeaker();
+                          // TODO: Filter this so it doesn't start to go down if tag goes out for a
+                          // small time
+                          if (distance.isEmpty()) {
+                            return SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS;
+                          }
+                          return SetpointConstants.REGULAR_SHOT_WRIST_SETPOINT_TABLE.get(
+                              distance.getAsDouble());
+                        },
+                        elevatorSubsystem,
+                        wristSubsystem))
+                .withName("SnapToSpeakerAndWrist"));
   }
 
   private void configureOperatorBindings() {
@@ -230,12 +264,23 @@ public class RobotContainer {
         .onTrue(
             ElevatorWristCommands.elevatorWristDynamicCommand(
                 () -> SetpointConstants.REGULAR_SHOT_ELEVATOR_HEIGHT_METERS,
+                () -> SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS,
+                elevatorSubsystem,
+                wristSubsystem));
+    operatorController
+        .povLeft()
+        .whileTrue(
+            ElevatorWristCommands.elevatorWristDynamicCommand(
+                () -> SetpointConstants.HIGH_SHOT_ELEVATOR_HEIGHT_METERS,
                 () -> {
                   OptionalDouble distance = photonSubsystem.getDistanceSpeaker();
+                  // TODO: Filter this so it doesn't start to go down if tag goes out for a small
+                  // time
                   if (distance.isEmpty()) {
                     return SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS;
                   }
-                  return SetpointConstants.WRIST_SETPOINT_TABLE.get(distance.getAsDouble());
+                  return SetpointConstants.HIGH_SHOT_WRIST_SETPOINT_TABLE.get(
+                      distance.getAsDouble());
                 },
                 elevatorSubsystem,
                 wristSubsystem));
@@ -278,15 +323,10 @@ public class RobotContainer {
           rotationLimiter.reset(currentSpeeds.omegaRadiansPerSecond);
         };
 
-    AtomicBoolean snapToSpeaker = new AtomicBoolean();
     TunableTelemetryPIDController snapController =
         new TunableTelemetryPIDController(
             "/snap/controller", Constants.AutoConstants.ANGULAR_POSITION_PID_GAINS);
     snapController.enableContinuousInput(-Math.PI, Math.PI);
-    driverController
-        .a()
-        .whileTrue(
-            Commands.run(() -> snapToSpeaker.set(true)).finallyDo(() -> snapToSpeaker.set(false)));
     driveCommandChooser.setDefaultOption(
         "Hybrid (Default to Field Relative & absolute control but use robot centric when holding button)",
         new SwerveDriveCommand(
@@ -303,7 +343,6 @@ public class RobotContainer {
                     OptionalDouble result = photonSubsystem.getOffsetRadiansSpeaker();
 
                     double target = 0;
-
                     if (result.isEmpty()) {
                       return 0;
                     } else {

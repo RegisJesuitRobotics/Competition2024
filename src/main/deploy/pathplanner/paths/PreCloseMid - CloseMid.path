@@ -3,33 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.713477768188097,
-        "y": 5.560686056318475
+        "x": 2.267359441712931,
+        "y": 5.567778660668928
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.048188727728137,
-        "y": 5.647234880281408
+        "x": 2.317359441712931,
+        "y": 5.567778660668928
       },
       "isLocked": false,
-      "linkedName": "CloseMidNote"
+      "linkedName": "PreCloseMid"
     },
     {
       "anchor": {
-        "x": 2.6468496253920972,
-        "y": 4.255775807574566
+        "x": 2.713477768188097,
+        "y": 5.560686056318475
       },
       "prevControl": {
-        "x": 1.516417752136777,
-        "y": 4.37111626680864
+        "x": 2.663477768188097,
+        "y": 5.560686056318475
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "CloseSourceNote"
+      "linkedName": "CloseMidNote"
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Slow Pickup",
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 1.375,
+        "maxAcceleration": 4.5,
+        "maxAngularVelocity": 500.0,
+        "maxAngularAcceleration": 2000.0
+      }
+    }
+  ],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.8,
@@ -39,11 +51,11 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -38.88623883025119,
+    "rotation": 0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Amp Speaker",
+  "folder": null,
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0

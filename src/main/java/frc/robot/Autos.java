@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.MiscConstants;
+import frc.robot.Constants.SetpointConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.commands.ElevatorWristCommands;
 import frc.robot.commands.IntakingCommands;
@@ -78,7 +79,9 @@ public class Autos {
     NamedCommands.registerCommand("AutoStart", autoStart());
     NamedCommands.registerCommand("ShootNote", shootNote());
     NamedCommands.registerCommand("IntakeUntilNote", intakeUntilNoteAndPrepareShot());
+    NamedCommands.registerCommand("IntakeUntilNoteNoPrepare", intakeUntilNoteNoPrepare());
     NamedCommands.registerCommand("ShootFarNote", shootFarNote());
+    NamedCommands.registerCommand("DynamicShot", autoWristShoot());
 
     PathPlannerLogging.setLogActivePathCallback(
         (path) -> trajectoryTelemetryEntry.append(path.toArray(new Pose2d[0])));
@@ -88,6 +91,8 @@ public class Autos {
     if (MiscConstants.TUNING_MODE) {
       autoChooser.addOption("elevator qf", elevatorSubsystem.sysIdQuasistatic(Direction.kForward));
       autoChooser.addOption("elevator qr", elevatorSubsystem.sysIdQuasistatic(Direction.kReverse));
+      autoChooser.addOption("elevator df", elevatorSubsystem.sysIdDynamic(Direction.kForward));
+      autoChooser.addOption("elevator dr", elevatorSubsystem.sysIdDynamic(Direction.kReverse));
 
       autoChooser.addOption("wrist qf", wristSubsystem.sysIdQuasistatic(Direction.kForward));
       autoChooser.addOption("wrist qr", wristSubsystem.sysIdQuasistatic(Direction.kReverse));
@@ -118,6 +123,23 @@ public class Autos {
       autoChooser.addOption("shooter dr", shooterSubsystem.sysIdDynamic(Direction.kReverse));
 
       autoChooser.addOption(
+          "slapdown rotation qf",
+          slapdownSuperstructure
+              .getSlapdownRotationSubsystem()
+              .sysIdQuasistatic(Direction.kForward));
+      autoChooser.addOption(
+          "slapdown rotation qr",
+          slapdownSuperstructure
+              .getSlapdownRotationSubsystem()
+              .sysIdQuasistatic(Direction.kReverse));
+      autoChooser.addOption(
+          "slapdown rotation df",
+          slapdownSuperstructure.getSlapdownRotationSubsystem().sysIdDynamic(Direction.kForward));
+      autoChooser.addOption(
+          "slapdown rotation dr",
+          slapdownSuperstructure.getSlapdownRotationSubsystem().sysIdDynamic(Direction.kReverse));
+
+      autoChooser.addOption(
           "wheelRadiusCharacterizationClock",
           new WheelRadiusCharacterization(
               driveSubsystem, WheelRadiusCharacterization.Direction.CLOCKWISE, 0.5));
@@ -143,10 +165,20 @@ public class Autos {
         .andThen(
             Commands.parallel(
                 slapdownSuperstructure.setUpCommand(),
-                ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
-                    elevatorSubsystem, wristSubsystem),
+                elevatorWristToTag(),
                 ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem)))
         .withName("AutoIntakeUntilNote");
+  }
+
+  private Command intakeUntilNoteNoPrepare() {
+    if (Robot.isSimulation()) {
+      return Commands.print("Intaking");
+    }
+    return Commands.deadline(
+            IntakingCommands.intakeUntilDetected(
+                intakeSubsystem, slapdownSuperstructure, transportSubsystem),
+            ElevatorWristCommands.elevatorWristIntakePosition(elevatorSubsystem, wristSubsystem))
+        .withName("AutoIntakeUntilNoteNoPrepare");
   }
 
   public Command autoStart() {
@@ -191,11 +223,43 @@ public class Autos {
         .withName("AutoShootFarNote");
   }
 
+  private Command autoWristShoot() {
+    return Commands.deadline(
+            Commands.sequence(
+                shooterAndElevatorWristInToleranceCommand(),
+                ScoringCommands.transportToShooterCommand(transportSubsystem)
+                    .until(() -> !transportSubsystem.atSensor())),
+            ScoringCommands.shootSetpointFarSpeakerCommand(shooterSubsystem),
+            elevatorWristToTag())
+        .andThen(transportSubsystem.stopCommand())
+        .withName("AutoShootDynamicNote");
+  }
+
   private Command shooterAndElevatorWristInToleranceCommand() {
     return Commands.parallel(
             ScoringCommands.shooterInToleranceCommand(shooterSubsystem),
             ElevatorWristCommands.elevatorWristInToleranceCommand(
                 elevatorSubsystem, wristSubsystem))
         .withName("ShooterAndElevatorWristInTolerance");
+  }
+
+  private Command elevatorWristToTag() {
+    return ElevatorWristCommands.elevatorWristDynamicCommand(
+        () -> SetpointConstants.REGULAR_SHOT_ELEVATOR_HEIGHT_METERS,
+        () -> {
+          int desiredTag = RaiderUtils.shouldFlip() ? 4 : 7;
+          return SetpointConstants.REGULAR_SHOT_WRIST_SETPOINT_TABLE.get(
+              driveSubsystem
+                  .getPose()
+                  .getTranslation()
+                  .getDistance(
+                      FieldConstants.aprilTags
+                          .getTagPose(desiredTag)
+                          .get()
+                          .getTranslation()
+                          .toTranslation2d()));
+        },
+        elevatorSubsystem,
+        wristSubsystem);
   }
 }

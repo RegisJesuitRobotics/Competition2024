@@ -64,7 +64,7 @@
         {
           "type": "named",
           "data": {
-            "name": "FarShoot"
+            "name": "DynamicShot"
           }
         },
         {
@@ -108,7 +108,7 @@
         {
           "type": "named",
           "data": {
-            "name": "FarShoot"
+            "name": "DynamicShot"
           }
         },
         {

@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.048188727728137,
-        "y": 5.647234880281408
+        "x": 2.031989417401454,
+        "y": 5.553548773578202
       },
       "isLocked": false,
       "linkedName": "CloseMidNote"
     },
     {
       "anchor": {
-        "x": 2.6468496253920972,
-        "y": 4.255775807574566
+        "x": 2.3265619591587097,
+        "y": 4.4612560879079
       },
       "prevControl": {
-        "x": 1.516417752136777,
-        "y": 4.37111626680864
+        "x": 1.9260098671319066,
+        "y": 4.848347475929962
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "CloseSourceNote"
+      "linkedName": "PreCloseSource"
     }
   ],
   "rotationTargets": [],
@@ -39,11 +39,11 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -38.88623883025119,
+    "rotation": -30.0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Amp Speaker",
+  "folder": null,
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0

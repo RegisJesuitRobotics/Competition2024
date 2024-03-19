@@ -1,29 +1,18 @@
 package frc.robot.subsystems.photon;
 
 import static frc.robot.Constants.ROBOT_TO_CAM;
-import static frc.robot.Constants.VisionConstants;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.MiscConstants;
 import frc.robot.FieldConstants;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
-import frc.robot.telemetry.types.StructArrayTelemetryEntry;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
 import frc.robot.utils.RaiderUtils;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.OptionalDouble;
-import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;

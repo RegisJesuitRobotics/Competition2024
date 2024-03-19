@@ -3,45 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.2850623701247395,
-        "y": 5.453516007032013
+        "x": 2.888084083575573,
+        "y": 7.010931546863093
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7593776867364463,
-        "y": 4.661328983541248
+        "x": 2.133480489387554,
+        "y": 6.215222987750262
       },
       "isLocked": false,
-      "linkedName": "CenterSpeaker"
+      "linkedName": "CloseAmpNote"
     },
     {
       "anchor": {
-        "x": 2.185549871099742,
-        "y": 4.100916501780468
+        "x": 2.267359441712931,
+        "y": 5.567778660668928
       },
       "prevControl": {
-        "x": 2.0127940980820513,
-        "y": 4.100916501780468
-      },
-      "nextControl": {
-        "x": 2.467792640532113,
-        "y": 4.100916501780468
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.6468496253920972,
-        "y": 4.255775807574566
-      },
-      "prevControl": {
-        "x": 2.5968496253920974,
-        "y": 4.255775807574566
+        "x": 2.1020698547605394,
+        "y": 5.5678895129857064
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "CloseSourceNote"
+      "linkedName": "PreCloseMid"
     }
   ],
   "rotationTargets": [
@@ -49,21 +33,16 @@
       "waypointRelativePos": 1,
       "rotationDegrees": 0,
       "rotateFast": false
-    },
-    {
-      "waypointRelativePos": 2,
-      "rotationDegrees": 0,
-      "rotateFast": false
     }
   ],
   "constraintZones": [
     {
-      "name": "Slow Pickup",
+      "name": "SlowPickup",
       "minWaypointRelativePos": 1.0,
-      "maxWaypointRelativePos": 2.0,
+      "maxWaypointRelativePos": 1.5,
       "constraints": {
         "maxVelocity": 1.375,
-        "maxAcceleration": 6.0,
+        "maxAcceleration": 4.5,
         "maxAngularVelocity": 500.0,
         "maxAngularAcceleration": 2000.0
       }
@@ -78,11 +57,11 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -1.035856310706652,
+    "rotation": 0.0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Center Speaker",
+  "folder": null,
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0
