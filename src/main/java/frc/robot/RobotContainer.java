@@ -32,10 +32,7 @@ import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.telemetry.tunable.TunableTelemetryPIDController;
-import frc.robot.telemetry.tunable.TunableTelemetryProfiledPIDController;
 import frc.robot.telemetry.tunable.gains.TunableDouble;
-import frc.robot.telemetry.types.BooleanTelemetryEntry;
-import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.utils.*;
 import frc.robot.utils.led.AlternatePattern;
 import frc.robot.utils.led.SlidePattern;
@@ -223,16 +220,16 @@ public class RobotContainer {
     operatorController
         .povRight()
         .onTrue(ElevatorWristCommands.elevatorWristExpelCommand(elevatorSubsystem, wristSubsystem));
-//    operatorController
-//        .povUp()
-//        .onTrue(
-//            ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
-//                elevatorSubsystem, wristSubsystem));
+    //    operatorController
+    //        .povUp()
+    //        .onTrue(
+    //            ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
+    //                elevatorSubsystem, wristSubsystem));
     operatorController
         .povUp()
         .onTrue(
             ElevatorWristCommands.elevatorWristDynamicCommand(
-                () -> SetpointConstants.CLOSE_SPEAKER_ELEVATOR_HEIGHT,
+                () -> SetpointConstants.REGULAR_SHOT_ELEVATOR_HEIGHT_METERS,
                 () -> {
                   OptionalDouble distance = photonSubsystem.getDistanceSpeaker();
                   if (distance.isEmpty()) {
@@ -240,7 +237,8 @@ public class RobotContainer {
                   }
                   return SetpointConstants.WRIST_SETPOINT_TABLE.get(distance.getAsDouble());
                 },
-                elevatorSubsystem, wristSubsystem));
+                elevatorSubsystem,
+                wristSubsystem));
     operatorController
         .povDown()
         .onTrue(ElevatorWristCommands.elevatorWristAmpCommand(elevatorSubsystem, wristSubsystem));
@@ -283,14 +281,12 @@ public class RobotContainer {
     AtomicBoolean snapToSpeaker = new AtomicBoolean();
     TunableTelemetryPIDController snapController =
         new TunableTelemetryPIDController(
-            "/snap/controller",
-            Constants.AutoConstants.ANGULAR_POSITION_PID_GAINS);
+            "/snap/controller", Constants.AutoConstants.ANGULAR_POSITION_PID_GAINS);
     snapController.enableContinuousInput(-Math.PI, Math.PI);
     driverController
         .a()
         .whileTrue(
-            Commands.run(() -> snapToSpeaker.set(true))
-                .finallyDo(() -> snapToSpeaker.set(false)));
+            Commands.run(() -> snapToSpeaker.set(true)).finallyDo(() -> snapToSpeaker.set(false)));
     driveCommandChooser.setDefaultOption(
         "Hybrid (Default to Field Relative & absolute control but use robot centric when holding button)",
         new SwerveDriveCommand(

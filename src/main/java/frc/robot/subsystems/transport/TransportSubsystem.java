@@ -82,19 +82,14 @@ public class TransportSubsystem extends SubsystemBase {
         () -> transportMotor.getEncoder().setPositionConversionFactor(conversionFactor),
         () ->
             ConfigurationUtils.fpEqual(
-                transportMotor.getEncoder().getPositionConversionFactor(),
-                conversionFactor),
+                transportMotor.getEncoder().getPositionConversionFactor(), conversionFactor),
         faultRecorder.run("Position conversion factor"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
-        () ->
-            transportMotor
-                .getEncoder()
-                .setVelocityConversionFactor(conversionFactor / 60.0),
+        () -> transportMotor.getEncoder().setVelocityConversionFactor(conversionFactor / 60.0),
         () ->
             ConfigurationUtils.fpEqual(
-                transportMotor.getEncoder().getVelocityConversionFactor(),
-                conversionFactor / 60.0),
+                transportMotor.getEncoder().getVelocityConversionFactor(), conversionFactor / 60.0),
         faultRecorder.run("Velocity conversion factor"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
 

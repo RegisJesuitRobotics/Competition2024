@@ -227,15 +227,15 @@ public class ElevatorSubsystem extends SubsystemBase {
   public Command setElevatorPositionCommand(DoubleSupplier position) {
     return this.run(
             () -> {
-              double positionClamped = MathUtil.clamp(position.getAsDouble(), ELEVATOR_MIN_HEIGHT, ELEVATOR_MAX_HEIGHT);
+              double positionClamped =
+                  MathUtil.clamp(position.getAsDouble(), ELEVATOR_MIN_HEIGHT, ELEVATOR_MAX_HEIGHT);
               controller.setGoal(positionClamped);
               double feedbackOutput = controller.calculate(getPosition());
               TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
 
               setVoltage(feedbackOutput + feedforward.calculate(currentSetpoint.velocity));
             })
-        .beforeStarting(
-            () -> controller.reset(getPosition(), elevatorEncoder.getVelocity()))
+        .beforeStarting(() -> controller.reset(getPosition(), elevatorEncoder.getVelocity()))
         .onlyIf(this::isHomed)
         .withName("SetElevatorPosition");
   }

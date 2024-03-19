@@ -21,7 +21,8 @@ public final class Constants {
 
   public static class SetpointConstants {
 
-    public static final InterpolatingDoubleTreeMap WRIST_SETPOINT_TABLE = new InterpolatingDoubleTreeMap();
+    public static final InterpolatingDoubleTreeMap WRIST_SETPOINT_TABLE =
+        new InterpolatingDoubleTreeMap();
 
     static {
       WRIST_SETPOINT_TABLE.put(0.0, WristConstants.WRIST_MIN_RADIANS);
@@ -36,13 +37,12 @@ public final class Constants {
     public static final double AMP_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
     public static final double AMP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(110.0);
 
-    public static final double INTAKE_ELEVATOR_HEIGHT = Units.inchesToMeters(2);
+    public static final double INTAKE_ELEVATOR_HEIGHT = Units.inchesToMeters(2.0);
     public static final double INTAKE_WRIST_ANGLE_RADIANS = WristConstants.WRIST_MIN_RADIANS;
 
-    public static final double CLOSE_SPEAKER_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
-    public static final double CLOSE_SPEAKER_WRIST_ANGLE_RADIANS = Units.degreesToRadians(65) - WristConstants.WRIST_TO_SHOOTER;
-    public static final double SAFE_SPEAKER_WRIST_RADIANS = 0.69 + Units.degreesToRadians(1);
-
+    public static final double REGULAR_SHOT_ELEVATOR_HEIGHT_METERS = Units.inchesToMeters(3.0);
+    public static final double CLOSE_SPEAKER_WRIST_ANGLE_RADIANS =
+        Units.degreesToRadians(45) - WristConstants.WRIST_TO_SHOOTER;
     public static final double EXPEL_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
     public static final double EXPEL_WRIST_ANGLE_RADIANS = Units.degreesToRadians(50);
 
@@ -53,8 +53,7 @@ public final class Constants {
     public static final int FAR_SHOOT_WRIST_POSITION = 0;
 
     public static final double CLIMB_DOWN_ELEVATOR_HEIGHT = Units.inchesToMeters(0.0);
-    public static final double CLIMB_DOWN_WRIST_ANGLE_RADIANS =
-        WristConstants.WRIST_MIN_RADIANS;
+    public static final double CLIMB_DOWN_WRIST_ANGLE_RADIANS = WristConstants.WRIST_MIN_RADIANS;
 
     public static final double FAR_SPEAKER_ELEVATOR_HEIGHT = Units.inchesToMeters(1.0);
     public static final double FAR_SPEAKER_WRIST_ANGLE_RADIANS = Units.degreesToRadians(10);
@@ -90,16 +89,16 @@ public final class Constants {
 
     public static final int ROTATION_LIMIT_SWITCH_ID = 5;
 
-    public static final double FEEDER_VOLTAGE = (9);
+    public static final double FEEDER_VOLTAGE = 9;
 
     public static final TunablePIDGains ROTATION_GAINS =
-        new TunablePIDGains("/slapdown/rotation/gains", 2.5, 0, 0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/slapdownRotation", 2.5, 0, 0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains ROTATION_TRAP_GAINS =
         new TunableTrapezoidalProfileGains(
-            "/slapdown/rotation/trapGains", 25, 30, MiscConstants.TUNING_MODE);
+            "/gains/slapdownRotation", 25, 30, MiscConstants.TUNING_MODE);
     public static final TunableArmElevatorFFGains ROTATION_FF_GAINS =
         new TunableArmElevatorFFGains(
-            "/slapdown/rotation/FFGains",
+            "/gains/slapdownRotation",
             0.10403,
             0.17546,
             0.61704,
@@ -124,10 +123,10 @@ public final class Constants {
 
     public static final double ELEVATOR_GEAR_RATIO = 4.0 * 4.0 * 3.0;
     public static final double METERS_PER_REV =
-        Units.inchesToMeters((Math.PI * 1.75) / (ELEVATOR_GEAR_RATIO));
+        (Math.PI * Units.inchesToMeters(1.75)) / (ELEVATOR_GEAR_RATIO);
 
     public static final TunablePIDGains PID_GAINS =
-        new TunablePIDGains("/gains/elevator", 40, 0, 0.0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/elevator", 40.0, 0.0, 0.0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
         new TunableTrapezoidalProfileGains("/gains/elevator", 0.25, 0.5, MiscConstants.TUNING_MODE);
 
@@ -300,7 +299,8 @@ public final class Constants {
     public static TunablePIDGains SHOOTER_PID_GAINS =
         new TunablePIDGains("/gains/shooter", 3.2728E-05, 0.0, 0.0, MiscConstants.TUNING_MODE);
     public static TunableFFGains SHOOTER_FF_GAINS =
-        new TunableFFGains("/gains/shooter", 0.26471, 0.013347, 0.00091971, MiscConstants.TUNING_MODE);
+        new TunableFFGains(
+            "/gains/shooter", 0.26471, 0.013347, 0.00091971, MiscConstants.TUNING_MODE);
   }
 
   public static class TeleopConstants {

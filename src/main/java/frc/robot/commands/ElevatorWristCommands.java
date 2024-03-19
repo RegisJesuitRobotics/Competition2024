@@ -1,6 +1,5 @@
 package frc.robot.commands;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -33,7 +32,11 @@ public class ElevatorWristCommands {
     return new Trigger(elevatorSubsystem::atGoal).and(wristSubsystem::atGoal);
   }
 
-  public static Command elevatorWristDynamicCommand(DoubleSupplier elevatorSetpoint, DoubleSupplier wristSetpoint, ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
+  public static Command elevatorWristDynamicCommand(
+      DoubleSupplier elevatorSetpoint,
+      DoubleSupplier wristSetpoint,
+      ElevatorSubsystem elevatorSubsystem,
+      WristSubsystem wristSubsystem) {
     return Commands.parallel(
             elevatorSubsystem.setElevatorPositionCommand(elevatorSetpoint),
             wristSubsystem.setPositionCommand(wristSetpoint))
@@ -44,7 +47,7 @@ public class ElevatorWristCommands {
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(
             elevatorSubsystem.setElevatorPositionCommand(
-                SetpointConstants.CLOSE_SPEAKER_ELEVATOR_HEIGHT),
+                SetpointConstants.REGULAR_SHOT_ELEVATOR_HEIGHT_METERS),
             wristSubsystem.setPositionCommand(SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS))
         .withName("ElevatorWristCloseSpeaker");
   }
@@ -53,7 +56,7 @@ public class ElevatorWristCommands {
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(
             elevatorSubsystem.setElevatorPositionCommand(
-                SetpointConstants.CLOSE_SPEAKER_ELEVATOR_HEIGHT),
+                SetpointConstants.REGULAR_SHOT_ELEVATOR_HEIGHT_METERS),
             wristSubsystem.setPositionCommand(SetpointConstants.SAFE_SPEAKER_WRIST_RADIANS))
         .withName("ElevatorWristSafeSpeaker");
   }
@@ -87,16 +90,14 @@ public class ElevatorWristCommands {
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(
             elevatorSubsystem.setElevatorPositionCommand(SetpointConstants.AMP_ELEVATOR_HEIGHT),
-            wristSubsystem.setPositionCommand(
-                SetpointConstants.AMP_WRIST_ANGLE_RADIANS))
+            wristSubsystem.setPositionCommand(SetpointConstants.AMP_WRIST_ANGLE_RADIANS))
         .withName("ElevatorWristAmp");
   }
 
   public static Command elevatorWristClimbUpCommand(
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(
-            wristSubsystem.setPositionCommand(
-                SetpointConstants.CLIMB_UP_WRIST_ANGLE_RADIANS),
+            wristSubsystem.setPositionCommand(SetpointConstants.CLIMB_UP_WRIST_ANGLE_RADIANS),
             Commands.sequence(
                 Commands.waitUntil(wristSubsystem::atGoal),
                 elevatorSubsystem.setElevatorPositionCommand(
@@ -111,7 +112,8 @@ public class ElevatorWristCommands {
             Commands.parallel(
                 // TODO: Evaluate stall voltage
                 elevatorSubsystem.setVoltageCommand(0.6),
-                wristSubsystem.setPositionCommand(SetpointConstants.CLIMB_DOWN_WRIST_ANGLE_RADIANS)))
+                wristSubsystem.setPositionCommand(
+                    SetpointConstants.CLIMB_DOWN_WRIST_ANGLE_RADIANS)))
         .withName("ElevatorWristClimbDown");
   }
 }

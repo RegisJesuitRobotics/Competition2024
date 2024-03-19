@@ -38,7 +38,8 @@ public class PhotonSubsystem extends SubsystemBase {
   private final StructArrayTelemetryEntry<Pose3d> visionTargetEntries =
       new StructArrayTelemetryEntry<>("/photon/targets", Pose3d.struct, MiscConstants.TUNING_MODE);
 
-  private final DoubleTelemetryEntry distanceEntry = new DoubleTelemetryEntry("/photon/distance", true);
+  private final DoubleTelemetryEntry distanceEntry =
+      new DoubleTelemetryEntry("/photon/distance", true);
 
   private final PhotonCamera camera = new PhotonCamera("MainCamera");
   private final Alert cameraNotConnectedAlert =
@@ -133,7 +134,7 @@ public class PhotonSubsystem extends SubsystemBase {
     getEstimatedGlobalPose(new Pose2d());
     if (getDistanceSpeaker().isPresent()) {
       distanceEntry.append(getDistanceSpeaker().getAsDouble());
-    }else{
+    } else {
       distanceEntry.append(-1);
     }
     cameraNotConnectedAlert.set(!allCamerasConnected);

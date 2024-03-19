@@ -156,7 +156,8 @@ public class ShooterSubsystem extends SubsystemBase {
         () -> flywheelMotorFollower.getEncoder().setVelocityConversionFactor(conversionFactor / 60),
         () ->
             ConfigurationUtils.fpEqual(
-                flywheelMotorFollower.getEncoder().getVelocityConversionFactor(), conversionFactor / 60),
+                flywheelMotorFollower.getEncoder().getVelocityConversionFactor(),
+                conversionFactor / 60),
         faultRecorder.run("Velocity conversion factor"),
         Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
