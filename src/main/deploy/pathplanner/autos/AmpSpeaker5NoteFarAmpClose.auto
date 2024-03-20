@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.29,
-      "y": 5.45
+      "x": 0.74,
+      "y": 6.61
     },
-    "rotation": 0
+    "rotation": 60.0
   },
   "command": {
     "type": "sequential",
@@ -34,13 +34,57 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CenterSpeaker-CloseAmp"
+                        "pathName": "AmpSpeaker-FarAmp"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "FarAmp - PreCloseAmp"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeUntilNote"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DynamicShoot"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "PreCloseAmp - CloseAmp"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
                         "pathName": "CloseAmpNote - PreCloseMidNote"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "ValidateNote"
                       }
                     }
                   ]
@@ -80,6 +124,12 @@
                       "data": {
                         "pathName": "CloseMid - PreCloseSource"
                       }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "ValidateNote"
+                      }
                     }
                   ]
                 }
@@ -114,9 +164,15 @@
                       }
                     },
                     {
-                      "type": "wait",
+                      "type": "path",
                       "data": {
-                        "waitTime": 0.5
+                        "pathName": "CloseSource - PreCloseSource"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "ValidateNote"
                       }
                     }
                   ]
@@ -140,6 +196,6 @@
       ]
     }
   },
-  "folder": "Center Speaker",
+  "folder": "Amp Speaker",
   "choreoAuto": false
 }

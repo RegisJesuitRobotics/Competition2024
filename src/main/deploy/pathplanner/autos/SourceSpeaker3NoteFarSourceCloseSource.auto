@@ -38,15 +38,9 @@
                       }
                     },
                     {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.5
-                      }
-                    },
-                    {
                       "type": "path",
                       "data": {
-                        "pathName": "FarSource-SourceSpeaker"
+                        "pathName": "FarSource-SourceShotPoint"
                       }
                     }
                   ]
@@ -64,7 +58,7 @@
         {
           "type": "named",
           "data": {
-            "name": "CloseShoot"
+            "name": "DynamicShoot"
           }
         },
         {
@@ -78,19 +72,19 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "SourceSpeaker-CloseSource"
-                      }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.3
+                        "pathName": "SourceShotPoint-CloseSource"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
                         "pathName": "CloseSource-SourceSpeaker"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "ValidateNote"
                       }
                     }
                   ]

@@ -38,15 +38,9 @@
                       }
                     },
                     {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.5
-                      }
-                    },
-                    {
                       "type": "path",
                       "data": {
-                        "pathName": "FarAmp-AmpSpeaker"
+                        "pathName": "FarAmp - PreCloseAmp"
                       }
                     }
                   ]
@@ -64,7 +58,7 @@
         {
           "type": "named",
           "data": {
-            "name": "CloseShoot"
+            "name": "DynamicShoot"
           }
         },
         {
@@ -78,19 +72,19 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpSpeaker-CloseAmp"
-                      }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.3
+                        "pathName": "PreCloseAmp - CloseAmp"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
                         "pathName": "CloseAmp-AmpSpeaker"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "ValidateNote"
                       }
                     }
                   ]

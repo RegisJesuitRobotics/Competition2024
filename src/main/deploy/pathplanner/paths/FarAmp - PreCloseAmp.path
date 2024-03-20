@@ -8,43 +8,64 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.186814462731038,
-        "y": 6.8979980401317444
+        "x": 6.735290916165426,
+        "y": 6.617251145304622
       },
       "isLocked": false,
       "linkedName": "FarAmpNote"
     },
     {
       "anchor": {
-        "x": 2.88415283775012,
-        "y": 6.274078307415875
+        "x": 5.720682872753757,
+        "y": 6.434503425000541
       },
       "prevControl": {
-        "x": 3.8902429703007555,
-        "y": 6.318438437802802
+        "x": 6.099711699423398,
+        "y": 6.497090494180989
       },
       "nextControl": {
-        "x": 2.234740376633301,
-        "y": 6.245444668621503
+        "x": 4.449153277073513,
+        "y": 6.224542321331799
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.7368290492269403,
-        "y": 6.605658518079129
+        "x": 2.9045216794137296,
+        "y": 6.27
       },
       "prevControl": {
-        "x": 1.4708640250613838,
-        "y": 6.495700806216428
+        "x": 3.759301166078673,
+        "y": 6.291312140983903
+      },
+      "nextControl": {
+        "x": 2.7804863487715643,
+        "y": 6.2669074381230825
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.292599031938966,
+        "y": 6.662806438045557
+      },
+      "prevControl": {
+        "x": 2.3620719573119233,
+        "y": 6.270815361755175
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "AmpSpeaker"
+      "linkedName": "PreCloseAmp"
     }
   ],
   "rotationTargets": [
+    {
+      "waypointRelativePos": 3,
+      "rotationDegrees": 0,
+      "rotateFast": false
+    },
     {
       "waypointRelativePos": 2,
       "rotationDegrees": 0,
@@ -61,11 +82,11 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.522476034192984,
+    "rotation": 30.0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Amp Speaker",
+  "folder": null,
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0

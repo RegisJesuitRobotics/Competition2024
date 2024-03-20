@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
@@ -137,7 +138,8 @@ public class RobotContainer {
                 signalHumanPlayer::get, new AlternatePattern(0.5, Color.kOrange, Color.kBlack)),
             // Blink after intake
             new LEDState(
-                transportSensorBlink::get, new AlternatePattern(0.25, Color.kAliceBlue, Color.kBlack)),
+                transportSensorBlink::get,
+                new AlternatePattern(0.25, Color.kAliceBlue, Color.kBlack)),
             // Red blink if we have any faults
             new LEDState(
                 () -> Alert.getDefaultGroup().hasAnyErrors(),
@@ -146,11 +148,17 @@ public class RobotContainer {
             new LEDState(
                 () -> {
                   // Is snaping
-                  return DriverStation.isTeleopEnabled() && snapToSpeaker.get() &&
+                  return DriverStation.isTeleopEnabled()
+                      && snapToSpeaker.get()
+                      &&
                       // Shooter is ready
-                      shooterSubsystem.inTolerance() && shooterSubsystem.getSetpoint() == SetpointConstants.SHOOT_SHOOTER_VELOCITY &&
+                      shooterSubsystem.inTolerance()
+                      && shooterSubsystem.getSetpoint() == SetpointConstants.SHOOT_SHOOTER_VELOCITY
+                      &&
                       // Wrist/elevator is ready
-                      wristSubsystem.atGoal() && elevatorSubsystem.atGoal() &&
+                      wristSubsystem.atGoal()
+                      && elevatorSubsystem.atGoal()
+                      &&
                       // Drive is locked
                       snapController.atSetpoint();
                 },
@@ -159,7 +167,8 @@ public class RobotContainer {
             new LEDState(
                 () ->
                     transportSubsystem.atSensor()
-                        && photonSubsystem.getDistanceSpeaker().isPresent() && DriverStation.isTeleopEnabled(),
+                        && photonSubsystem.getDistanceSpeaker().isPresent()
+                        && DriverStation.isTeleopEnabled(),
                 new SolidPattern(Color.kPurple)),
             // Green if we can go under the stage
             new LEDState(
@@ -215,7 +224,10 @@ public class RobotContainer {
     driverController
         .a()
         .whileTrue(
-            ScoringCommands.reverseShooterTransportCommand(shooterSubsystem, transportSubsystem));
+            Commands.parallel(
+                ScoringCommands.reverseShooterTransportCommand(
+                    shooterSubsystem, transportSubsystem),
+                intakeSubsystem.setIntakeVoltageCommand(-6.0)));
     driverController
         .x()
         .onTrue(Commands.runOnce(() -> signalHumanPlayer.set(true)).withName("SignalHumanPlayer"))
@@ -295,36 +307,11 @@ public class RobotContainer {
     operatorController
         .povRight()
         .onTrue(ElevatorWristCommands.elevatorWristExpelCommand(elevatorSubsystem, wristSubsystem));
-    //    operatorController
-    //        .povUp()
-    //        .onTrue(
-    //            ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
-    //                elevatorSubsystem, wristSubsystem));
     operatorController
         .povUp()
         .onTrue(
-            ElevatorWristCommands.elevatorWristDynamicCommand(
-                () -> SetpointConstants.REGULAR_SHOT_ELEVATOR_HEIGHT_METERS,
-                () -> SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS,
-                elevatorSubsystem,
-                wristSubsystem));
-    operatorController
-        .povLeft()
-        .whileTrue(
-            ElevatorWristCommands.elevatorWristDynamicCommand(
-                () -> SetpointConstants.HIGH_SHOT_ELEVATOR_HEIGHT_METERS,
-                () -> {
-                  OptionalDouble distance = photonSubsystem.getDistanceSpeaker();
-                  // TODO: Filter this so it doesn't start to go down if tag goes out for a small
-                  // time
-                  if (distance.isEmpty()) {
-                    return SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS;
-                  }
-                  return SetpointConstants.HIGH_SHOT_WRIST_SETPOINT_TABLE.get(
-                      distance.getAsDouble());
-                },
-                elevatorSubsystem,
-                wristSubsystem));
+            ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
+                elevatorSubsystem, wristSubsystem));
     operatorController
         .povDown()
         .onTrue(ElevatorWristCommands.elevatorWristAmpCommand(elevatorSubsystem, wristSubsystem));
@@ -343,7 +330,7 @@ public class RobotContainer {
 
   private void configureDriving() {
     TunableDouble maxTranslationSpeedPercent =
-        new TunableDouble("/speed/maxTranslation", 0.95, true);
+        new TunableDouble("/speed/maxTranslation", 1.0, true);
     TunableDouble maxMaxAngularSpeedPercent = new TunableDouble("/speed/maxAngular", 0.6, true);
 
     DoubleSupplier maxTranslationalSpeedSuppler =
@@ -365,6 +352,8 @@ public class RobotContainer {
         };
 
     snapController.enableContinuousInput(-Math.PI, Math.PI);
+    snapController.setTolerance(Units.degreesToRadians(1));
+
     driveCommandChooser.setDefaultOption(
         "Hybrid (Default to Field Relative & absolute control but use robot centric when holding button)",
         new SwerveDriveCommand(

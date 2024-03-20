@@ -4,24 +4,40 @@
     {
       "anchor": {
         "x": 8.25,
-        "y": 0.7749824424295128
+        "y": 2.432078175029955
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.307125697492388,
-        "y": 1.108131132462618
+        "x": 7.153687983211928,
+        "y": 2.0173778996357132
       },
       "isLocked": false,
-      "linkedName": "FarSourceNote"
+      "linkedName": "FarMidSourceNote"
     },
     {
       "anchor": {
-        "x": 2.1246895614918864,
-        "y": 2.8716677383788465
+        "x": 5.513255300958551,
+        "y": 1.8960832440592332
       },
       "prevControl": {
-        "x": 3.1745243942780332,
-        "y": 1.3836444564153068
+        "x": 6.428091314384522,
+        "y": 1.8854614956863989
+      },
+      "nextControl": {
+        "x": 3.8384739377113624,
+        "y": 1.9155283751634469
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.607941902792323,
+        "y": 3.418331525148855
+      },
+      "prevControl": {
+        "x": 2.8195586429662067,
+        "y": 2.4178036874446422
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +61,7 @@
   "reversed": false,
   "folder": "Source Speaker",
   "previewStartingState": {
-    "rotation": -6.847012206698282,
+    "rotation": 0,
     "velocity": 0
   },
   "useDefaultConstraints": true

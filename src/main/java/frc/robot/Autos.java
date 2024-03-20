@@ -81,7 +81,8 @@ public class Autos {
     NamedCommands.registerCommand("CloseShoot", shootNote());
     NamedCommands.registerCommand("IntakeUntilNote", intakeUntilNoteAndPrepareShot());
     NamedCommands.registerCommand("IntakeUntilNoteNoPrepare", intakeUntilNoteNoPrepare());
-    NamedCommands.registerCommand("DynamicShoot", autoWristShoot());
+    NamedCommands.registerCommand("DynamicShoot", dynamicShoot());
+    NamedCommands.registerCommand("ValidateNote", validateNote());
 
     PathPlannerLogging.setLogActivePathCallback(
         (path) -> trajectoryTelemetryEntry.append(path.toArray(new Pose2d[0])));
@@ -170,6 +171,10 @@ public class Autos {
         .withName("AutoIntakeUntilNote");
   }
 
+  private Command validateNote() {
+    return Commands.waitUntil(transportSubsystem::atSensor).withTimeout(1.0);
+  }
+
   private Command intakeUntilNoteNoPrepare() {
     if (Robot.isSimulation()) {
       return Commands.print("Intaking");
@@ -207,7 +212,7 @@ public class Autos {
         .withName("AutoShootNote");
   }
 
-  private Command autoWristShoot() {
+  private Command dynamicShoot() {
     return Commands.deadline(
             Commands.sequence(
                 shooterAndElevatorWristInToleranceCommand(),

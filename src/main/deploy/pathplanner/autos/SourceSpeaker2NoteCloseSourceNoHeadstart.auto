@@ -38,15 +38,15 @@
                       }
                     },
                     {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.3
-                      }
-                    },
-                    {
                       "type": "path",
                       "data": {
                         "pathName": "CloseSource-SourceSpeaker"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "ValidateNote"
                       }
                     }
                   ]
@@ -65,12 +65,6 @@
           "type": "named",
           "data": {
             "name": "CloseShoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "SourceSpeaker-Mobility"
           }
         }
       ]

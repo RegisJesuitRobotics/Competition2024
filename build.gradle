@@ -12,6 +12,7 @@ targetCompatibility = JavaVersion.VERSION_17
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
+
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
 deploy {
@@ -40,6 +41,8 @@ deploy {
 
                 // Static files artifact
                 frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
+                    // Remove
+                    predeploy << { execute 'rm -rf /home/lvuser/deploy' }
                     files = project.fileTree('src/main/deploy')
                     directory = '/home/lvuser/deploy'
                 }

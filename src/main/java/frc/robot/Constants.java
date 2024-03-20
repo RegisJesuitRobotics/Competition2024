@@ -60,9 +60,12 @@ public final class Constants {
           3.1, Units.degreesToRadians(32.0) - WristConstants.WRIST_TO_SHOOTER);
     }
 
-    public static final double SHOOT_SHOOTER_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(6000.0);
-    public static final double AMP_SHOOTER_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(2000.0);
-    public static final double IDLE_SHOOTER_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(1500.0);
+    public static final double SHOOT_SHOOTER_VELOCITY =
+        Units.rotationsPerMinuteToRadiansPerSecond(6000.0);
+    public static final double AMP_SHOOTER_VELOCITY =
+        Units.rotationsPerMinuteToRadiansPerSecond(2000.0);
+    public static final double IDLE_SHOOTER_VELOCITY =
+        Units.rotationsPerMinuteToRadiansPerSecond(1500.0);
 
     public static final double AMP_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
     public static final double AMP_WRIST_ANGLE_RADIANS =

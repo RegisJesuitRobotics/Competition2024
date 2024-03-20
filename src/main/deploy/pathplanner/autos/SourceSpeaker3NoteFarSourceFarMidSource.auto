@@ -38,15 +38,9 @@
                       }
                     },
                     {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.5
-                      }
-                    },
-                    {
                       "type": "path",
                       "data": {
-                        "pathName": "FarSource-SourceSpeaker"
+                        "pathName": "FarSource-SourceShotPoint"
                       }
                     }
                   ]
@@ -64,7 +58,7 @@
         {
           "type": "named",
           "data": {
-            "name": "CloseShoot"
+            "name": "DynamicShoot"
           }
         },
         {
@@ -78,19 +72,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "SourceSpeaker-FarMidSource"
-                      }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.5
+                        "pathName": "SourceShotPoint-FarSourceMidNote"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "FarMidSource-SourceSpeaker"
+                        "pathName": "FarMidSource-SourceShotPoint"
                       }
                     }
                   ]
@@ -108,7 +96,7 @@
         {
           "type": "named",
           "data": {
-            "name": "CloseShoot"
+            "name": "DynamicShoot"
           }
         }
       ]
