@@ -1,8 +1,8 @@
 package frc.robot.commands;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants.SetpointConstants;
 import frc.robot.Constants.TransportConstants;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.transport.TransportSubsystem;
@@ -14,24 +14,20 @@ public class ScoringCommands {
     return Commands.waitUntil(shooterSubsystem::inTolerance);
   }
 
-  public static Command shootSetpointCloseSpeakerCommand(ShooterSubsystem shooterSubsystem) {
-    return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(6000.0));
-  }
-
-  public static Command shootSetpointFarSpeakerCommand(ShooterSubsystem shooterSubsystem) {
-    return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(6000.0));
+  public static Command shootSetpointShootingCommand(ShooterSubsystem shooterSubsystem) {
+    return shooterSubsystem.runVelocityCommand(SetpointConstants.SHOOT_SHOOTER_VELOCITY);
   }
 
   public static Command shootSetpointZeroCommand(ShooterSubsystem shooterSubsystem) {
-    return shooterSubsystem.setVoltageCommand(0);
+    return shooterSubsystem.setVoltageCommand(0.0);
   }
 
   public static Command shootSetpointIdleCommand(ShooterSubsystem shooterSubsystem) {
-    return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(1500.0));
+    return shooterSubsystem.runVelocityCommand(SetpointConstants.IDLE_SHOOTER_VELOCITY);
   }
 
   public static Command shootSetpointAmpCommand(ShooterSubsystem shooterSubsystem) {
-    return shooterSubsystem.runVelocityCommand(Units.rotationsPerMinuteToRadiansPerSecond(2000.0));
+    return shooterSubsystem.runVelocityCommand(SetpointConstants.AMP_SHOOTER_VELOCITY);
   }
 
   public static Command transportToShooterCommand(TransportSubsystem transportSubsystem) {

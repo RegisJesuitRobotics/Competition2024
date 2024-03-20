@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.telemetry.tunable.gains.TunableArmElevatorFFGains;
 import frc.robot.telemetry.tunable.gains.TunableFFGains;
 import frc.robot.telemetry.tunable.gains.TunablePIDGains;
@@ -59,6 +60,10 @@ public final class Constants {
           3.1, Units.degreesToRadians(32.0) - WristConstants.WRIST_TO_SHOOTER);
     }
 
+    public static final double SHOOT_SHOOTER_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(6000.0);
+    public static final double AMP_SHOOTER_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(2000.0);
+    public static final double IDLE_SHOOTER_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(1500.0);
+
     public static final double AMP_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
     public static final double AMP_WRIST_ANGLE_RADIANS =
         Units.degreesToRadians(70) - WristConstants.WRIST_TO_SHOOTER;
@@ -74,9 +79,6 @@ public final class Constants {
     public static final double CLIMB_UP_ELEVATOR_HEIGHT = Units.inchesToMeters(11.0);
     public static final double CLIMB_UP_WRIST_ANGLE_RADIANS = Math.PI / 2.0;
     public static final double CLIMB_DOWN_WRIST_ANGLE_RADIANS = WristConstants.WRIST_MIN_RADIANS;
-
-    public static final double FAR_SPEAKER_ELEVATOR_HEIGHT = Units.inchesToMeters(1.0);
-    public static final double FAR_SPEAKER_WRIST_ANGLE_RADIANS = Units.degreesToRadians(10);
   }
 
   public static class IntakeConstants {
@@ -186,7 +188,7 @@ public final class Constants {
     // Front back distance between center of wheels
     public static final double WHEELBASE_METERS = Units.inchesToMeters(21.75);
 
-    public static final double WHEEL_RADIUS =
+    public static final double WHEELBASE_RADIUS =
         Math.sqrt(Math.pow(WHEELBASE_METERS, 2) + Math.pow(TRACKWIDTH_METERS, 2));
 
     public static final Translation2d[] MODULE_TRANSLATIONS =
@@ -335,16 +337,13 @@ public final class Constants {
   public static class VisionConstants {
     private VisionConstants() {}
 
-    public static final double POSE_AMBIGUITY_CUTOFF = 0.5;
-    public static final double DISTANCE_CUTOFF = 4.0;
+    public static final Transform3d ROBOT_TO_CAM =
+        new Transform3d(
+            Units.inchesToMeters(-8.017),
+            Units.inchesToMeters(0),
+            Units.inchesToMeters(17.34),
+            new Rotation3d(0, -Units.degreesToRadians(27.088), Math.PI));
   }
-
-  public static final Transform3d ROBOT_TO_CAM =
-      new Transform3d(
-          Units.inchesToMeters(-8.017),
-          Units.inchesToMeters(0),
-          Units.inchesToMeters(17.34),
-          new Rotation3d(0, -Units.degreesToRadians(27.088), Math.PI));
 
   public static class MiscConstants {
     public static final String CANIVORE_NAME = "canivore";
@@ -352,7 +351,7 @@ public final class Constants {
     private MiscConstants() {}
 
     public static final int[] USED_CONTROLLER_PORTS = {0, 1};
-    public static final boolean TUNING_MODE = true;
+    public static final boolean TUNING_MODE = !DriverStation.isFMSAttached();
 
     public static final int CONFIGURATION_ATTEMPTS = 10;
   }

@@ -20,7 +20,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ShootNote"
+            "name": "CloseShoot"
           }
         },
         {
@@ -64,7 +64,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ShootNote"
+            "name": "CloseShoot"
           }
         },
         {
@@ -108,7 +108,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ShootNote"
+            "name": "CloseShoot"
           }
         },
         {
@@ -152,7 +152,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ShootNote"
+            "name": "CloseShoot"
           }
         }
       ]

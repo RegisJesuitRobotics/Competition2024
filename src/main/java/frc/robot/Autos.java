@@ -14,6 +14,7 @@ import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.Constants.SetpointConstants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.ElevatorWristCommands;
 import frc.robot.commands.IntakingCommands;
 import frc.robot.commands.ScoringCommands;
@@ -72,16 +73,15 @@ public class Autos {
             AutoConstants.TRANSLATION_POSITION_GAINS.createPIDConstants(),
             AutoConstants.ANGULAR_POSITION_PID_GAINS.createPIDConstants(),
             AutoConstants.MAX_AUTO_VELOCITY_METERS_SECOND,
-            SwerveConstants.WHEEL_RADIUS,
+            SwerveConstants.WHEELBASE_RADIUS,
             new ReplanningConfig()),
         RaiderUtils::shouldFlip,
         driveSubsystem);
     NamedCommands.registerCommand("AutoStart", autoStart());
-    NamedCommands.registerCommand("ShootNote", shootNote());
+    NamedCommands.registerCommand("CloseShoot", shootNote());
     NamedCommands.registerCommand("IntakeUntilNote", intakeUntilNoteAndPrepareShot());
     NamedCommands.registerCommand("IntakeUntilNoteNoPrepare", intakeUntilNoteNoPrepare());
-    NamedCommands.registerCommand("ShootFarNote", shootFarNote());
-    NamedCommands.registerCommand("DynamicShot", autoWristShoot());
+    NamedCommands.registerCommand("DynamicShoot", autoWristShoot());
 
     PathPlannerLogging.setLogActivePathCallback(
         (path) -> trajectoryTelemetryEntry.append(path.toArray(new Pose2d[0])));
@@ -166,7 +166,7 @@ public class Autos {
             Commands.parallel(
                 slapdownSuperstructure.setUpCommand(),
                 elevatorWristToTag(),
-                ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem)))
+                ScoringCommands.shootSetpointShootingCommand(shooterSubsystem)))
         .withName("AutoIntakeUntilNote");
   }
 
@@ -200,27 +200,11 @@ public class Autos {
                 shooterAndElevatorWristInToleranceCommand(),
                 ScoringCommands.transportToShooterCommand(transportSubsystem)
                     .until(() -> !transportSubsystem.atSensor())),
-            ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
+            ScoringCommands.shootSetpointShootingCommand(shooterSubsystem),
             ElevatorWristCommands.elevatorWristCloseSpeakerCommand(
                 elevatorSubsystem, wristSubsystem))
         .andThen(transportSubsystem.stopCommand())
         .withName("AutoShootNote");
-  }
-
-  private Command shootFarNote() {
-    if (Robot.isSimulation()) {
-      return Commands.print("Shooting Note!").andThen(Commands.waitSeconds(0.5));
-    }
-
-    return Commands.deadline(
-            Commands.sequence(
-                shooterAndElevatorWristInToleranceCommand(),
-                ScoringCommands.transportToShooterCommand(transportSubsystem)
-                    .until(() -> !transportSubsystem.atSensor())),
-            ScoringCommands.shootSetpointFarSpeakerCommand(shooterSubsystem),
-            ElevatorWristCommands.elevatorWristFarSpeakerCommand(elevatorSubsystem, wristSubsystem))
-        .andThen(transportSubsystem.stopCommand())
-        .withName("AutoShootFarNote");
   }
 
   private Command autoWristShoot() {
@@ -229,7 +213,7 @@ public class Autos {
                 shooterAndElevatorWristInToleranceCommand(),
                 ScoringCommands.transportToShooterCommand(transportSubsystem)
                     .until(() -> !transportSubsystem.atSensor())),
-            ScoringCommands.shootSetpointFarSpeakerCommand(shooterSubsystem),
+            ScoringCommands.shootSetpointShootingCommand(shooterSubsystem),
             elevatorWristToTag())
         .andThen(transportSubsystem.stopCommand())
         .withName("AutoShootDynamicNote");
@@ -246,20 +230,22 @@ public class Autos {
   private Command elevatorWristToTag() {
     return ElevatorWristCommands.elevatorWristDynamicCommand(
         () -> SetpointConstants.REGULAR_SHOT_ELEVATOR_HEIGHT_METERS,
-        () -> {
-          int desiredTag = RaiderUtils.shouldFlip() ? 4 : 7;
-          return SetpointConstants.REGULAR_SHOT_WRIST_SETPOINT_TABLE.get(
-              driveSubsystem
-                  .getPose()
-                  .getTranslation()
-                  .getDistance(
-                      FieldConstants.aprilTags
-                          .getTagPose(desiredTag)
-                          .get()
-                          .getTranslation()
-                          .toTranslation2d()));
-        },
+        () -> SetpointConstants.REGULAR_SHOT_WRIST_SETPOINT_TABLE.get(getCameraDistanceFromTag()),
         elevatorSubsystem,
         wristSubsystem);
+  }
+
+  private double getCameraDistanceFromTag() {
+    int desiredTag = RaiderUtils.shouldFlip() ? 4 : 7;
+    return driveSubsystem
+        .getPose()
+        .getTranslation()
+        .plus(VisionConstants.ROBOT_TO_CAM.getTranslation().toTranslation2d())
+        .getDistance(
+            FieldConstants.aprilTags
+                .getTagPose(desiredTag)
+                .get()
+                .getTranslation()
+                .toTranslation2d());
   }
 }

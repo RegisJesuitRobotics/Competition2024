@@ -81,6 +81,10 @@ public class RobotContainer {
 
   private final AtomicBoolean signalHumanPlayer = new AtomicBoolean(false);
 
+  private final TunableTelemetryPIDController snapController =
+      new TunableTelemetryPIDController(
+          "/snap/controller", Constants.AutoConstants.ANGULAR_POSITION_PID_GAINS);
+
   public RobotContainer() {
     configureDriverBindings();
     configureOperatorBindings();
@@ -117,31 +121,47 @@ public class RobotContainer {
                 .ignoringDisable(true)
                 .withName("ElevatorLEDStatusTrue"));
 
-    AtomicBoolean shouldBlink = new AtomicBoolean();
+    AtomicBoolean transportSensorBlink = new AtomicBoolean();
     new Trigger(transportSubsystem::atSensor)
         .onTrue(
             Commands.sequence(
-                    Commands.runOnce(() -> shouldBlink.set(true)),
+                    Commands.runOnce(() -> transportSensorBlink.set(true)),
                     Commands.waitSeconds(1),
-                    Commands.runOnce(() -> shouldBlink.set(false)))
+                    Commands.runOnce(() -> transportSensorBlink.set(false)))
                 .withName("TransportSensorBlink"));
 
     List<LEDState> ledStates =
         List.of(
+            // Signal human player
             new LEDState(
                 signalHumanPlayer::get, new AlternatePattern(0.5, Color.kOrange, Color.kBlack)),
-            // Green if we can go under the stage
+            // Blink after intake
             new LEDState(
-                shouldBlink::get, new AlternatePattern(0.25, Color.kAliceBlue, Color.kBlack)),
+                transportSensorBlink::get, new AlternatePattern(0.25, Color.kAliceBlue, Color.kBlack)),
             // Red blink if we have any faults
             new LEDState(
                 () -> Alert.getDefaultGroup().hasAnyErrors(),
                 new AlternatePattern(2.0, Color.kRed, Color.kBlack)),
+            // Purple slide if ready to shoot
+            new LEDState(
+                () -> {
+                  // Is snaping
+                  return DriverStation.isTeleopEnabled() && snapToSpeaker.get() &&
+                      // Shooter is ready
+                      shooterSubsystem.inTolerance() && shooterSubsystem.getSetpoint() == SetpointConstants.SHOOT_SHOOTER_VELOCITY &&
+                      // Wrist/elevator is ready
+                      wristSubsystem.atGoal() && elevatorSubsystem.atGoal() &&
+                      // Drive is locked
+                      snapController.atSetpoint();
+                },
+                new SlidePattern(0.5, Color.kPurple, Color.kBlack)),
+            // Purple if we are locked to apriltag with a note
             new LEDState(
                 () ->
                     transportSubsystem.atSensor()
-                        && photonSubsystem.getDistanceSpeaker().isPresent(),
+                        && photonSubsystem.getDistanceSpeaker().isPresent() && DriverStation.isTeleopEnabled(),
                 new SolidPattern(Color.kPurple)),
+            // Green if we can go under the stage
             new LEDState(
                 () ->
                     DriverStation.isTeleopEnabled()
@@ -193,7 +213,7 @@ public class RobotContainer {
         .onFalse(slapdownSuperstructure.setUpCommand());
     driverController.circle().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
     driverController
-        .y()
+        .a()
         .whileTrue(
             ScoringCommands.reverseShooterTransportCommand(shooterSubsystem, transportSubsystem));
     driverController
@@ -204,7 +224,7 @@ public class RobotContainer {
                     Commands.waitSeconds(1.5), Commands.runOnce(() -> signalHumanPlayer.set(false)))
                 .withName("SignalHumanPlayerOff"));
     driverController
-        .a()
+        .b()
         .whileTrue(
             Commands.parallel(
                     Commands.run(() -> snapToSpeaker.set(true))
@@ -224,6 +244,27 @@ public class RobotContainer {
                         elevatorSubsystem,
                         wristSubsystem))
                 .withName("SnapToSpeakerAndWrist"));
+    driverController
+        .y()
+        .whileTrue(
+            Commands.parallel(
+                    Commands.run(() -> snapToSpeaker.set(true))
+                        .finallyDo(() -> snapToSpeaker.set(false)),
+                    ElevatorWristCommands.elevatorWristDynamicCommand(
+                        () -> SetpointConstants.HIGH_SHOT_ELEVATOR_HEIGHT_METERS,
+                        () -> {
+                          OptionalDouble distance = photonSubsystem.getDistanceSpeaker();
+                          // TODO: Filter this so it doesn't start to go down if tag goes out for a
+                          // small time
+                          if (distance.isEmpty()) {
+                            return SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS;
+                          }
+                          return SetpointConstants.HIGH_SHOT_WRIST_SETPOINT_TABLE.get(
+                              distance.getAsDouble());
+                        },
+                        elevatorSubsystem,
+                        wristSubsystem))
+                .withName("SnapToSpeakerAndWristHigh"));
   }
 
   private void configureOperatorBindings() {
@@ -239,7 +280,7 @@ public class RobotContainer {
         .triangle()
         .onTrue(
             Commands.parallel(
-                    ScoringCommands.shootSetpointCloseSpeakerCommand(shooterSubsystem),
+                    ScoringCommands.shootSetpointShootingCommand(shooterSubsystem),
                     Commands.waitUntil(shooterSubsystem::inTolerance)
                         .andThen(MiscCommands.rumbleHIDCommand(operatorController.getHID())))
                 .withName("ShootCloseSpeakerWithRumble"));
@@ -323,9 +364,6 @@ public class RobotContainer {
           rotationLimiter.reset(currentSpeeds.omegaRadiansPerSecond);
         };
 
-    TunableTelemetryPIDController snapController =
-        new TunableTelemetryPIDController(
-            "/snap/controller", Constants.AutoConstants.ANGULAR_POSITION_PID_GAINS);
     snapController.enableContinuousInput(-Math.PI, Math.PI);
     driveCommandChooser.setDefaultOption(
         "Hybrid (Default to Field Relative & absolute control but use robot centric when holding button)",

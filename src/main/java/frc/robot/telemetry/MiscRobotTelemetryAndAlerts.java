@@ -8,12 +8,14 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.BuildConstants;
 import frc.robot.Constants.MiscConstants;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
 import frc.robot.telemetry.types.StringTelemetryEntry;
 import frc.robot.telemetry.types.StructTelemetryEntry;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
+import frc.robot.utils.Metadata;
 import frc.robot.utils.RaiderStructs;
 
 public class MiscRobotTelemetryAndAlerts {
@@ -65,6 +67,18 @@ public class MiscRobotTelemetryAndAlerts {
         .onCommandFinish((command) -> endCommandsEntry.append(getCommandID(command)));
     CommandScheduler.getInstance()
         .onCommandInterrupt((command) -> endCommandsEntry.append(getCommandID(command)));
+
+    // Log build constants to metadata
+    Metadata.add("MAVEN_GROUP", BuildConstants.MAVEN_GROUP);
+    Metadata.add("MAVEN_NAME", BuildConstants.MAVEN_NAME);
+    Metadata.add("VERSION", BuildConstants.VERSION);
+    Metadata.add("GIT_REVISION", Integer.toString(BuildConstants.GIT_REVISION));
+    Metadata.add("GIT_SHA", BuildConstants.GIT_SHA);
+    Metadata.add("GIT_DATE", BuildConstants.GIT_DATE);
+    Metadata.add("GIT_BRANCH", BuildConstants.GIT_BRANCH);
+    Metadata.add("BUILD_DATE", BuildConstants.BUILD_DATE);
+    Metadata.add("BUILD_UNIX_TIME", Long.toString(BuildConstants.BUILD_UNIX_TIME));
+    Metadata.add("DIRTY", Integer.toString(BuildConstants.DIRTY));
   }
 
   private String getCommandID(Command command) {

@@ -197,6 +197,10 @@ public class ShooterSubsystem extends SubsystemBase {
         < 0.05;
   }
 
+  public double getSetpoint() {
+    return pidController.getSetpoint();
+  }
+
   public Command setVoltageCommand(double voltage) {
     return this.run(() -> setVoltage(voltage)).withName("ShooterSetVoltage");
   }
