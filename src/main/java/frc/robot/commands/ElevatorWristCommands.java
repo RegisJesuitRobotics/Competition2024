@@ -60,15 +60,6 @@ public class ElevatorWristCommands {
         .withName("ElevatorWristExpel");
   }
 
-  public static Command elevatorWristFarSpeakerCommand(
-      ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
-    return Commands.parallel(
-            elevatorSubsystem.setElevatorPositionCommand(
-                SetpointConstants.FAR_SPEAKER_ELEVATOR_HEIGHT),
-            wristSubsystem.setPositionCommand(SetpointConstants.FAR_SPEAKER_WRIST_ANGLE_RADIANS))
-        .withName("ElevatorWristFarSpeaker");
-  }
-
   public static Command elevatorWristZeroCommand(
       ElevatorSubsystem elevatorSubsystem, WristSubsystem wristSubsystem) {
     return Commands.parallel(
