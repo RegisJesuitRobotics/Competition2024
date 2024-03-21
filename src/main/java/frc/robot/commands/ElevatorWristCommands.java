@@ -92,8 +92,7 @@ public class ElevatorWristCommands {
     return Commands.sequence(
             elevatorSubsystem.setVoltageCommand(-10).until(elevatorSubsystem::atBottomLimit),
             Commands.parallel(
-                // TODO: Evaluate stall voltage
-                elevatorSubsystem.setVoltageCommand(0.6),
+                elevatorSubsystem.setVoltageCommand(-0.6),
                 wristSubsystem.setPositionCommand(
                     SetpointConstants.CLIMB_DOWN_WRIST_ANGLE_RADIANS)))
         .withName("ElevatorWristClimbDown");

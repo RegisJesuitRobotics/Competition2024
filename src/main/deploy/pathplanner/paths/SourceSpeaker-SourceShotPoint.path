@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.6468496253920972,
-        "y": 4.100916501780468
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 1.777155289450107,
-        "y": 4.248833479146102
-      },
-      "isLocked": false,
-      "linkedName": "CloseSourceNote"
-    },
-    {
-      "anchor": {
         "x": 0.7416832472553837,
         "y": 4.483698694249241
       },
+      "prevControl": null,
+      "nextControl": {
+        "x": 0.7666832472553837,
+        "y": 4.440397424060019
+      },
+      "isLocked": false,
+      "linkedName": "SourceSpeaker"
+    },
+    {
+      "anchor": {
+        "x": 1.607941902792323,
+        "y": 3.418331525148855
+      },
       "prevControl": {
-        "x": 1.6856075752139539,
-        "y": 4.2589668724413
+        "x": 1.582941902792323,
+        "y": 3.461632795338077
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "SourceSpeaker"
+      "linkedName": "FarShotSource"
     }
   ],
   "rotationTargets": [],
@@ -33,9 +33,9 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.8,
-    "maxAcceleration": 4.5,
+    "maxAcceleration": 4.375,
     "maxAngularVelocity": 500.0,
-    "maxAngularAcceleration": 2000.0
+    "maxAngularAcceleration": 1000.0
   },
   "goalEndState": {
     "velocity": 0,
@@ -45,7 +45,7 @@
   "reversed": false,
   "folder": "Source Speaker",
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": -60.0,
     "velocity": 0
   },
   "useDefaultConstraints": true

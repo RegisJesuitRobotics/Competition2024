@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.6753272641157397,
-        "y": 4.1774492053271075
+        "x": 2.7688877599977424,
+        "y": 4.110004680194549
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.628342633076444,
-        "y": 4.194550212493391
+        "x": 2.7219031289584468,
+        "y": 4.1271056873608325
       },
       "isLocked": false,
       "linkedName": "CloseSourceAngle"
     },
     {
       "anchor": {
-        "x": 2.1510289501872406,
-        "y": 4.352636780568785
+        "x": 2.1884054647738926,
+        "y": 4.439457332618369
       },
       "prevControl": {
-        "x": 2.198013581226536,
-        "y": 4.335535773402502
+        "x": 2.235390095813188,
+        "y": 4.422356325452086
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,19 +33,19 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.8,
-    "maxAcceleration": 4.5,
+    "maxAcceleration": 4.375,
     "maxAngularVelocity": 500.0,
-    "maxAngularAcceleration": 2000.0
+    "maxAngularAcceleration": 1000.0
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -20.0,
+    "rotation": -30.0,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": -20.0,
+    "rotation": 0.0,
     "velocity": 0
   },
   "useDefaultConstraints": true

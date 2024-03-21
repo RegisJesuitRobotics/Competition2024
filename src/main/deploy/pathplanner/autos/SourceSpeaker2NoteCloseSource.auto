@@ -18,9 +18,28 @@
           }
         },
         {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "SourceSpeaker-SourceShotPoint"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeUntilNote"
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "CloseShoot"
+            "name": "DynamicShoot"
           }
         },
         {
@@ -34,13 +53,19 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "SourceSpeaker-CloseSource"
+                        "pathName": "SourceShotPoint-CloseSource"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.3
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CloseSource-SourceSpeaker"
+                        "pathName": "CloseSource-SourceShotPoint"
                       }
                     },
                     {
@@ -64,13 +89,13 @@
         {
           "type": "named",
           "data": {
-            "name": "CloseShoot"
+            "name": "DynamicShoot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "SourceSpeaker-Mobility"
+            "pathName": "SourceShotPoint-Mobility"
           }
         }
       ]

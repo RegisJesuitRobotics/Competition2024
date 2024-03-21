@@ -4,13 +4,21 @@ import static frc.robot.Constants.VisionConstants.ROBOT_TO_CAM;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.SetpointConstants;
+import frc.robot.Constants.WristConstants;
 import frc.robot.FieldConstants;
 import frc.robot.telemetry.types.DoubleTelemetryEntry;
+import frc.robot.telemetry.types.StructTelemetryEntry;
 import frc.robot.utils.Alert;
 import frc.robot.utils.Alert.AlertType;
 import frc.robot.utils.RaiderUtils;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
@@ -24,6 +32,8 @@ public class PhotonSubsystem extends SubsystemBase {
       new DoubleTelemetryEntry("/photon/distance", true);
   private final DoubleTelemetryEntry offsetEntry =
       new DoubleTelemetryEntry("/photon/rotationOffset", true);
+
+  private final DoubleTelemetryEntry photonWristSetpoint = new DoubleTelemetryEntry("/photon/wristSetpoint", true);
 
   private final PhotonCamera camera = new PhotonCamera("MainCamera");
   private final Alert cameraNotConnectedAlert =
@@ -74,8 +84,10 @@ public class PhotonSubsystem extends SubsystemBase {
     OptionalDouble distance = getDistanceSpeaker();
     if (distance.isPresent()) {
       distanceEntry.append(distance.getAsDouble());
+      photonWristSetpoint.append(SetpointConstants.REGULAR_SHOT_WRIST_SETPOINT_TABLE.get(distance.getAsDouble()) + WristConstants.WRIST_TO_SHOOTER);
     } else {
       distanceEntry.append(Double.NaN);
+      photonWristSetpoint.append(Double.NaN);
     }
 
     OptionalDouble offset = getOffsetRadiansSpeaker();

@@ -83,6 +83,7 @@ public class Autos {
     NamedCommands.registerCommand("IntakeUntilNoteNoPrepare", intakeUntilNoteNoPrepare());
     NamedCommands.registerCommand("DynamicShoot", dynamicShoot());
     NamedCommands.registerCommand("ValidateNote", validateNote());
+    NamedCommands.registerCommand("Stow", stow());
 
     PathPlannerLogging.setLogActivePathCallback(
         (path) -> trajectoryTelemetryEntry.append(path.toArray(new Pose2d[0])));
@@ -172,7 +173,7 @@ public class Autos {
   }
 
   private Command validateNote() {
-    return Commands.waitUntil(transportSubsystem::atSensor).withTimeout(1.0);
+    return Commands.waitUntil(transportSubsystem::atSensor).withTimeout(1.25);
   }
 
   private Command intakeUntilNoteNoPrepare() {
@@ -210,6 +211,14 @@ public class Autos {
                 elevatorSubsystem, wristSubsystem))
         .andThen(transportSubsystem.stopCommand())
         .withName("AutoShootNote");
+  }
+
+  private Command stow() {
+    return Commands.parallel(
+        ElevatorWristCommands.elevatorWristZeroCommand(elevatorSubsystem, wristSubsystem),
+        slapdownSuperstructure.setUpCommand(),
+        ScoringCommands.shootSetpointIdleCommand(shooterSubsystem)
+    );
   }
 
   private Command dynamicShoot() {

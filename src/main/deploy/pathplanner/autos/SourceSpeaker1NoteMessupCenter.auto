@@ -18,15 +18,34 @@
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "CloseShoot"
+            "pathName": "SourceSpeaker-SourceShotPoint"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "SourceSpeaker-MessupCenter"
+            "name": "DynamicShoot"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "SourceShotPoint-MessupCenter"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Stow"
+                }
+              }
+            ]
           }
         }
       ]

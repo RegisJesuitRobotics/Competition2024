@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 1.1750428500857002,
-        "y": 3.955319410638822
+        "y": 3.9553194106388214
       },
       "isLocked": false,
       "linkedName": "FarShotSource"
@@ -32,11 +32,11 @@
     },
     {
       "anchor": {
-        "x": 2.6468496253920972,
+        "x": 2.7,
         "y": 4.100916501780468
       },
       "prevControl": {
-        "x": 2.5968496253920974,
+        "x": 2.6500000000000004,
         "y": 4.100916501780468
       },
       "nextControl": null,
@@ -60,16 +60,16 @@
         "maxVelocity": 1.375,
         "maxAcceleration": 6.0,
         "maxAngularVelocity": 500.0,
-        "maxAngularAcceleration": 2000.0
+        "maxAngularAcceleration": 1000.0
       }
     }
   ],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.8,
-    "maxAcceleration": 4.5,
+    "maxAcceleration": 4.375,
     "maxAngularVelocity": 500.0,
-    "maxAngularAcceleration": 2000.0
+    "maxAngularAcceleration": 1000.0
   },
   "goalEndState": {
     "velocity": 0,

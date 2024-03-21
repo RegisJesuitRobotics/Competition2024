@@ -18,15 +18,21 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "SourceSpeaker-SourceShotPoint"
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "CloseShoot"
+            "name": "DynamicShoot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "SourceSpeaker-Mobility"
+            "pathName": "SourceShotPoint-Mobility"
           }
         }
       ]

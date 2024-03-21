@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -10,9 +11,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.SetpointConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.TeleopConstants;
+import frc.robot.Constants.WristConstants;
 import frc.robot.commands.ElevatorWristCommands;
 import frc.robot.commands.IntakingCommands;
 import frc.robot.commands.MiscCommands;
@@ -34,6 +37,7 @@ import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.telemetry.tunable.TunableTelemetryPIDController;
 import frc.robot.telemetry.tunable.gains.TunableDouble;
+import frc.robot.telemetry.types.StructTelemetryEntry;
 import frc.robot.utils.*;
 import frc.robot.utils.led.AlternatePattern;
 import frc.robot.utils.led.SlidePattern;
@@ -84,7 +88,7 @@ public class RobotContainer {
 
   private final TunableTelemetryPIDController snapController =
       new TunableTelemetryPIDController(
-          "/snap/controller", Constants.AutoConstants.ANGULAR_POSITION_PID_GAINS);
+          "/snap/controller", AutoConstants.SNAP_POSITION_PID_GAINS);
 
   public RobotContainer() {
     configureDriverBindings();
@@ -286,7 +290,7 @@ public class RobotContainer {
             Commands.parallel(
                     ScoringCommands.shootSetpointAmpCommand(shooterSubsystem),
                     Commands.sequence(
-                        Commands.waitSeconds(0.75), transportSubsystem.setVoltageCommand(10)))
+                        Commands.waitSeconds(0.1), transportSubsystem.setVoltageCommand(10)))
                 .withName("ShootAmp"));
     operatorController
         .triangle()
@@ -299,6 +303,13 @@ public class RobotContainer {
     operatorController.circle().onTrue(ScoringCommands.shootSetpointIdleCommand(shooterSubsystem));
     operatorController.x().onTrue(ScoringCommands.shootSetpointZeroCommand(shooterSubsystem));
 
+    operatorController.rightTrigger()
+        .whileTrue(
+            Commands.parallel(
+                IntakingCommands.intakeUntilDetectedNoSlap(intakeSubsystem, transportSubsystem),
+                ElevatorWristCommands.elevatorWristIntakePosition(
+                    elevatorSubsystem, wristSubsystem)));
+
     operatorController.options().onTrue(elevatorSubsystem.probeHomeCommand());
     operatorController
         .share()
@@ -307,6 +318,12 @@ public class RobotContainer {
     operatorController
         .povRight()
         .onTrue(ElevatorWristCommands.elevatorWristExpelCommand(elevatorSubsystem, wristSubsystem));
+//    TunableDouble wristSetpoint = new TunableDouble("/wrist/setpoint", 45.0, true);
+//    operatorController.povUp().onTrue(ElevatorWristCommands.elevatorWristDynamicCommand(
+//        () -> SetpointConstants.REGULAR_SHOT_ELEVATOR_HEIGHT_METERS,
+//        () -> Units.degreesToRadians(wristSetpoint.get()) - WristConstants.WRIST_TO_SHOOTER,
+//        elevatorSubsystem,
+//        wristSubsystem));
     operatorController
         .povUp()
         .onTrue(
@@ -368,11 +385,16 @@ public class RobotContainer {
                 () -> {
                   if (snapToSpeaker.get()) {
                     OptionalDouble result = photonSubsystem.getOffsetRadiansSpeaker();
+                    OptionalDouble distance = photonSubsystem.getDistanceSpeaker();
 
-                    double target = 0;
                     if (result.isEmpty()) {
                       return 0;
                     } else {
+                      double target = 0.0;
+                      if (distance.isPresent()) {
+                        target = Units.degreesToRadians(1.0) * distance.getAsDouble();
+                        target *= RaiderUtils.shouldFlip() ? 1 : -1;
+                      }
                       return snapController.calculate(result.getAsDouble(), target);
                     }
                   }

@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.7416832472553837,
-        "y": 4.483698694249241
+        "x": 1.607941902792323,
+        "y": 3.418331525148855
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.0158553006343387,
-        "y": 2.7843648865479205
+        "x": 2.4670369664813405,
+        "y": 1.6344956208430936
       },
       "isLocked": false,
-      "linkedName": "SourceSpeaker"
+      "linkedName": "FarShotSource"
     },
     {
       "anchor": {
@@ -103,9 +103,9 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.8,
-    "maxAcceleration": 4.5,
+    "maxAcceleration": 4.375,
     "maxAngularVelocity": 500.0,
-    "maxAngularAcceleration": 2000.0
+    "maxAngularAcceleration": 1000.0
   },
   "goalEndState": {
     "velocity": 0,

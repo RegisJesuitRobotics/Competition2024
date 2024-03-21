@@ -21,24 +21,30 @@ public final class Constants {
 
   public static class SetpointConstants {
 
-    public static final double REGULAR_SHOT_ELEVATOR_HEIGHT_METERS = Units.inchesToMeters(3.0);
+    public static final double REGULAR_SHOT_ELEVATOR_HEIGHT_METERS = Units.inchesToMeters(2.0);
     public static final InterpolatingDoubleTreeMap REGULAR_SHOT_WRIST_SETPOINT_TABLE =
         new InterpolatingDoubleTreeMap();
 
     static {
       REGULAR_SHOT_WRIST_SETPOINT_TABLE.put(0.0, WristConstants.WRIST_MIN_RADIANS);
       REGULAR_SHOT_WRIST_SETPOINT_TABLE.put(
-          1.1, Units.degreesToRadians(45.0) - WristConstants.WRIST_TO_SHOOTER);
+          1.14, Units.degreesToRadians(40.0) - WristConstants.WRIST_TO_SHOOTER);
       REGULAR_SHOT_WRIST_SETPOINT_TABLE.put(
-          1.6, Units.degreesToRadians(53.0) - WristConstants.WRIST_TO_SHOOTER);
+          1.69, Units.degreesToRadians(45.0) - WristConstants.WRIST_TO_SHOOTER);
       REGULAR_SHOT_WRIST_SETPOINT_TABLE.put(
-          2.1, Units.degreesToRadians(60.0) - WristConstants.WRIST_TO_SHOOTER);
+          2.17, Units.degreesToRadians(52.0) - WristConstants.WRIST_TO_SHOOTER);
       REGULAR_SHOT_WRIST_SETPOINT_TABLE.put(
-          2.6, Units.degreesToRadians(64.0) - WristConstants.WRIST_TO_SHOOTER);
+          2.55, Units.degreesToRadians(56.0) - WristConstants.WRIST_TO_SHOOTER);
       REGULAR_SHOT_WRIST_SETPOINT_TABLE.put(
-          2.8, Units.degreesToRadians(65.0) - WristConstants.WRIST_TO_SHOOTER);
+          2.78, Units.degreesToRadians(57.0) - WristConstants.WRIST_TO_SHOOTER);
       REGULAR_SHOT_WRIST_SETPOINT_TABLE.put(
-          3.1, Units.degreesToRadians(67.5) - WristConstants.WRIST_TO_SHOOTER);
+          3.135, Units.degreesToRadians(59.0) - WristConstants.WRIST_TO_SHOOTER);
+      REGULAR_SHOT_WRIST_SETPOINT_TABLE.put(
+          3.22, Units.degreesToRadians(60.5) - WristConstants.WRIST_TO_SHOOTER);
+      REGULAR_SHOT_WRIST_SETPOINT_TABLE.put(
+          3.6, Units.degreesToRadians(62) - WristConstants.WRIST_TO_SHOOTER);
+      REGULAR_SHOT_WRIST_SETPOINT_TABLE.put(
+          4.12, Units.degreesToRadians(64.5) - WristConstants.WRIST_TO_SHOOTER);
     }
 
     public static final double HIGH_SHOT_ELEVATOR_HEIGHT_METERS = Units.inchesToMeters(10.0);
@@ -69,19 +75,19 @@ public final class Constants {
 
     public static final double AMP_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
     public static final double AMP_WRIST_ANGLE_RADIANS =
-        Units.degreesToRadians(70) - WristConstants.WRIST_TO_SHOOTER;
+        Units.degreesToRadians(130) - WristConstants.WRIST_TO_SHOOTER;
 
     public static final double INTAKE_ELEVATOR_HEIGHT = Units.inchesToMeters(0.0);
     public static final double INTAKE_WRIST_ANGLE_RADIANS = WristConstants.WRIST_MIN_RADIANS;
 
     public static final double CLOSE_SPEAKER_WRIST_ANGLE_RADIANS =
-        Units.degreesToRadians(45) - WristConstants.WRIST_TO_SHOOTER;
+        Units.degreesToRadians(40) - WristConstants.WRIST_TO_SHOOTER;
     public static final double EXPEL_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
-    public static final double EXPEL_WRIST_ANGLE_RADIANS = Units.degreesToRadians(50);
+    public static final double EXPEL_WRIST_ANGLE_RADIANS = Units.degreesToRadians(90) - WristConstants.WRIST_TO_SHOOTER;
 
     public static final double CLIMB_UP_ELEVATOR_HEIGHT = Units.inchesToMeters(11.0);
     public static final double CLIMB_UP_WRIST_ANGLE_RADIANS = Math.PI / 2.0;
-    public static final double CLIMB_DOWN_WRIST_ANGLE_RADIANS = WristConstants.WRIST_MIN_RADIANS;
+    public static final double CLIMB_DOWN_WRIST_ANGLE_RADIANS = Math.PI / 2.0;
   }
 
   public static class IntakeConstants {
@@ -110,7 +116,7 @@ public final class Constants {
     public static final int ROTATION_FREE_MOTOR_CURRENT = 20;
 
     public static final double ROTATION_UP_ANGLE = 1.9347;
-    public static final double ROTATION_DOWN_ANGLE = 4.2;
+    public static final double ROTATION_DOWN_ANGLE = 4.25;
 
     public static final int ROTATION_LIMIT_SWITCH_ID = 5;
 
@@ -151,7 +157,7 @@ public final class Constants {
         (Math.PI * Units.inchesToMeters(1.75)) / (ELEVATOR_GEAR_RATIO);
 
     public static final TunablePIDGains PID_GAINS =
-        new TunablePIDGains("/gains/elevator", 38.0, 0.0, 0.0, true);
+        new TunablePIDGains("/gains/elevator", 42.0, 0.0, 0.0, true);
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
         new TunableTrapezoidalProfileGains("/gains/elevator", 0.25, 0.5, MiscConstants.TUNING_MODE);
 
@@ -166,7 +172,7 @@ public final class Constants {
     public static final int PIGEON_ID = 21;
 
     public static final int NUM_MODULES = 4;
-    public static final double WHEEL_DIAMETER_METERS = Units.inchesToMeters(1.9426461704096043 * 2);
+    public static final double WHEEL_DIAMETER_METERS = Units.inchesToMeters(1.921818 * 2);
     public static final double DRIVE_GEAR_REDUCTION = (50.0 / 16) * (17.0 / 27) * (45.0 / 15);
 
     public static final double STEER_GEAR_REDUCTION = 150.0 / 7.0;
@@ -258,7 +264,10 @@ public final class Constants {
             MAX_AUTO_ACCELERATION_METERS_PER_SECOND_SQUARED,
             MiscConstants.TUNING_MODE);
     public static final TunablePIDGains ANGULAR_POSITION_PID_GAINS =
-        new TunablePIDGains("/gains/driveAngular", 5, 0, 0.0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/driveAngular", 4, 0, 0.0, MiscConstants.TUNING_MODE);
+
+    public static final TunablePIDGains SNAP_POSITION_PID_GAINS =
+        new TunablePIDGains("/gains/snap", 5, 0, 0.0, MiscConstants.TUNING_MODE);
     public static final TunableTrapezoidalProfileGains ANGULAR_POSITION_TRAPEZOIDAL_GAINS =
         new TunableTrapezoidalProfileGains(
             "/gains/driveAngular",
@@ -272,7 +281,7 @@ public final class Constants {
 
     public static final double WRIST_MIN_RADIANS = -0.13236545988983028 - 0.31059;
 
-    public static final double WRIST_TO_SHOOTER = Units.degreesToRadians(29.0) - WRIST_MIN_RADIANS;
+    public static final double WRIST_TO_SHOOTER = Units.degreesToRadians(26.5) - WRIST_MIN_RADIANS;
 
     public static final double WRIST_OFFSET = 0.5545670430374852 + Math.PI / 2.0 - 0.31059;
     public static final int WRIST_ENCODER_PORT = 7;
@@ -286,7 +295,7 @@ public final class Constants {
         new TunableArmElevatorFFGains(
             "/gains/wrist/", 0.13193, 0.25029, 0.93277, 0.10262, MiscConstants.TUNING_MODE);
     public static final TunablePIDGains WRIST_PID_GAINS =
-        new TunablePIDGains("/gains/wrist/", 2, 0.0, 0.0, MiscConstants.TUNING_MODE);
+        new TunablePIDGains("/gains/wrist/", 4, 0.0, 0.0, MiscConstants.TUNING_MODE);
 
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
         new TunableTrapezoidalProfileGains(
@@ -294,6 +303,7 @@ public final class Constants {
             Units.rotationsToRadians(1.5),
             Units.rotationsToRadians(2),
             MiscConstants.TUNING_MODE);
+    public static final double DYNAMIC_OFFSET = Units.degreesToRadians(1);
   }
 
   public static class TransportConstants {
