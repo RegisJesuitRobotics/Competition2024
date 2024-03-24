@@ -83,7 +83,8 @@ public final class Constants {
     public static final double CLOSE_SPEAKER_WRIST_ANGLE_RADIANS =
         Units.degreesToRadians(40) - WristConstants.WRIST_TO_SHOOTER;
     public static final double EXPEL_ELEVATOR_HEIGHT = Units.inchesToMeters(3.0);
-    public static final double EXPEL_WRIST_ANGLE_RADIANS = Units.degreesToRadians(90) - WristConstants.WRIST_TO_SHOOTER;
+    public static final double EXPEL_WRIST_ANGLE_RADIANS =
+        Units.degreesToRadians(90) - WristConstants.WRIST_TO_SHOOTER;
 
     public static final double CLIMB_UP_ELEVATOR_HEIGHT = Units.inchesToMeters(11.0);
     public static final double CLIMB_UP_WRIST_ANGLE_RADIANS = Math.PI / 2.0;

@@ -217,8 +217,7 @@ public class Autos {
     return Commands.parallel(
         ElevatorWristCommands.elevatorWristZeroCommand(elevatorSubsystem, wristSubsystem),
         slapdownSuperstructure.setUpCommand(),
-        ScoringCommands.shootSetpointIdleCommand(shooterSubsystem)
-    );
+        ScoringCommands.shootSetpointIdleCommand(shooterSubsystem));
   }
 
   private Command dynamicShoot() {
