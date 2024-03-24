@@ -20,7 +20,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ShootNote"
+            "name": "CloseShoot"
           }
         },
         {
@@ -44,12 +44,6 @@
                       }
                     },
                     {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.25
-                      }
-                    },
-                    {
                       "type": "path",
                       "data": {
                         "pathName": "FarAmp-AmpSpeaker"
@@ -64,7 +58,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ShootNote"
+            "name": "CloseShoot"
           }
         }
       ]

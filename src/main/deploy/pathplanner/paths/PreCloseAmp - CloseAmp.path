@@ -1,0 +1,64 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.176005770182683,
+        "y": 6.7420508026470065
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.2193070403719046,
+        "y": 6.767050802647007
+      },
+      "isLocked": false,
+      "linkedName": "PreCloseAmp"
+    },
+    {
+      "anchor": {
+        "x": 2.888084083575573,
+        "y": 7.010931546863093
+      },
+      "prevControl": {
+        "x": 2.844782813386351,
+        "y": 6.9859315468630925
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "CloseAmpNote"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "SlowPickup",
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 1.375,
+        "maxAcceleration": 4.5,
+        "maxAngularVelocity": 500.0,
+        "maxAngularAcceleration": 2000.0
+      }
+    }
+  ],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.8,
+    "maxAcceleration": 4.375,
+    "maxAngularVelocity": 500.0,
+    "maxAngularAcceleration": 1000.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 20.0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": {
+    "rotation": 20.0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

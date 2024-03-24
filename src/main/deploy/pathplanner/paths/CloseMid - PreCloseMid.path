@@ -8,7 +8,7 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.797056776459918,
+        "x": 2.8470567764599184,
         "y": 5.56936258564365
       },
       "isLocked": false,
@@ -16,26 +16,32 @@
     },
     {
       "anchor": {
-        "x": 1.2850623701247395,
-        "y": 5.453516007032013
+        "x": 2.18,
+        "y": 5.567778660668928
       },
       "prevControl": {
-        "x": 1.3850623701247395,
-        "y": 5.453516007032013
+        "x": 2.23,
+        "y": 5.567778660668928
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "CenterSpeaker"
+      "linkedName": "PreCloseMid"
     }
   ],
-  "rotationTargets": [
+  "rotationTargets": [],
+  "constraintZones": [
     {
-      "waypointRelativePos": 1,
-      "rotationDegrees": 0,
-      "rotateFast": false
+      "name": "Slow Pickup",
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 1.375,
+        "maxAcceleration": 4.5,
+        "maxAngularVelocity": 500.0,
+        "maxAngularAcceleration": 2000.0
+      }
     }
   ],
-  "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.8,
@@ -49,7 +55,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Center Speaker",
+  "folder": null,
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0

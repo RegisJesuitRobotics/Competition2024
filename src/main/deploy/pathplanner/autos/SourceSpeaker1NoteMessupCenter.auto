@@ -30,9 +30,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "deadline",
           "data": {
-            "pathName": "SourceShotPoint-Mobility"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "SourceShotPoint-MessupCenter"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Stow"
+                }
+              }
+            ]
           }
         }
       ]

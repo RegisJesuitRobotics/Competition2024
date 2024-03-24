@@ -20,7 +20,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ShootNote"
+            "name": "CloseShoot"
           }
         },
         {
@@ -38,15 +38,15 @@
                       }
                     },
                     {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.3
-                      }
-                    },
-                    {
                       "type": "path",
                       "data": {
                         "pathName": "CloseAmp-CenterSpeaker"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "ValidateNote"
                       }
                     }
                   ]
@@ -64,7 +64,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ShootNote"
+            "name": "CloseShoot"
           }
         }
       ]

@@ -2,7 +2,7 @@ import java.text.SimpleDateFormat
 
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2024.3.1"
+    id "edu.wpi.first.GradleRIO" version "2024.3.2"
     id "com.peterabeles.gversion" version "1.10"
     id 'com.diffplug.spotless' version '6.11.0'
 }
@@ -11,6 +11,7 @@ sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
+
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
@@ -40,6 +41,8 @@ deploy {
 
                 // Static files artifact
                 frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
+                    // Remove
+                    predeploy << { execute 'rm -rf /home/lvuser/deploy' }
                     files = project.fileTree('src/main/deploy')
                     directory = '/home/lvuser/deploy'
                 }

@@ -3,50 +3,66 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.2850623701247395,
-        "y": 5.453516007032013
+        "x": 8.25,
+        "y": 5.78
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.5470541820713273,
-        "y": 6.471590748737054
+        "x": 7.4664430874620065,
+        "y": 6.153431731159027
       },
       "isLocked": false,
-      "linkedName": "CenterSpeaker"
+      "linkedName": "FarMidAmpNote"
     },
     {
       "anchor": {
-        "x": 2.1,
-        "y": 7.010931546863093
+        "x": 5.720682872753757,
+        "y": 6.434503425000541
       },
       "prevControl": {
-        "x": 1.88023956219449,
-        "y": 7.010931546863093
+        "x": 6.870183671946349,
+        "y": 6.4366074348393205
       },
       "nextControl": {
-        "x": 2.31976043780551,
-        "y": 7.010931546863093
+        "x": 4.431937120701556,
+        "y": 6.432144545612281
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.888084083575573,
-        "y": 7.010931546863093
+        "x": 2.707662466250859,
+        "y": 6.248008565461576
       },
       "prevControl": {
-        "x": 2.579625060070433,
-        "y": 7.010931546863093
+        "x": 3.562441952915802,
+        "y": 6.2693207064454795
+      },
+      "nextControl": {
+        "x": 2.5836271356086935,
+        "y": 6.244916003584659
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.176005770182683,
+        "y": 6.7420508026470065
+      },
+      "prevControl": {
+        "x": 2.2569944213962505,
+        "y": 6.083216916433833
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "CloseAmpNote"
+      "linkedName": "PreCloseAmp"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1,
+      "waypointRelativePos": 3,
       "rotationDegrees": 0,
       "rotateFast": false
     },
@@ -56,19 +72,7 @@
       "rotateFast": false
     }
   ],
-  "constraintZones": [
-    {
-      "name": "Slow Pickup",
-      "minWaypointRelativePos": 1.0,
-      "maxWaypointRelativePos": 2.0,
-      "constraints": {
-        "maxVelocity": 1.375,
-        "maxAcceleration": 6.0,
-        "maxAngularVelocity": 500.0,
-        "maxAngularAcceleration": 2000.0
-      }
-    }
-  ],
+  "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.8,
@@ -78,11 +82,11 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0,
+    "rotation": 20.0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Center Speaker",
+  "folder": null,
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0

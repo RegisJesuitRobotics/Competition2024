@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.29,
-      "y": 5.45
+      "x": 0.74,
+      "y": 6.61
     },
-    "rotation": 0
+    "rotation": 60.0
   },
   "command": {
     "type": "sequential",
@@ -34,51 +34,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CenterSpeaker-FarMidAmp"
+                        "pathName": "AmpSpeaker-CloseAmp Low Profile"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "FarMidAmp-CenterSpeaker"
-                      }
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "IntakeUntilNote"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "CloseShoot"
-          }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "CenterSpeaker-CloseMid"
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "CloseMid-CenterSpeaker"
+                        "pathName": "CloseAmp-AmpSpeaker"
                       }
                     },
                     {
@@ -108,6 +70,6 @@
       ]
     }
   },
-  "folder": "Center Speaker",
+  "folder": "Amp Speaker",
   "choreoAuto": false
 }

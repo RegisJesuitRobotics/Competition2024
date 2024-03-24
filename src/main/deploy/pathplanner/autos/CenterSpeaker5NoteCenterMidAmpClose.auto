@@ -5,7 +5,7 @@
       "x": 1.29,
       "y": 5.45
     },
-    "rotation": 0
+    "rotation": 0.0
   },
   "command": {
     "type": "sequential",
@@ -20,7 +20,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ShootNote"
+            "name": "CloseShoot"
           }
         },
         {
@@ -34,19 +34,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CenterSpeaker-CloseAmp"
-                      }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.3
+                        "pathName": "CenterSpeaker-FarMidAmp"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CloseAmp-CenterSpeaker"
+                        "pathName": "FarMidAmp - PreCloseAmp"
                       }
                     }
                   ]
@@ -64,7 +58,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ShootNote"
+            "name": "DynamicShoot"
           }
         },
         {
@@ -78,19 +72,19 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CenterSpeaker-CloseMid"
-                      }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.3
+                        "pathName": "PreCloseAmp - CloseAmp"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CloseMid-CenterSpeaker"
+                        "pathName": "CloseAmpNote - PreCloseMidNote"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "ValidateNote"
                       }
                     }
                   ]
@@ -108,7 +102,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ShootNote"
+            "name": "DynamicShoot"
           }
         },
         {
@@ -122,19 +116,19 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CenterSpeaker-CloseSource"
-                      }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.3
+                        "pathName": "PreCloseMid - CloseMid"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CloseSource-CenterSpeaker"
+                        "pathName": "CloseMid - PreCloseSource"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "ValidateNote"
                       }
                     }
                   ]
@@ -152,7 +146,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ShootNote"
+            "name": "DynamicShoot"
           }
         },
         {
@@ -166,19 +160,19 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "CenterSpeaker-FarMidAmp-NoCloseNotes"
-                      }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.5
+                        "pathName": "PreCloseSource - CloseSource"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "FarMidAmp-CenterSpeaker-NoCloseNotes"
+                        "pathName": "CloseSource - PreCloseSource"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "ValidateNote"
                       }
                     }
                   ]
@@ -196,7 +190,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ShootNote"
+            "name": "DynamicShoot"
           }
         }
       ]

@@ -27,12 +27,14 @@ import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
 public class ShooterSubsystem extends SubsystemBase {
   private static final Alert flywheelMotorAlert =
       new Alert("Shooter motor had a fault initializing", AlertType.ERROR);
+  private static final Alert flywheelFollowerMotorAlert =
+      new Alert("Follower shooter motor had a fault initializing", AlertType.ERROR);
 
   private final SysIdRoutine shooterSysId =
       new SysIdRoutine(
           new SysIdRoutine.Config(Volts.per(Second).of(0.5), Volts.of(10), Seconds.of(12), null),
           new SysIdRoutine.Mechanism(
-              (voltage) -> setFlyVoltage(voltage.in(Volts)),
+              (voltage) -> setVoltage(voltage.in(Volts)),
               null, // No log consumer, since data is recorded by URCL
               this));
 
@@ -71,7 +73,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public void configMotor() {
     flywheelEncoder = flywheelMotor.getEncoder();
-    StringFaultRecorder faultRecorderFollower = new StringFaultRecorder();
     double conversionFactor = Math.PI * 2 / SHOOTER_GEAR_RATIO;
 
     StringFaultRecorder faultRecorder = new StringFaultRecorder();
@@ -119,7 +120,14 @@ public class ShooterSubsystem extends SubsystemBase {
         () -> true,
         faultRecorder.run("Burn flash"),
         Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.postDeviceConfig(
+        faultRecorder.hasFault(),
+        shooterEventEntry::append,
+        "Shooter motor",
+        faultRecorder.getFaultString());
+    flywheelMotorAlert.set(faultRecorder.hasFault());
 
+    StringFaultRecorder faultRecorderFollower = new StringFaultRecorder();
     ConfigurationUtils.applyCheckRecordRev(
         () -> flywheelMotorFollower.setCANTimeout(250),
         () -> true,
@@ -143,26 +151,41 @@ public class ShooterSubsystem extends SubsystemBase {
     ConfigurationUtils.applyCheckRecordRev(
         () -> flywheelMotorFollower.setIdleMode(CANSparkMax.IdleMode.kCoast),
         () -> flywheelMotorFollower.getIdleMode() == CANSparkMax.IdleMode.kCoast,
-        faultRecorder.run("Idle mode"),
+        faultRecorderFollower.run("Idle mode"),
         Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
-        flywheelMotor::burnFlashWithDelay,
+        () -> flywheelMotorFollower.getEncoder().setPositionConversionFactor(conversionFactor),
+        () ->
+            ConfigurationUtils.fpEqual(
+                flywheelMotorFollower.getEncoder().getPositionConversionFactor(), conversionFactor),
+        faultRecorderFollower.run("Position conversion factor"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        () -> flywheelMotorFollower.getEncoder().setVelocityConversionFactor(conversionFactor / 60),
+        () ->
+            ConfigurationUtils.fpEqual(
+                flywheelMotorFollower.getEncoder().getVelocityConversionFactor(),
+                conversionFactor / 60),
+        faultRecorderFollower.run("Velocity conversion factor"),
+        Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
+    ConfigurationUtils.applyCheckRecordRev(
+        flywheelMotorFollower::burnFlashWithDelay,
         () -> true,
-        faultRecorder.run("Burn flash"),
+        faultRecorderFollower.run("Burn flash"),
         Constants.MiscConstants.CONFIGURATION_ATTEMPTS);
 
-    flywheelMotorFollower.follow(flywheelMotor, INVERTED_FOLLOWER);
     ConfigurationUtils.postDeviceConfig(
-        faultRecorder.hasFault(),
+        faultRecorderFollower.hasFault(),
         shooterEventEntry::append,
-        "Shooter motor",
-        faultRecorder.getFaultString());
-    flywheelMotorAlert.set(faultRecorder.hasFault());
+        "Follower Shooter motor",
+        faultRecorderFollower.getFaultString());
+    flywheelFollowerMotorAlert.set(faultRecorderFollower.hasFault());
   }
 
   public void setVoltage(double voltage) {
     flyVoltageReq.append(voltage);
     flywheelMotor.setVoltage(voltage);
+    flywheelMotorFollower.setVoltage(voltage);
   }
 
   public double getVelocity() {
@@ -172,6 +195,10 @@ public class ShooterSubsystem extends SubsystemBase {
   public boolean inTolerance() {
     return Math.abs(getVelocity() - pidController.getSetpoint()) / (pidController.getSetpoint())
         < 0.05;
+  }
+
+  public double getSetpoint() {
+    return pidController.getSetpoint();
   }
 
   public Command setVoltageCommand(double voltage) {
@@ -198,16 +225,13 @@ public class ShooterSubsystem extends SubsystemBase {
     return shooterSysId.dynamic(direction);
   }
 
-  public void setFlyVoltage(double voltage) {
-    flywheelMotor.setVoltage(voltage);
-  }
-
   @Override
   public void periodic() {
     if (SHOOTER_FF_GAINS.hasChanged()) {
       feedforward = SHOOTER_FF_GAINS.createFeedforward();
     }
     flywheelMotor.logValues();
+    flywheelMotorFollower.logValues();
     atToleranceEntry.append(inTolerance());
   }
 }

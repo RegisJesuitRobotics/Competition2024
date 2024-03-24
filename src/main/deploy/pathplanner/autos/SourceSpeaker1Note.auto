@@ -18,9 +18,15 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "SourceSpeaker-SourceShotPoint"
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "ShootNote"
+            "name": "DynamicShoot"
           }
         }
       ]

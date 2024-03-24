@@ -40,7 +40,7 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
 
   private final SysIdRoutine slapdownRotationSysId =
       new SysIdRoutine(
-          new SysIdRoutine.Config(Volts.per(Second).of(0.5), Volts.of(2), Seconds.of(5), null),
+          new SysIdRoutine.Config(Volts.per(Second).of(0.5), Volts.of(3), Seconds.of(5), null),
           new SysIdRoutine.Mechanism(
               (voltage) -> setRotationVoltage(voltage.in(Volts)),
               null, // No log consumer, since data is recorded by URCL
@@ -182,7 +182,7 @@ public class SlapdownRotationSubsystem extends SubsystemBase {
               isHomed = false;
             })
         .finallyDo(() -> isHoming = false)
-        .withName("ProbeSlapdownRotationHome");
+        .withName("HomeSlapdownRotation");
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {

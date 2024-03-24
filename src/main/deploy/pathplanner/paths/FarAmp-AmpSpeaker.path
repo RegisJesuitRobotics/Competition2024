@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.862937780291965,
-        "y": 7.469853028903727
+        "x": 8.246975993951986,
+        "y": 7.439119378238757
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.802776249071017,
-        "y": 6.928731690796715
+        "x": 6.186814462731038,
+        "y": 6.8979980401317444
       },
       "isLocked": false,
       "linkedName": "FarAmpNote"
@@ -55,9 +55,9 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.8,
-    "maxAcceleration": 4.0,
+    "maxAcceleration": 4.375,
     "maxAngularVelocity": 500.0,
-    "maxAngularAcceleration": 2000.0
+    "maxAngularAcceleration": 1000.0
   },
   "goalEndState": {
     "velocity": 0,

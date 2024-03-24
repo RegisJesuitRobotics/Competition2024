@@ -6,9 +6,9 @@ import static frc.robot.Constants.WristConstants.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel;
+import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -24,6 +24,7 @@ import frc.robot.telemetry.wrappers.TelemetryCANSparkFlex;
 import frc.robot.utils.Alert;
 import frc.robot.utils.ConfigurationUtils;
 import frc.robot.utils.ConfigurationUtils.StringFaultRecorder;
+import java.util.function.DoubleSupplier;
 
 public class WristSubsystem extends SubsystemBase {
   private static final Alert wristAlert =
@@ -42,6 +43,7 @@ public class WristSubsystem extends SubsystemBase {
   private final TelemetryCANSparkFlex wristMotor =
       new TelemetryCANSparkFlex(
           WRIST_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless, "/wrist/motors", true);
+  private final RelativeEncoder relativeEncoder = wristMotor.getEncoder();
   private final DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(WRIST_ENCODER_PORT);
 
   private final ArmFeedforward feedforward = WRIST_FF_GAINS.createArmFeedforward();
@@ -56,7 +58,9 @@ public class WristSubsystem extends SubsystemBase {
   public WristSubsystem() {
     configMotor();
     absoluteEncoder.setDutyCycleRange(1.0 / 1025.0, 1024.0 / 1025.0);
-    controller.setTolerance(Units.degreesToRadians(5));
+    controller.setTolerance(Units.degreesToRadians(6));
+
+    relativeEncoder.setPosition(absoluteEncoder.getAbsolutePosition());
     // Default command is safe state
     setDefaultCommand(setVoltageCommand(0.0));
   }
@@ -91,21 +95,17 @@ public class WristSubsystem extends SubsystemBase {
     // Set the relative encoder too for logging
     double relativeEncoderConversionFactor = (2 * Math.PI) / WRIST_GEAR_RATIO;
     ConfigurationUtils.applyCheckRecordRev(
-        () -> wristMotor.getEncoder().setPositionConversionFactor(relativeEncoderConversionFactor),
+        () -> relativeEncoder.setPositionConversionFactor(relativeEncoderConversionFactor),
         () ->
             ConfigurationUtils.fpEqual(
-                wristMotor.getEncoder().getPositionConversionFactor(),
-                relativeEncoderConversionFactor),
+                relativeEncoder.getPositionConversionFactor(), relativeEncoderConversionFactor),
         faultRecorder.run("Position conversion factor"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordRev(
-        () ->
-            wristMotor
-                .getEncoder()
-                .setVelocityConversionFactor(relativeEncoderConversionFactor / 60.0),
+        () -> relativeEncoder.setVelocityConversionFactor(relativeEncoderConversionFactor / 60.0),
         () ->
             ConfigurationUtils.fpEqual(
-                wristMotor.getEncoder().getVelocityConversionFactor(),
+                relativeEncoder.getVelocityConversionFactor(),
                 relativeEncoderConversionFactor / 60.0),
         faultRecorder.run("Velocity conversion factor"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
@@ -124,7 +124,6 @@ public class WristSubsystem extends SubsystemBase {
   }
 
   public double getPosition() {
-
     return MathUtil.angleModulus(
         Units.rotationsToRadians(absoluteEncoder.getAbsolutePosition()) + WRIST_OFFSET);
   }
@@ -134,7 +133,7 @@ public class WristSubsystem extends SubsystemBase {
   }
 
   public boolean atBottom() {
-    return controller.getGoal().position == WRIST_MIN.getRadians() && atGoal();
+    return controller.getGoal().position == WRIST_MIN_RADIANS && atGoal();
   }
 
   public void setVoltage(double voltage) {
@@ -146,9 +145,14 @@ public class WristSubsystem extends SubsystemBase {
     return this.run(() -> setVoltage(voltage)).withName("WristVoltage");
   }
 
-  public Command setPositonCommand(Rotation2d desiredPosition) {
+  public Command setPositionCommand(double desiredPositionRadians) {
+    return setPositionCommand(() -> desiredPositionRadians);
+  }
+
+  public Command setPositionCommand(DoubleSupplier desiredPositionRadians) {
     return this.run(
             () -> {
+              controller.setGoal(desiredPositionRadians.getAsDouble());
               double feedbackOutput = controller.calculate(getPosition());
               TrapezoidProfile.State currentSetpoint = controller.getSetpoint();
 
@@ -156,11 +160,7 @@ public class WristSubsystem extends SubsystemBase {
                   feedbackOutput
                       + feedforward.calculate(currentSetpoint.position, currentSetpoint.velocity));
             })
-        .beforeStarting(
-            () -> {
-              controller.reset(getPosition(), wristMotor.getEncoder().getVelocity());
-              controller.setGoal(desiredPosition.getRadians());
-            })
+        .beforeStarting(() -> controller.reset(getPosition(), relativeEncoder.getVelocity()))
         .withName("SetWristPosition");
   }
 

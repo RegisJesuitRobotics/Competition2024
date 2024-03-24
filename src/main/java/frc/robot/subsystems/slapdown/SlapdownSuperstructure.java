@@ -32,8 +32,4 @@ public class SlapdownSuperstructure extends SubsystemBase {
             rotationSubsystem.setRotationGoalCommand(Rotation2d.fromRadians(ROTATION_UP_ANGLE)))
         .withName("SlapdownSetUp");
   }
-
-  public Command probeRotationHomeCommand() {
-    return rotationSubsystem.probeHomeCommand();
-  }
 }

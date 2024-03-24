@@ -8,52 +8,52 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7821385761068056,
-        "y": 6.332736959637958
+        "x": 1.882932224197782,
+        "y": 6.431149987299975
       },
       "isLocked": false,
       "linkedName": "AmpSpeaker"
     },
     {
       "anchor": {
-        "x": 2.9187668115083865,
-        "y": 6.3197885425739315
+        "x": 2.3570570983734562,
+        "y": 6.3265740975926406
       },
       "prevControl": {
-        "x": 1.7275630213720996,
-        "y": 6.290300545900776
+        "x": 1.815293821680817,
+        "y": 6.323708446824789
       },
       "nextControl": {
-        "x": 4.225364139296655,
-        "y": 6.352133081748514
+        "x": 4.636110758332628,
+        "y": 6.338629126332328
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.026311907855465,
-        "y": 7.469853028903727
+        "x": 7.415121496909661,
+        "y": 7.439119378238757
       },
       "prevControl": {
-        "x": 6.1674690561146335,
-        "y": 7.469853028903727
+        "x": 6.556278645168829,
+        "y": 7.439119378238757
       },
       "nextControl": {
-        "x": 7.420467013321058,
-        "y": 7.469853028903727
+        "x": 7.809276602375253,
+        "y": 7.439119378238757
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.862937780291965,
-        "y": 7.469853028903727
+        "x": 8.246975993951986,
+        "y": 7.439119378238757
       },
       "prevControl": {
-        "x": 7.787158632582168,
-        "y": 7.468406774756652
+        "x": 8.17119684624219,
+        "y": 7.437673124091681
       },
       "nextControl": null,
       "isLocked": false,
@@ -62,13 +62,13 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 3.0,
-      "rotationDegrees": 0,
+      "waypointRelativePos": 2,
+      "rotationDegrees": 0.0,
       "rotateFast": false
     },
     {
-      "waypointRelativePos": 2,
-      "rotationDegrees": 0.0,
+      "waypointRelativePos": 1,
+      "rotationDegrees": 0,
       "rotateFast": false
     }
   ],
@@ -88,9 +88,9 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.8,
-    "maxAcceleration": 4.0,
+    "maxAcceleration": 4.375,
     "maxAngularVelocity": 500.0,
-    "maxAngularAcceleration": 2000.0
+    "maxAngularAcceleration": 1000.0
   },
   "goalEndState": {
     "velocity": 0,
