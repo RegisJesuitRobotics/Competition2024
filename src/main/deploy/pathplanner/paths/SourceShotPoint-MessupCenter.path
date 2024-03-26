@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.607941902792323,
-        "y": 3.418331525148855
+        "x": 1.0445175813246057,
+        "y": 3.895277066947966
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.4670369664813405,
-        "y": 1.6344956208430936
+        "x": 1.9036126450136237,
+        "y": 2.1114411626422047
       },
       "isLocked": false,
       "linkedName": "FarShotSource"
@@ -49,15 +49,31 @@
     {
       "anchor": {
         "x": 7.829808041319553,
-        "y": 4.188914079720904
+        "y": 4.284804773642762
       },
       "prevControl": {
         "x": 7.493857314213051,
-        "y": 3.619487207428674
+        "y": 3.7153779013505317
       },
       "nextControl": {
         "x": 8.127402458513169,
-        "y": 4.693328103925317
+        "y": 4.789218797847176
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.829808041319553,
+        "y": 5.75527186641562
+      },
+      "prevControl": {
+        "x": 8.157452685183618,
+        "y": 5.3206559715567225
+      },
+      "nextControl": {
+        "x": 7.31591365911083,
+        "y": 6.436945353131514
       },
       "isLocked": false,
       "linkedName": null
@@ -65,27 +81,27 @@
     {
       "anchor": {
         "x": 7.976691647385896,
-        "y": 5.748389059869603
+        "y": 6.738829325819981
       },
       "prevControl": {
-        "x": 8.146087953971794,
-        "y": 5.231139719578222
+        "x": 7.976691647385896,
+        "y": 6.455993054453153
       },
       "nextControl": {
-        "x": 7.849028347898968,
-        "y": 6.138207225152621
+        "x": 7.976691647385896,
+        "y": 7.021665597186808
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.180780955410492,
-        "y": 7.358039156136207
+        "x": 7.976691647385896,
+        "y": 7.595790280548532
       },
       "prevControl": {
-        "x": 7.300187435548373,
-        "y": 7.083998048122279
+        "x": 7.976691647385896,
+        "y": 7.303208293579452
       },
       "nextControl": null,
       "isLocked": false,
@@ -103,7 +119,7 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.8,
-    "maxAcceleration": 4.375,
+    "maxAcceleration": 4.0,
     "maxAngularVelocity": 500.0,
     "maxAngularAcceleration": 1000.0
   },
@@ -115,7 +131,7 @@
   "reversed": false,
   "folder": "Source Speaker",
   "previewStartingState": {
-    "rotation": -60.0,
+    "rotation": -68.0,
     "velocity": 0
   },
   "useDefaultConstraints": true

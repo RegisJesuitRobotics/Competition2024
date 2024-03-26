@@ -44,6 +44,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
           PIGEON_ID, "/drive/pigeon", MiscConstants.CANIVORE_NAME, MiscConstants.TUNING_MODE);
 
   private StatusSignal<Double> yawSignal;
+    private StatusSignal<Double> yawVelSignal;
+
 
   private final SwerveDrivePoseEstimator poseEstimator;
 
@@ -124,10 +126,16 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   private void configurePigeon() {
     StringFaultRecorder faultRecorder = new StringFaultRecorder();
     yawSignal = pigeon.getYaw();
+    yawVelSignal = pigeon.getAngularVelocityZWorld();
     ConfigurationUtils.applyCheckRecordCTRE(
         () -> yawSignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
         () -> yawSignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
         faultRecorder.run("Update frequency"),
+        MiscConstants.CONFIGURATION_ATTEMPTS);
+        ConfigurationUtils.applyCheckRecordCTRE(
+        () -> yawVelSignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
+        () -> yawVelSignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
+        faultRecorder.run("Vel Update frequency"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
     ConfigurationUtils.applyCheckRecordCTRE(
         pigeon::optimizeBusUtilization,
@@ -153,7 +161,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
    *     <code>getPose().getRotation2d()</code> for reset value. Counterclockwise is positive.
    */
   private Rotation2d getGyroRotation() {
-    return Rotation2d.fromDegrees(yawSignal.refresh().getValue());
+    return Rotation2d.fromDegrees(StatusSignal.getLatencyCompensatedValue(yawSignal, yawVelSignal));
   }
 
   /** Sets the odometry perceived location to zero */

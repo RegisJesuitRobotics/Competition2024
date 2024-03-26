@@ -21,11 +21,11 @@ import frc.robot.utils.RaiderStructs;
 public class MiscRobotTelemetryAndAlerts {
   private static final String tableName = "/robot/";
 
-  private final Alert highRIOCanUsageAlert = new Alert("High RIO CAN Usage", AlertType.WARNING);
+  private final Alert highRIOCanUsageAlert = new Alert("High RIO CAN Usage :(", AlertType.WARNING);
   private final LinearFilter highRIOCanUsageFilter = LinearFilter.movingAverage(50);
 
   private final Alert highCANivoreCanUsageAlert =
-      new Alert("High CANivore CAN Usage", AlertType.WARNING);
+      new Alert("High CANivore CAN Usage :)", AlertType.WARNING);
   private final LinearFilter highCANivoreCanUsageFilter = LinearFilter.movingAverage(50);
 
   private final Alert[] controllerAlerts = new Alert[MiscConstants.USED_CONTROLLER_PORTS.length];
@@ -52,12 +52,12 @@ public class MiscRobotTelemetryAndAlerts {
     for (int i = 0; i < controllerAlerts.length; i++) {
       controllerAlerts[i] =
           new Alert(
-              "Controller " + MiscConstants.USED_CONTROLLER_PORTS[i] + " is disconnected.",
+              "Controller " + MiscConstants.USED_CONTROLLER_PORTS[i] + " is disconnected. :(",
               AlertType.WARNING);
     }
 
     if (MiscConstants.TUNING_MODE) {
-      Alert tuningModeAlert = new Alert("Tuning Mode is Enabled", AlertType.INFO);
+      Alert tuningModeAlert = new Alert("Tuning Mode is Enabled :)", AlertType.INFO);
       tuningModeAlert.set(true);
     }
 
