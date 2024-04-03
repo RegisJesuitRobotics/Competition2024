@@ -1,5 +1,9 @@
 package frc.robot.commands.drive.teleop;
 
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.FieldCentric;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.Idle;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.RobotCentric;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -7,6 +11,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.TeleopConstants;
+import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 import frc.robot.utils.RaiderMathUtils;
 import java.util.function.BooleanSupplier;
@@ -14,19 +19,21 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 public class SwerveDriveCommand extends Command {
-  private static final Rotation2d oneHundredEightyDegrees = Rotation2d.fromDegrees(180);
-
   private final Supplier<Translation2d> translationSupplier;
   private final DoubleSupplier omegaRadiansSecondSupplier;
   private final BooleanSupplier isFieldRelativeSupplier;
 
-  private final SwerveDriveSubsystem driveSubsystem;
+  private final CommandSwerveDrivetrain driveSubsystem;
+
+  private final RobotCentric robotCentric = new SwerveRequest.RobotCentric();
+  private final FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric();
+  private final Idle idleRequest = new SwerveRequest.Idle();
 
   public SwerveDriveCommand(
       Supplier<Translation2d> translationSupplier,
       DoubleSupplier omegaRadiansSecondSupplier,
       BooleanSupplier isFieldRelativeSupplier,
-      SwerveDriveSubsystem driveSubsystem) {
+      CommandSwerveDrivetrain driveSubsystem) {
     this.translationSupplier = translationSupplier;
     this.omegaRadiansSecondSupplier = omegaRadiansSecondSupplier;
     this.isFieldRelativeSupplier = isFieldRelativeSupplier;
@@ -43,33 +50,16 @@ public class SwerveDriveCommand extends Command {
     boolean isFieldRelative = isFieldRelativeSupplier.getAsBoolean();
     Translation2d translation = translationSupplier.get();
 
-    Rotation2d currentHeading = driveSubsystem.getPose().getRotation();
-    double omega = omegaRadiansSecondSupplier.getAsDouble();
-
-    ChassisSpeeds chassisSpeeds = new ChassisSpeeds(translation.getX(), translation.getY(), omega);
-
     if (isFieldRelative) {
-      var alliance = DriverStation.getAlliance();
-
-      if (alliance.isPresent() && alliance.get() == Alliance.Red) {
-        currentHeading = currentHeading.plus(oneHundredEightyDegrees);
-      }
-      chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, currentHeading);
-    }
-
-    if (RaiderMathUtils.isChassisSpeedsZero(
-        chassisSpeeds,
-        TeleopConstants.MINIMUM_VELOCITY_METERS_SECOND,
-        TeleopConstants.MINIMUM_ANGULAR_VELOCITY_RADIANS_SECOND)) {
-      driveSubsystem.stopMovement();
+      driveSubsystem.applyRequest(() -> fieldCentricRequest.withVelocityX(translation.getX()).withVelocityY(translation.getY()).withRotationalRate(omegaRadiansSecondSupplier.getAsDouble()));
     } else {
-      driveSubsystem.setChassisSpeeds(chassisSpeeds, TeleopConstants.OPEN_LOOP_DRIVETRAIN);
+      driveSubsystem.applyRequest(() -> robotCentric.withVelocityX(translation.getX()).withVelocityY(translation.getY()).withRotationalRate(omegaRadiansSecondSupplier.getAsDouble()));
     }
   }
 
   @Override
   public void end(boolean interrupted) {
-    driveSubsystem.stopMovement();
+    driveSubsystem.applyRequest(() -> idleRequest);
   }
 
   @Override

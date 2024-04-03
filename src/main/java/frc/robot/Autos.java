@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -18,12 +20,11 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.ElevatorWristCommands;
 import frc.robot.commands.IntakingCommands;
 import frc.robot.commands.ScoringCommands;
-import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.slapdown.SlapdownSuperstructure;
-import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
+import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
 import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.telemetry.types.StructArrayTelemetryEntry;
@@ -31,7 +32,7 @@ import frc.robot.telemetry.types.StructTelemetryEntry;
 import frc.robot.utils.RaiderUtils;
 
 public class Autos {
-  private final SwerveDriveSubsystem driveSubsystem;
+  private final CommandSwerveDrivetrain driveSubsystem;
   private final ElevatorSubsystem elevatorSubsystem;
   private final ShooterSubsystem shooterSubsystem;
   private final WristSubsystem wristSubsystem;
@@ -49,7 +50,7 @@ public class Autos {
           "followPath/trajectory", Pose2d.struct, MiscConstants.TUNING_MODE);
 
   public Autos(
-      SwerveDriveSubsystem driveSubsystem,
+      CommandSwerveDrivetrain driveSubsystem,
       ElevatorSubsystem elevatorSubsystem,
       ShooterSubsystem shooterSubsystem,
       WristSubsystem wristSubsystem,
@@ -64,11 +65,13 @@ public class Autos {
     this.intakeSubsystem = intakeSubsystem;
     this.slapdownSuperstructure = slapdownSuperstructure;
 
+    SwerveRequest.ApplyChassisSpeeds applyChassisSpeedsRequest = new SwerveRequest.ApplyChassisSpeeds();
     AutoBuilder.configureHolonomic(
-        driveSubsystem::getPose,
-        driveSubsystem::resetOdometry,
-        driveSubsystem::getCurrentChassisSpeeds,
-        (speeds) -> driveSubsystem.setChassisSpeeds(speeds, false),
+        () -> driveSubsystem.getState().Pose,
+        driveSubsystem::seedFieldRelative,
+        () -> driveSubsystem.getState().speeds,
+        (speeds) -> driveSubsystem.applyRequest(() -> applyChassisSpeedsRequest.withSpeeds(speeds).withDriveRequestType(
+            DriveRequestType.Velocity)),
         new HolonomicPathFollowerConfig(
             AutoConstants.TRANSLATION_POSITION_GAINS.createPIDConstants(),
             AutoConstants.ANGULAR_POSITION_PID_GAINS.createPIDConstants(),
@@ -101,23 +104,23 @@ public class Autos {
       autoChooser.addOption("wrist df", wristSubsystem.sysIdDynamic(Direction.kForward));
       autoChooser.addOption("wrist dr", wristSubsystem.sysIdDynamic(Direction.kReverse));
 
-      autoChooser.addOption(
-          "drive qf", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kForward));
-      autoChooser.addOption(
-          "drive qr", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kReverse));
-      autoChooser.addOption(
-          "drive df", driveSubsystem.driveDynamicSysIDCommand(Direction.kForward));
-      autoChooser.addOption(
-          "drive dr", driveSubsystem.driveDynamicSysIDCommand(Direction.kReverse));
-
-      autoChooser.addOption(
-          "drive s qf", driveSubsystem.steerQuasistaticSysIDCommand(Direction.kForward));
-      autoChooser.addOption(
-          "drive s qr", driveSubsystem.steerQuasistaticSysIDCommand(Direction.kReverse));
-      autoChooser.addOption(
-          "drive s df", driveSubsystem.steerDynamicSysIDCommand(Direction.kForward));
-      autoChooser.addOption(
-          "drive s dr", driveSubsystem.steerDynamicSysIDCommand(Direction.kReverse));
+//      autoChooser.addOption(
+//          "drive qf", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kForward));
+//      autoChooser.addOption(
+//          "drive qr", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kReverse));
+//      autoChooser.addOption(
+//          "drive df", driveSubsystem.driveDynamicSysIDCommand(Direction.kForward));
+//      autoChooser.addOption(
+//          "drive dr", driveSubsystem.driveDynamicSysIDCommand(Direction.kReverse));
+//
+//      autoChooser.addOption(
+//          "drive s qf", driveSubsystem.steerQuasistaticSysIDCommand(Direction.kForward));
+//      autoChooser.addOption(
+//          "drive s qr", driveSubsystem.steerQuasistaticSysIDCommand(Direction.kReverse));
+//      autoChooser.addOption(
+//          "drive s df", driveSubsystem.steerDynamicSysIDCommand(Direction.kForward));
+//      autoChooser.addOption(
+//          "drive s dr", driveSubsystem.steerDynamicSysIDCommand(Direction.kReverse));
 
       autoChooser.addOption("shooter qf", shooterSubsystem.sysIdQuasistatic(Direction.kForward));
       autoChooser.addOption("shooter qr", shooterSubsystem.sysIdQuasistatic(Direction.kReverse));
@@ -141,14 +144,14 @@ public class Autos {
           "slapdown rotation dr",
           slapdownSuperstructure.getSlapdownRotationSubsystem().sysIdDynamic(Direction.kReverse));
 
-      autoChooser.addOption(
-          "wheelRadiusCharacterizationClock",
-          new WheelRadiusCharacterization(
-              driveSubsystem, WheelRadiusCharacterization.Direction.CLOCKWISE, 0.5));
-      autoChooser.addOption(
-          "wheelRadiusCharacterizationCounterClock",
-          new WheelRadiusCharacterization(
-              driveSubsystem, WheelRadiusCharacterization.Direction.COUNTER_CLOCKWISE, 0.5));
+//      autoChooser.addOption(
+//          "wheelRadiusCharacterizationClock",
+//          new WheelRadiusCharacterization(
+//              driveSubsystem, WheelRadiusCharacterization.Direction.CLOCKWISE, 0.5));
+//      autoChooser.addOption(
+//          "wheelRadiusCharacterizationCounterClock",
+//          new WheelRadiusCharacterization(
+//              driveSubsystem, WheelRadiusCharacterization.Direction.COUNTER_CLOCKWISE, 0.5));
     }
   }
 
@@ -252,7 +255,8 @@ public class Autos {
   private double getCameraDistanceFromTag() {
     int desiredTag = RaiderUtils.shouldFlip() ? 4 : 7;
     return driveSubsystem
-        .getPose()
+        .getState()
+        .Pose
         .getTranslation()
         .plus(VisionConstants.ROBOT_TO_CAM.getTranslation().toTranslation2d())
         .getDistance(

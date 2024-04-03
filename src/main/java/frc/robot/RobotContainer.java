@@ -32,7 +32,9 @@ import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.photon.PhotonSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.slapdown.SlapdownSuperstructure;
+import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
+import frc.robot.subsystems.swerve.TunerConstants;
 import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.telemetry.tunable.TunableTelemetryPIDController;
@@ -55,9 +57,7 @@ import java.util.function.DoubleSupplier;
  */
 public class RobotContainer {
   private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
-  //    private final SwerveDriveSubsystem driveSubsystem =
-  //        new SwerveDriveSubsystem(photonSubsystem::getEstimatedGlobalPose);
-  private final SwerveDriveSubsystem driveSubsystem = new SwerveDriveSubsystem((pose) -> List.of());
+  private final CommandSwerveDrivetrain driveSubsystem = TunerConstants.DriveTrain;
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final WristSubsystem wristSubsystem = new WristSubsystem();
@@ -200,14 +200,15 @@ public class RobotContainer {
     driverController
         .home()
         .onTrue(
-            RaiderCommands.runOnceAllowDisable(driveSubsystem::zeroHeading)
+            // TODO: This is stupid
+            RaiderCommands.runOnceAllowDisable(driveSubsystem::seedFieldRelative)
                 .withName("ZeroHeading"));
     driverController
         .leftTrigger()
         .whileTrue(
             transportSubsystem.setVoltageCommand(
                 Constants.TransportConstants.TRANSPORT_CLOSE_SPEAKER_VOLTAGE));
-    driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
+//    driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
     driverController
         .leftBumper()
         .whileTrue(
@@ -224,7 +225,7 @@ public class RobotContainer {
                 ElevatorWristCommands.elevatorWristIntakePosition(
                     elevatorSubsystem, wristSubsystem)))
         .onFalse(slapdownSuperstructure.setUpCommand());
-    driverController.circle().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
+//    driverController.circle().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
     driverController
         .a()
         .whileTrue(
@@ -362,7 +363,7 @@ public class RobotContainer {
         new VectorRateLimiter(() -> TeleopConstants.TRANSLATION_RATE_LIMIT_METERS_SECOND_SQUARED);
     Runnable resetRateLimiters =
         () -> {
-          ChassisSpeeds currentSpeeds = driveSubsystem.getCurrentChassisSpeeds();
+          ChassisSpeeds currentSpeeds = driveSubsystem.getState().speeds;
           vectorRateLimiter.reset(
               new Translation2d(currentSpeeds.vxMetersPerSecond, currentSpeeds.vyMetersPerSecond));
           rotationLimiter.reset(currentSpeeds.omegaRadiansPerSecond);
