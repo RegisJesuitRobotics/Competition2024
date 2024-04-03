@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.607941902792323,
-        "y": 3.418331525148855
+        "x": 1.0445175813246057,
+        "y": 3.895277066947966
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.8981129670916899,
-        "y": 1.4394932918808159
+        "x": 1.3346886456239726,
+        "y": 1.916438833679927
       },
       "isLocked": false,
       "linkedName": "FarShotSource"
@@ -39,7 +39,7 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.8,
-    "maxAcceleration": 4.375,
+    "maxAcceleration": 4.0,
     "maxAngularVelocity": 500.0,
     "maxAngularAcceleration": 1000.0
   },
@@ -51,7 +51,7 @@
   "reversed": false,
   "folder": "Source Speaker",
   "previewStartingState": {
-    "rotation": -60.0,
+    "rotation": -68.0,
     "velocity": 0
   },
   "useDefaultConstraints": true
