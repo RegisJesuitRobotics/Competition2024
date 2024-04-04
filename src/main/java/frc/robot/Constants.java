@@ -272,11 +272,11 @@ public final class Constants {
   public static class WristConstants {
     public static final double WRIST_GEAR_RATIO = 25.0 * 42.0 / 18.0;
 
-    public static final double WRIST_MIN_RADIANS = 0.7479511201007967;
+    public static final double WRIST_MIN_RADIANS = -0.22169540258784437;
 
-    public static final double WRIST_TO_SHOOTER = Units.degreesToRadians(25.2) - WRIST_MIN_RADIANS;
+    public static final double WRIST_TO_SHOOTER = Units.degreesToRadians(26) - WRIST_MIN_RADIANS;
 
-    public static final double WRIST_OFFSET = -1.0815 -0.091469;
+    public static final double WRIST_OFFSET = -2.1184;
     public static final int WRIST_ENCODER_PORT = 7;
 
     public static final int WRIST_MOTOR_ID = 2;
@@ -286,7 +286,7 @@ public final class Constants {
 
     public static final TunableArmElevatorFFGains WRIST_FF_GAINS =
         new TunableArmElevatorFFGains(
-            "/gains/wrist/", 0.079672, 0.24001, 0.98823, 0.10831, MiscConstants.TUNING_MODE);
+            "/gains/wrist/", 0.09409, 0.2675, 1.0086, 0.084547, MiscConstants.TUNING_MODE);
     public static final TunablePIDGains WRIST_PID_GAINS =
         new TunablePIDGains("/gains/wrist/", 4, 0.0, 0.0, MiscConstants.TUNING_MODE);
 
