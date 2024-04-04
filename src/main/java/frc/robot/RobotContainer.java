@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -15,7 +14,6 @@ import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.SetpointConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.TeleopConstants;
-import frc.robot.Constants.WristConstants;
 import frc.robot.commands.ElevatorWristCommands;
 import frc.robot.commands.IntakingCommands;
 import frc.robot.commands.MiscCommands;
@@ -39,7 +37,6 @@ import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.telemetry.tunable.TunableTelemetryPIDController;
 import frc.robot.telemetry.tunable.gains.TunableDouble;
-import frc.robot.telemetry.types.StructTelemetryEntry;
 import frc.robot.utils.*;
 import frc.robot.utils.led.AlternatePattern;
 import frc.robot.utils.led.SlidePattern;
@@ -87,8 +84,7 @@ public class RobotContainer {
   private final AtomicBoolean signalHumanPlayer = new AtomicBoolean(false);
 
   private final TunableTelemetryPIDController snapController =
-      new TunableTelemetryPIDController(
-          "/snap/controller", AutoConstants.SNAP_POSITION_PID_GAINS);
+      new TunableTelemetryPIDController("/snap/controller", AutoConstants.SNAP_POSITION_PID_GAINS);
 
   public RobotContainer() {
     configureDriverBindings();
@@ -261,27 +257,28 @@ public class RobotContainer {
                         elevatorSubsystem,
                         wristSubsystem))
                 .withName("SnapToSpeakerAndWrist"));
-    driverController
-        .y()
-        .whileTrue(
-            Commands.parallel(
-                    Commands.run(() -> snapToSpeaker.set(true))
-                        .finallyDo(() -> snapToSpeaker.set(false)),
-                    ElevatorWristCommands.elevatorWristDynamicCommand(
-                        () -> SetpointConstants.HIGH_SHOT_ELEVATOR_HEIGHT_METERS,
-                        () -> {
-                          OptionalDouble distance = photonSubsystem.getDistanceSpeaker();
-                          // TODO: Filter this so it doesn't start to go down if tag goes out for a
-                          // small time
-                          if (distance.isEmpty()) {
-                            return SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS;
-                          }
-                          return SetpointConstants.HIGH_SHOT_WRIST_SETPOINT_TABLE.get(
-                              distance.getAsDouble());
-                        },
-                        elevatorSubsystem,
-                        wristSubsystem))
-                .withName("SnapToSpeakerAndWristHigh"));
+    // driverController
+    //     .y()
+    //     .whileTrue(
+    //         Commands.parallel(
+    //                 Commands.run(() -> snapToSpeaker.set(true))
+    //                     .finallyDo(() -> snapToSpeaker.set(false)),
+    //                 ElevatorWristCommands.elevatorWristDynamicCommand(
+    //                     () -> SetpointConstants.HIGH_SHOT_ELEVATOR_HEIGHT_METERS,
+    //                     () -> {
+    //                       OptionalDouble distance = photonSubsystem.getDistanceSpeaker();
+    //                       // TODO: Filter this so it doesn't start to go down if tag goes out for
+    // a
+    //                       // small time
+    //                       if (distance.isEmpty()) {
+    //                         return SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS;
+    //                       }
+    //                       return SetpointConstants.HIGH_SHOT_WRIST_SETPOINT_TABLE.get(
+    //                           distance.getAsDouble());
+    //                     },
+    //                     elevatorSubsystem,
+    //                     wristSubsystem))
+    // .withName("SnapToSpeakerAndWristHigh"));
   }
 
   private void configureOperatorBindings() {
@@ -304,7 +301,8 @@ public class RobotContainer {
     operatorController.circle().onTrue(ScoringCommands.shootSetpointIdleCommand(shooterSubsystem));
     operatorController.x().onTrue(ScoringCommands.shootSetpointZeroCommand(shooterSubsystem));
 
-    operatorController.rightTrigger()
+    operatorController
+        .rightTrigger()
         .whileTrue(
             Commands.parallel(
                 IntakingCommands.intakeUntilDetectedNoSlap(intakeSubsystem, transportSubsystem),
@@ -319,12 +317,12 @@ public class RobotContainer {
     operatorController
         .povRight()
         .onTrue(ElevatorWristCommands.elevatorWristExpelCommand(elevatorSubsystem, wristSubsystem));
-//    TunableDouble wristSetpoint = new TunableDouble("/wrist/setpoint", 45.0, true);
-//    operatorController.povUp().onTrue(ElevatorWristCommands.elevatorWristDynamicCommand(
-//        () -> SetpointConstants.REGULAR_SHOT_ELEVATOR_HEIGHT_METERS,
-//        () -> Units.degreesToRadians(wristSetpoint.get()) - WristConstants.WRIST_TO_SHOOTER,
-//        elevatorSubsystem,
-//        wristSubsystem));
+    //    TunableDouble wristSetpoint = new TunableDouble("/wrist/setpoint", 45.0, true);
+    //    operatorController.povUp().onTrue(ElevatorWristCommands.elevatorWristDynamicCommand(
+    //        () -> SetpointConstants.REGULAR_SHOT_ELEVATOR_HEIGHT_METERS,
+    //        () -> Units.degreesToRadians(wristSetpoint.get()) - WristConstants.WRIST_TO_SHOOTER,
+    //        elevatorSubsystem,
+    //        wristSubsystem));
     operatorController
         .povUp()
         .onTrue(
@@ -393,8 +391,7 @@ public class RobotContainer {
                     } else {
                       double target = 0.0;
                       if (distance.isPresent()) {
-                        target = Units.degreesToRadians(1.0) * distance.getAsDouble();
-                        target *= RaiderUtils.shouldFlip() ? 1 : -1;
+                        target = Units.degreesToRadians(-2) * distance.getAsDouble();
                       }
                       return snapController.calculate(result.getAsDouble(), target);
                     }
