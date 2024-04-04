@@ -256,27 +256,28 @@ public class RobotContainer {
                         elevatorSubsystem,
                         wristSubsystem))
                 .withName("SnapToSpeakerAndWrist"));
-    driverController
-        .y()
-        .whileTrue(
-            Commands.parallel(
-                    Commands.run(() -> snapToSpeaker.set(true))
-                        .finallyDo(() -> snapToSpeaker.set(false)),
-                    ElevatorWristCommands.elevatorWristDynamicCommand(
-                        () -> SetpointConstants.HIGH_SHOT_ELEVATOR_HEIGHT_METERS,
-                        () -> {
-                          OptionalDouble distance = photonSubsystem.getDistanceSpeaker();
-                          // TODO: Filter this so it doesn't start to go down if tag goes out for a
-                          // small time
-                          if (distance.isEmpty()) {
-                            return SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS;
-                          }
-                          return SetpointConstants.HIGH_SHOT_WRIST_SETPOINT_TABLE.get(
-                              distance.getAsDouble());
-                        },
-                        elevatorSubsystem,
-                        wristSubsystem))
-                .withName("SnapToSpeakerAndWristHigh"));
+    // driverController
+    //     .y()
+    //     .whileTrue(
+    //         Commands.parallel(
+    //                 Commands.run(() -> snapToSpeaker.set(true))
+    //                     .finallyDo(() -> snapToSpeaker.set(false)),
+    //                 ElevatorWristCommands.elevatorWristDynamicCommand(
+    //                     () -> SetpointConstants.HIGH_SHOT_ELEVATOR_HEIGHT_METERS,
+    //                     () -> {
+    //                       OptionalDouble distance = photonSubsystem.getDistanceSpeaker();
+    //                       // TODO: Filter this so it doesn't start to go down if tag goes out for
+    // a
+    //                       // small time
+    //                       if (distance.isEmpty()) {
+    //                         return SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS;
+    //                       }
+    //                       return SetpointConstants.HIGH_SHOT_WRIST_SETPOINT_TABLE.get(
+    //                           distance.getAsDouble());
+    //                     },
+    //                     elevatorSubsystem,
+    //                     wristSubsystem))
+    // .withName("SnapToSpeakerAndWristHigh"));
   }
 
   private void configureOperatorBindings() {
@@ -389,8 +390,7 @@ public class RobotContainer {
                     } else {
                       double target = 0.0;
                       if (distance.isPresent()) {
-                        target = Units.degreesToRadians(1.0) * distance.getAsDouble();
-                        target *= RaiderUtils.shouldFlip() ? 1 : -1;
+                        target = Units.degreesToRadians(-2) * distance.getAsDouble();
                       }
                       return snapController.calculate(result.getAsDouble(), target);
                     }

@@ -3,54 +3,48 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.246975993951986,
-        "y": 7.439119378238757
+        "x": 8.5,
+        "y": 2.8
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.186814462731038,
-        "y": 6.8979980401317444
+        "x": 7.403687983211928,
+        "y": 2.385299724605758
       },
       "isLocked": false,
-      "linkedName": "FarAmpNote"
+      "linkedName": "FarMidSourceNote"
     },
     {
       "anchor": {
-        "x": 2.88415283775012,
-        "y": 6.274078307415875
+        "x": 5.513255300958551,
+        "y": 1.8960832440592332
       },
       "prevControl": {
-        "x": 3.8902429703007555,
-        "y": 6.318438437802802
+        "x": 6.428091314384522,
+        "y": 1.8854614956863989
       },
       "nextControl": {
-        "x": 2.234740376633301,
-        "y": 6.245444668621503
+        "x": 3.8384739377113624,
+        "y": 1.9155283751634469
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.7368290492269403,
-        "y": 6.605658518079129
+        "x": 1.0445175813246057,
+        "y": 3.895277066947966
       },
       "prevControl": {
-        "x": 1.4708640250613838,
-        "y": 6.495700806216428
+        "x": 2.25613432149849,
+        "y": 2.8947492292437533
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "AmpSpeaker"
+      "linkedName": "FarShotSource"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 2,
-      "rotationDegrees": 0,
-      "rotateFast": false
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -61,11 +55,11 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.522476034192984,
+    "rotation": -58.0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Amp Speaker",
+  "folder": "Source Speaker",
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0

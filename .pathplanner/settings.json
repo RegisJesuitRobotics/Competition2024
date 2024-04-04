@@ -13,7 +13,7 @@
     "Source Speaker"
   ],
   "defaultMaxVel": 3.8,
-  "defaultMaxAccel": 4.375,
+  "defaultMaxAccel": 4.0,
   "defaultMaxAngVel": 500.0,
   "defaultMaxAngAccel": 1000.0,
   "maxModuleSpeed": 4.0
