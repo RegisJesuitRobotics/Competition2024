@@ -77,12 +77,15 @@ public final class Constants {
     public static final double CLOSE_SPEAKER_WRIST_ANGLE_RADIANS =
         Units.degreesToRadians(42) - WristConstants.WRIST_TO_SHOOTER;
     public static final double EXPEL_ELEVATOR_HEIGHT = Units.inchesToMeters(0.0);
-    public static final double EXPEL_WRIST_ANGLE_RADIANS = Units.degreesToRadians(90) - WristConstants.WRIST_TO_SHOOTER;
+    public static final double EXPEL_WRIST_ANGLE_RADIANS =
+        Units.degreesToRadians(90) - WristConstants.WRIST_TO_SHOOTER;
 
     // 11
     public static final double CLIMB_UP_ELEVATOR_HEIGHT = Units.inchesToMeters(10.0);
-    public static final double CLIMB_UP_WRIST_ANGLE_RADIANS = Units.degreesToRadians(140) - WristConstants.WRIST_TO_SHOOTER;
-    public static final double CLIMB_DOWN_WRIST_ANGLE_RADIANS = Units.degreesToRadians(140) - WristConstants.WRIST_TO_SHOOTER;
+    public static final double CLIMB_UP_WRIST_ANGLE_RADIANS =
+        Units.degreesToRadians(140) - WristConstants.WRIST_TO_SHOOTER;
+    public static final double CLIMB_DOWN_WRIST_ANGLE_RADIANS =
+        Units.degreesToRadians(140) - WristConstants.WRIST_TO_SHOOTER;
   }
 
   public static class IntakeConstants {
@@ -154,7 +157,8 @@ public final class Constants {
     public static final TunablePIDGains PID_GAINS =
         new TunablePIDGains("/gains/elevator", 42.0, 0.0, 0.0, true);
     public static final TunableTrapezoidalProfileGains TRAPEZOIDAL_PROFILE_GAINS =
-        new TunableTrapezoidalProfileGains("/gains/elevator", 0.25, 0.25, MiscConstants.TUNING_MODE);
+        new TunableTrapezoidalProfileGains(
+            "/gains/elevator", 0.25, 0.25, MiscConstants.TUNING_MODE);
 
     public static final TunableArmElevatorFFGains FF_GAINS =
         new TunableArmElevatorFFGains(

@@ -44,8 +44,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
           PIGEON_ID, "/drive/pigeon", MiscConstants.CANIVORE_NAME, MiscConstants.TUNING_MODE);
 
   private StatusSignal<Double> yawSignal;
-    private StatusSignal<Double> yawVelSignal;
-
+  private StatusSignal<Double> yawVelSignal;
 
   private final SwerveDrivePoseEstimator poseEstimator;
 
@@ -132,7 +131,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         () -> yawSignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
         faultRecorder.run("Update frequency"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
-        ConfigurationUtils.applyCheckRecordCTRE(
+    ConfigurationUtils.applyCheckRecordCTRE(
         () -> yawVelSignal.setUpdateFrequency(ODOMETRY_FREQUENCY),
         () -> yawVelSignal.getAppliedUpdateFrequency() == ODOMETRY_FREQUENCY,
         faultRecorder.run("Vel Update frequency"),

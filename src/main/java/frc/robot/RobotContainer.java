@@ -266,7 +266,8 @@ public class RobotContainer {
     //                     () -> SetpointConstants.HIGH_SHOT_ELEVATOR_HEIGHT_METERS,
     //                     () -> {
     //                       OptionalDouble distance = photonSubsystem.getDistanceSpeaker();
-    //                       // TODO: Filter this so it doesn't start to go down if tag goes out for a
+    //                       // TODO: Filter this so it doesn't start to go down if tag goes out for
+    // a
     //                       // small time
     //                       if (distance.isEmpty()) {
     //                         return SetpointConstants.CLOSE_SPEAKER_WRIST_ANGLE_RADIANS;
@@ -276,7 +277,7 @@ public class RobotContainer {
     //                     },
     //                     elevatorSubsystem,
     //                     wristSubsystem))
-                // .withName("SnapToSpeakerAndWristHigh"));
+    // .withName("SnapToSpeakerAndWristHigh"));
   }
 
   private void configureOperatorBindings() {
