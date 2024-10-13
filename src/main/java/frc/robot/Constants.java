@@ -162,7 +162,7 @@ public final class Constants {
 
     public static final TunableArmElevatorFFGains FF_GAINS =
         new TunableArmElevatorFFGains(
-            "/gains/elevator", 0.15013, 0.053896, 43.417, 4.0148, MiscConstants.TUNING_MODE);
+            "/gains/elevator", 0.139510, 0.047166, 44.424, 4.0169, MiscConstants.TUNING_MODE);
   }
 
   public static class SwerveConstants {
@@ -298,7 +298,7 @@ public final class Constants {
         new TunableTrapezoidalProfileGains(
             "/gains/wrist",
             Units.rotationsToRadians(1.5),
-            Units.rotationsToRadians(2),
+            Units.rotationsToRadians(1.5),
             MiscConstants.TUNING_MODE);
     public static final double DYNAMIC_OFFSET = Units.degreesToRadians(1);
   }

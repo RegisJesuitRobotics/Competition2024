@@ -19,7 +19,6 @@ public class SwerveDriveCommand extends Command {
   private final Supplier<Translation2d> translationSupplier;
   private final DoubleSupplier omegaRadiansSecondSupplier;
   private final BooleanSupplier isFieldRelativeSupplier;
-
   private final SwerveDriveSubsystem driveSubsystem;
 
   public SwerveDriveCommand(
@@ -27,6 +26,8 @@ public class SwerveDriveCommand extends Command {
       DoubleSupplier omegaRadiansSecondSupplier,
       BooleanSupplier isFieldRelativeSupplier,
       SwerveDriveSubsystem driveSubsystem) {
+        
+
     this.translationSupplier = translationSupplier;
     this.omegaRadiansSecondSupplier = omegaRadiansSecondSupplier;
     this.isFieldRelativeSupplier = isFieldRelativeSupplier;
@@ -36,24 +37,30 @@ public class SwerveDriveCommand extends Command {
   }
 
   @Override
-  public void initialize() {}
+  public void initialize() {
+
+   
+  }
 
   @Override
   public void execute() {
     boolean isFieldRelative = isFieldRelativeSupplier.getAsBoolean();
     Translation2d translation = translationSupplier.get();
 
-    Rotation2d currentHeading = driveSubsystem.getPose().getRotation();
     double omega = omegaRadiansSecondSupplier.getAsDouble();
+    Rotation2d currentHeading = driveSubsystem.getPose().getRotation();
 
     ChassisSpeeds chassisSpeeds = new ChassisSpeeds(translation.getX(), translation.getY(), omega);
 
     if (isFieldRelative) {
       var alliance = DriverStation.getAlliance();
-
-      if (alliance.isPresent() && alliance.get() == Alliance.Red) {
+    if (alliance.isPresent() && alliance.get() == Alliance.Red) {
         currentHeading = currentHeading.plus(oneHundredEightyDegrees);
+        // System.out.println("flipped");
+        
       }
+
+      
       chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, currentHeading);
     }
 
