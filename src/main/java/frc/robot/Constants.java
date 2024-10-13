@@ -360,6 +360,8 @@ public final class Constants {
 
     private MiscConstants() {}
 
+    public static final double CONFIGURATION_TIMEOUT_SECONDS = 0.100;
+
     public static final int[] USED_CONTROLLER_PORTS = {0, 1};
     public static final boolean TUNING_MODE = !DriverStation.isFMSAttached();
 

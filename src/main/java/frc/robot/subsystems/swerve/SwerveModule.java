@@ -191,6 +191,8 @@ public class SwerveModule {
         faultRecorder.run("Optimize bus utilization"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
 
+        driveMotor.getConfigurator().DefaultTimeoutSeconds = MiscConstants.CONFIGURATION_TIMEOUT_SECONDS;
+
     ConfigurationUtils.postDeviceConfig(
         faultRecorder.hasFault(),
         moduleEventEntry::append,
@@ -241,6 +243,7 @@ public class SwerveModule {
         () -> {
           TalonFXConfiguration appliedConfig = new TalonFXConfiguration();
           steerMotor.getConfigurator().refresh(appliedConfig);
+          steerMotor.getConfigurator().DefaultTimeoutSeconds = MiscConstants.CONFIGURATION_TIMEOUT_SECONDS;
           return ConfigEquality.isTalonConfigurationEqual(motorConfiguration, appliedConfig);
         },
         faultRecorder.run("Motor configuration"),
