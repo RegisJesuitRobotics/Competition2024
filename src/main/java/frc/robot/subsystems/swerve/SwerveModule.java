@@ -142,6 +142,7 @@ public class SwerveModule {
 
   private void configDriveMotor(SwerveModuleConfiguration config) {
     TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
+    driveMotor.getConfigurator().DefaultTimeoutSeconds = MiscConstants.CONFIGURATION_TIMEOUT_SECONDS;
     motorConfiguration.CurrentLimits.SupplyCurrentLimit =
         config.sharedConfiguration().driveCurrentLimit();
     motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -191,7 +192,6 @@ public class SwerveModule {
         faultRecorder.run("Optimize bus utilization"),
         MiscConstants.CONFIGURATION_ATTEMPTS);
 
-        driveMotor.getConfigurator().DefaultTimeoutSeconds = MiscConstants.CONFIGURATION_TIMEOUT_SECONDS;
 
     ConfigurationUtils.postDeviceConfig(
         faultRecorder.hasFault(),

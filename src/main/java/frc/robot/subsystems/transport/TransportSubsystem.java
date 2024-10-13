@@ -4,6 +4,9 @@ import static frc.robot.Constants.TransportConstants.*;
 
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.REVLibError;
+// import com.revrobotics.CANSparkLowLevel.FollowConfig.Config;
+
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -104,7 +107,10 @@ public class TransportSubsystem extends SubsystemBase {
         transportEventEntry::append,
         "Transport motor",
         faultRecorder.getFaultString());
+
     transportAlert.set(faultRecorder.hasFault());
+
+
   }
 
   public boolean atSensor() {

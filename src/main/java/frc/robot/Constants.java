@@ -15,6 +15,8 @@ import frc.robot.utils.SwerveModuleConfiguration.SharedSwerveModuleConfiguration
 import java.util.Collections;
 import java.util.List;
 
+import com.revrobotics.REVLibError;
+
 /** File containing all constants for the robot. */
 public final class Constants {
   private Constants() {}
