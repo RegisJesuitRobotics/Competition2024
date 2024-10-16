@@ -65,13 +65,18 @@ public class Autos {
     this.intakeSubsystem = intakeSubsystem;
     this.slapdownSuperstructure = slapdownSuperstructure;
 
-    SwerveRequest.ApplyChassisSpeeds applyChassisSpeedsRequest = new SwerveRequest.ApplyChassisSpeeds();
+    SwerveRequest.ApplyChassisSpeeds applyChassisSpeedsRequest =
+        new SwerveRequest.ApplyChassisSpeeds();
     AutoBuilder.configureHolonomic(
         () -> driveSubsystem.getState().Pose,
         driveSubsystem::seedFieldRelative,
         () -> driveSubsystem.getState().speeds,
-        (speeds) -> driveSubsystem.applyRequest(() -> applyChassisSpeedsRequest.withSpeeds(speeds).withDriveRequestType(
-            DriveRequestType.Velocity)),
+        (speeds) ->
+            driveSubsystem.applyRequest(
+                () ->
+                    applyChassisSpeedsRequest
+                        .withSpeeds(speeds)
+                        .withDriveRequestType(DriveRequestType.Velocity)),
         new HolonomicPathFollowerConfig(
             AutoConstants.TRANSLATION_POSITION_GAINS.createPIDConstants(),
             AutoConstants.ANGULAR_POSITION_PID_GAINS.createPIDConstants(),
@@ -104,23 +109,33 @@ public class Autos {
       autoChooser.addOption("wrist df", wristSubsystem.sysIdDynamic(Direction.kForward));
       autoChooser.addOption("wrist dr", wristSubsystem.sysIdDynamic(Direction.kReverse));
 
-//      autoChooser.addOption(
-//          "drive qf", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kForward));
-//      autoChooser.addOption(
-//          "drive qr", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kReverse));
-//      autoChooser.addOption(
-//          "drive df", driveSubsystem.driveDynamicSysIDCommand(Direction.kForward));
-//      autoChooser.addOption(
-//          "drive dr", driveSubsystem.driveDynamicSysIDCommand(Direction.kReverse));
-//
-//      autoChooser.addOption(
-//          "drive s qf", driveSubsystem.steerQuasistaticSysIDCommand(Direction.kForward));
-//      autoChooser.addOption(
-//          "drive s qr", driveSubsystem.steerQuasistaticSysIDCommand(Direction.kReverse));
-//      autoChooser.addOption(
-//          "drive s df", driveSubsystem.steerDynamicSysIDCommand(Direction.kForward));
-//      autoChooser.addOption(
-//          "drive s dr", driveSubsystem.steerDynamicSysIDCommand(Direction.kReverse));
+      autoChooser.addOption("drive qf", driveSubsystem.driveQTest(Direction.kForward));
+      autoChooser.addOption("drive qr", driveSubsystem.driveQTest(Direction.kReverse));
+      autoChooser.addOption("drive df", driveSubsystem.driveQTest(Direction.kForward));
+      autoChooser.addOption("drive dr", driveSubsystem.driveQTest(Direction.kReverse));
+
+      autoChooser.addOption("steer qf", driveSubsystem.steerQTest(Direction.kForward));
+      autoChooser.addOption("steer qr", driveSubsystem.steerQTest(Direction.kReverse));
+      autoChooser.addOption("steer df", driveSubsystem.steerQTest(Direction.kForward));
+      autoChooser.addOption("steer dr", driveSubsystem.steerQTest(Direction.kReverse));
+
+      //      autoChooser.addOption(
+      //          "drive qf", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kForward));
+      //      autoChooser.addOption(
+      //          "drive qr", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kReverse));
+      //      autoChooser.addOption(
+      //          "drive df", driveSubsystem.driveDynamicSysIDCommand(Direction.kForward));
+      //      autoChooser.addOption(
+      //          "drive dr", driveSubsystem.driveDynamicSysIDCommand(Direction.kReverse));
+      //
+      //      autoChooser.addOption(
+      //          "drive s qf", driveSubsystem.steerQuasistaticSysIDCommand(Direction.kForward));
+      //      autoChooser.addOption(
+      //          "drive s qr", driveSubsystem.steerQuasistaticSysIDCommand(Direction.kReverse));
+      //      autoChooser.addOption(
+      //          "drive s df", driveSubsystem.steerDynamicSysIDCommand(Direction.kForward));
+      //      autoChooser.addOption(
+      //          "drive s dr", driveSubsystem.steerDynamicSysIDCommand(Direction.kReverse));
 
       autoChooser.addOption("shooter qf", shooterSubsystem.sysIdQuasistatic(Direction.kForward));
       autoChooser.addOption("shooter qr", shooterSubsystem.sysIdQuasistatic(Direction.kReverse));
@@ -144,14 +159,15 @@ public class Autos {
           "slapdown rotation dr",
           slapdownSuperstructure.getSlapdownRotationSubsystem().sysIdDynamic(Direction.kReverse));
 
-//      autoChooser.addOption(
-//          "wheelRadiusCharacterizationClock",
-//          new WheelRadiusCharacterization(
-//              driveSubsystem, WheelRadiusCharacterization.Direction.CLOCKWISE, 0.5));
-//      autoChooser.addOption(
-//          "wheelRadiusCharacterizationCounterClock",
-//          new WheelRadiusCharacterization(
-//              driveSubsystem, WheelRadiusCharacterization.Direction.COUNTER_CLOCKWISE, 0.5));
+      //      autoChooser.addOption(
+      //          "wheelRadiusCharacterizationClock",
+      //          new WheelRadiusCharacterization(
+      //              driveSubsystem, WheelRadiusCharacterization.Direction.CLOCKWISE, 0.5));
+      //      autoChooser.addOption(
+      //          "wheelRadiusCharacterizationCounterClock",
+      //          new WheelRadiusCharacterization(
+      //              driveSubsystem, WheelRadiusCharacterization.Direction.COUNTER_CLOCKWISE,
+      // 0.5));
     }
   }
 

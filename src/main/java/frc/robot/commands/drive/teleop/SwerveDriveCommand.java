@@ -4,16 +4,9 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.FieldCentric;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.Idle;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.RobotCentric;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.TeleopConstants;
 import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
-import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
-import frc.robot.utils.RaiderMathUtils;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -51,9 +44,19 @@ public class SwerveDriveCommand extends Command {
     Translation2d translation = translationSupplier.get();
 
     if (isFieldRelative) {
-      driveSubsystem.applyRequest(() -> fieldCentricRequest.withVelocityX(translation.getX()).withVelocityY(translation.getY()).withRotationalRate(omegaRadiansSecondSupplier.getAsDouble()));
+      driveSubsystem.applyRequest(
+          () ->
+              fieldCentricRequest
+                  .withVelocityX(translation.getX())
+                  .withVelocityY(translation.getY())
+                  .withRotationalRate(omegaRadiansSecondSupplier.getAsDouble()));
     } else {
-      driveSubsystem.applyRequest(() -> robotCentric.withVelocityX(translation.getX()).withVelocityY(translation.getY()).withRotationalRate(omegaRadiansSecondSupplier.getAsDouble()));
+      driveSubsystem.applyRequest(
+          () ->
+              robotCentric
+                  .withVelocityX(translation.getX())
+                  .withVelocityY(translation.getY())
+                  .withRotationalRate(omegaRadiansSecondSupplier.getAsDouble()));
     }
   }
 
