@@ -1,5 +1,8 @@
 package frc.robot;
 
+import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -18,7 +21,6 @@ import frc.robot.commands.ElevatorWristCommands;
 import frc.robot.commands.IntakingCommands;
 import frc.robot.commands.MiscCommands;
 import frc.robot.commands.ScoringCommands;
-import frc.robot.commands.drive.teleop.SwerveDriveCommand;
 import frc.robot.commands.led.LEDStateMachineCommand;
 import frc.robot.commands.led.LEDStateMachineCommand.LEDState;
 import frc.robot.hid.CommandNintendoSwitchController;
@@ -33,6 +35,7 @@ import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
 import frc.robot.subsystems.swerve.TunerConstants;
 import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
+import frc.robot.telemetry.Telemetry;
 import frc.robot.telemetry.tunable.TunableTelemetryPIDController;
 import frc.robot.telemetry.tunable.gains.TunableDouble;
 import frc.robot.utils.*;
@@ -52,7 +55,7 @@ import java.util.function.DoubleSupplier;
  */
 public class RobotContainer {
   private final PhotonSubsystem photonSubsystem = new PhotonSubsystem();
-  private final CommandSwerveDrivetrain driveSubsystem = TunerConstants.DriveTrain;
+  public final CommandSwerveDrivetrain driveSubsystem = TunerConstants.DriveTrain;
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final WristSubsystem wristSubsystem = new WristSubsystem();
@@ -60,6 +63,9 @@ public class RobotContainer {
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final SlapdownSuperstructure slapdownSuperstructure = new SlapdownSuperstructure();
   private final LEDSubsystem ledSubsystem = new LEDSubsystem();
+
+  private final Telemetry telemetry = new Telemetry(SwerveConstants.MAX_VELOCITY_METERS_SECOND);
+
 
   private final Autos autos =
       new Autos(
@@ -78,6 +84,13 @@ public class RobotContainer {
 
   private final ListenableSendableChooser<Command> driveCommandChooser =
       new ListenableSendableChooser<>();
+
+  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+          .withDeadband(SwerveConstants.MAX_VELOCITY_METERS_SECOND * 0.1).withRotationalDeadband(SwerveConstants.MAX_ANGULAR_VELOCITY_RADIANS_SECOND * 0.1) // Add a 10% deadband
+          .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage);
+
+  private final SwerveRequest.RobotCentric driveRC = new SwerveRequest.RobotCentric().withDeadband(SwerveConstants.MAX_VELOCITY_METERS_SECOND * 0.1).withRotationalDeadband(SwerveConstants.MAX_ANGULAR_VELOCITY_RADIANS_SECOND * 0.1) // Add a 10% deadband
+          .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage);
 
   private final AtomicBoolean signalHumanPlayer = new AtomicBoolean(false);
 
@@ -277,6 +290,7 @@ public class RobotContainer {
     //                     elevatorSubsystem,
     //                     wristSubsystem))
     // .withName("SnapToSpeakerAndWristHigh"));
+    driveSubsystem.registerTelemetry(telemetry::telemeterize);
   }
 
   private void configureOperatorBindings() {
@@ -370,56 +384,34 @@ public class RobotContainer {
 
     driveCommandChooser.setDefaultOption(
         "Hybrid (Default to Field Relative & absolute control but use robot centric when holding button)",
-        new SwerveDriveCommand(
-                () ->
-                    vectorRateLimiter.calculate(
-                        new Translation2d(
-                                RaiderMathUtils.deadZoneAndCubeJoystick(
-                                    -driverController.getLeftY()),
-                                RaiderMathUtils.deadZoneAndCubeJoystick(
-                                    -driverController.getLeftX()))
-                            .times(maxTranslationalSpeedSuppler.getAsDouble())),
-                () -> {
-                  if (snapToSpeaker.get()) {
-                    OptionalDouble result = photonSubsystem.getOffsetRadiansSpeaker();
-                    OptionalDouble distance = photonSubsystem.getDistanceSpeaker();
+        driveSubsystem.applyRequest(() -> {Translation2d rate = vectorRateLimiter.calculate(new Translation2d(RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getLeftY()) * TunerConstants.kSpeedAt12VoltsMps, RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getLeftX()) * TunerConstants.kSpeedAt12VoltsMps));
 
-                    if (result.isEmpty()) {
-                      return 0;
-                    } else {
-                      double target = 0.0;
-                      if (distance.isPresent()) {
-                        target = Units.degreesToRadians(-2) * distance.getAsDouble();
-                      }
-                      return snapController.calculate(result.getAsDouble(), target);
-                    }
-                  }
-                  return rotationLimiter.calculate(
-                      RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getRightX())
-                          * maxAngularSpeedSupplier.getAsDouble());
-                },
-                driverController.rightBumper().negate(),
-                driveSubsystem)
-            .beforeStarting(resetRateLimiters));
+            if (snapToSpeaker.get()) {
+              OptionalDouble result = photonSubsystem.getOffsetRadiansSpeaker();
+              OptionalDouble distance = photonSubsystem.getDistanceSpeaker();
+
+              if (result.isEmpty()) {
+                return drive.withVelocityX(rate.getX()).withVelocityY(rate.getY()).withRotationalRate(0);
+              } else {
+                double target = 0.0;
+                if (distance.isPresent()) {
+                  target = Units.degreesToRadians(-2) * distance.getAsDouble();
+                }
+                return drive.withVelocityX(rate.getX()).withVelocityY(rate.getY()).withRotationalRate(snapController.calculate(result.getAsDouble(), target));
+              }
+            }
+            return drive.withVelocityX(rate.getX()).withVelocityY(rate.getY()).withRotationalRate(rotationLimiter.calculate(
+                    RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getRightX())
+                            * maxAngularSpeedSupplier.getAsDouble()));
+        }).beforeStarting(resetRateLimiters));
 
     driveCommandChooser.addOption(
         "Robot Orientated",
-        new SwerveDriveCommand(
-                () ->
-                    vectorRateLimiter.calculate(
-                        new Translation2d(
-                                RaiderMathUtils.deadZoneAndCubeJoystick(
-                                    driverController.getLeftY()),
-                                RaiderMathUtils.deadZoneAndCubeJoystick(
-                                    driverController.getLeftX()))
-                            .times(maxTranslationalSpeedSuppler.getAsDouble())),
-                () ->
-                    rotationLimiter.calculate(
-                        RaiderMathUtils.deadZoneAndCubeJoystick(driverController.getRightX())
-                            * maxAngularSpeedSupplier.getAsDouble()),
-                () -> false,
-                driveSubsystem)
-            .beforeStarting(resetRateLimiters));
+            driveSubsystem.applyRequest(() -> {Translation2d rate = vectorRateLimiter.calculate(new Translation2d(RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getLeftY()) * TunerConstants.kSpeedAt12VoltsMps, RaiderMathUtils.deadZoneAndCubeJoystick(-driverController.getLeftX()) * TunerConstants.kSpeedAt12VoltsMps));
+              return drive.withVelocityX(rate.getX()).withVelocityY(rate.getY()).withRotationalRate(rotationLimiter.calculate(
+                      RaiderMathUtils.deadZoneAndCubeJoystick(driverController.getRightX())
+                              * maxAngularSpeedSupplier.getAsDouble()));
+            }).beforeStarting(resetRateLimiters));
 
     SmartDashboard.putData("Drive Style", driveCommandChooser);
     evaluateDriveStyle(driveCommandChooser.getSelected());
@@ -439,6 +431,7 @@ public class RobotContainer {
     if (newCommand == oldCommand) {
       return;
     }
+
     driveSubsystem.setDefaultCommand(newCommand);
     if (oldCommand != null) {
       // We have to cancel the command so the new default one will run

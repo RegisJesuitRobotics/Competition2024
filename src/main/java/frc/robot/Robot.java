@@ -33,12 +33,15 @@ public class Robot extends TimedRobot {
 
   private RobotContainer robotContainer;
 
+//  private CommandSwerveDrivetrain driveSubsystem;
+
   private TelemetryPowerDistribution powerDistribution;
   private MiscRobotTelemetryAndAlerts miscRobotTelemetryAndAlerts;
 
   public Robot() {
     instance = this;
     startTime = Timer.getFPGATimestamp();
+//    this.driveSubsystem = robotContainer.driveSubsystem;
   }
 
   /**
@@ -70,6 +73,7 @@ public class Robot extends TimedRobot {
     robotContainer = new RobotContainer();
 
     DataLogManager.log("RobotInit took " + (Timer.getFPGATimestamp() - startTime) + " seconds");
+//    driveSubsystem.getDaqThread().setThreadPriority(99);
   }
 
   /**

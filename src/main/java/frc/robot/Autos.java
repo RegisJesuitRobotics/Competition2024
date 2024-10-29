@@ -109,15 +109,6 @@ public class Autos {
       autoChooser.addOption("wrist df", wristSubsystem.sysIdDynamic(Direction.kForward));
       autoChooser.addOption("wrist dr", wristSubsystem.sysIdDynamic(Direction.kReverse));
 
-      autoChooser.addOption("drive qf", driveSubsystem.driveQTest(Direction.kForward));
-      autoChooser.addOption("drive qr", driveSubsystem.driveQTest(Direction.kReverse));
-      autoChooser.addOption("drive df", driveSubsystem.driveQTest(Direction.kForward));
-      autoChooser.addOption("drive dr", driveSubsystem.driveQTest(Direction.kReverse));
-
-      autoChooser.addOption("steer qf", driveSubsystem.steerQTest(Direction.kForward));
-      autoChooser.addOption("steer qr", driveSubsystem.steerQTest(Direction.kReverse));
-      autoChooser.addOption("steer df", driveSubsystem.steerQTest(Direction.kForward));
-      autoChooser.addOption("steer dr", driveSubsystem.steerQTest(Direction.kReverse));
 
       //      autoChooser.addOption(
       //          "drive qf", driveSubsystem.driveQuasistaticSysIDCommand(Direction.kForward));
