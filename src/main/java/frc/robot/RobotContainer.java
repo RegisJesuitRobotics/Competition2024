@@ -33,8 +33,10 @@ import frc.robot.subsystems.slapdown.SlapdownSuperstructure;
 import frc.robot.subsystems.swerve.SwerveDriveSubsystem;
 import frc.robot.subsystems.transport.TransportSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
+import frc.robot.telemetry.tunable.TunableBooleanEntry;
 import frc.robot.telemetry.tunable.TunableTelemetryPIDController;
 import frc.robot.telemetry.tunable.gains.TunableDouble;
+import frc.robot.telemetry.types.BooleanTelemetryEntry;
 import frc.robot.utils.*;
 import frc.robot.utils.led.AlternatePattern;
 import frc.robot.utils.led.SlidePattern;
@@ -42,6 +44,7 @@ import frc.robot.utils.led.SolidPattern;
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -192,6 +195,9 @@ public class RobotContainer {
   private final AtomicBoolean snapToSpeaker = new AtomicBoolean();
 
   private void configureDriverBindings() {
+    TunableBooleanEntry disableExceptDriving = new TunableBooleanEntry("/speed/disableExceptDriving", false, true);
+    BooleanSupplier demoMode = () -> !disableExceptDriving.get();
+
     configureDriving();
     driverController
         .home()
@@ -199,20 +205,20 @@ public class RobotContainer {
             RaiderCommands.runOnceAllowDisable(driveSubsystem::zeroHeading)
                 .withName("ZeroHeading"));
     driverController
-        .leftTrigger()
+        .leftTrigger().and(demoMode)
         .whileTrue(
             transportSubsystem.setVoltageCommand(
                 Constants.TransportConstants.TRANSPORT_CLOSE_SPEAKER_VOLTAGE));
-    driverController.minus().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
+    driverController.minus().and(demoMode).whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
     driverController
-        .leftBumper()
+        .leftBumper().and(demoMode)
         .whileTrue(
             Commands.parallel(
                 IntakingCommands.intakeUntilDetectedNoSlap(intakeSubsystem, transportSubsystem),
                 ElevatorWristCommands.elevatorWristIntakePosition(
                     elevatorSubsystem, wristSubsystem)));
     driverController
-        .rightTrigger()
+        .rightTrigger().and(demoMode)
         .whileTrue(
             Commands.parallel(
                 IntakingCommands.intakeUntilDetected(
@@ -220,23 +226,23 @@ public class RobotContainer {
                 ElevatorWristCommands.elevatorWristIntakePosition(
                     elevatorSubsystem, wristSubsystem)))
         .onFalse(slapdownSuperstructure.setUpCommand());
-    driverController.circle().whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
+    driverController.circle().and(demoMode).whileTrue(new LockModulesCommand(driveSubsystem).repeatedly());
     driverController
-        .a()
+        .a().and(demoMode)
         .whileTrue(
             Commands.parallel(
                 ScoringCommands.reverseShooterTransportCommand(
                     shooterSubsystem, transportSubsystem),
                 intakeSubsystem.setIntakeVoltageCommand(-6.0)));
     driverController
-        .x()
+        .x().and(demoMode)
         .onTrue(Commands.runOnce(() -> signalHumanPlayer.set(true)).withName("SignalHumanPlayer"))
         .onFalse(
             Commands.sequence(
                     Commands.waitSeconds(1.5), Commands.runOnce(() -> signalHumanPlayer.set(false)))
                 .withName("SignalHumanPlayerOff"));
     driverController
-        .b()
+        .b().and(demoMode)
         .whileTrue(
             Commands.parallel(
                     Commands.run(() -> snapToSpeaker.set(true))
